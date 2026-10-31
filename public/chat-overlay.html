@@ -77,9 +77,9 @@ const emotesByName=new Map();
 function rememberEmote(name,url){if(name&&url&&!emotesByName.has(name))emotesByName.set(name,url)}
 async function loadEmotes(){
  const jobs=[
-  fetch("https://api.betterttv.net/3/cached/emotes/global").then(r=>r.ok?r.json():[]).then(a=>a.forEach(e=>rememberEmote(e.code,"https://cdn.betterttv.net/emote/"+e.id+"/3x"))),
-  fetch("https://api.frankerfacez.com/v1/set/global").then(r=>r.ok?r.json():null).then(d=>Object.values(d&&d.sets||{}).flatMap(s=>s.emoticons||[]).forEach(e=>rememberEmote(e.name,e.urls&& (e.urls["4"]||e.urls["2"]||e.urls["1"])))),
-  fetch("https://7tv.io/v3/emote-sets/global").then(r=>r.ok?r.json():null).then(d=>(d&&d.emotes||[]).forEach(e=>rememberEmote(e.name,e.data&&e.data.host&&e.data.host.url?("https:"+e.data.host.url+"/4x.webp"):null)))
+  (async()=>{const r=await fetch("https://api.betterttv.net/3/cached/emotes/global");if(!r.ok)return;const a=await r.json();for(const e of a||[])rememberEmote(e.code,"https://cdn.betterttv.net/emote/"+e.id+"/3x")})(),
+  (async()=>{const r=await fetch("https://api.frankerfacez.com/v1/set/global");if(!r.ok)return;const d=await r.json();for(const set of Object.values(d.sets||{}))for(const e of set.emoticons||[])rememberEmote(e.name,e.urls&&(e.urls["4"]||e.urls["2"]||e.urls["1"]))})(),
+  (async()=>{const r=await fetch("https://7tv.io/v3/emote-sets/global");if(!r.ok)return;const d=await r.json();for(const e of d.emotes||[]){const host=e.data&&e.data.host;const file=host&&host.files&&host.files.find(f=>f.name==="4x.webp")||host&&host.files&&host.files[host.files.length-1];if(host&&file)rememberEmote(e.name,"https:"+host.url+"/"+file.name)}})()
  ];
  await Promise.allSettled(jobs);
 }
@@ -103,10 +103,9 @@ function appendMessageText(target,text,tagMap){
  while((m=re.exec(text))){
   const token=m[0];if(/^\s+$/.test(token)){target.append(document.createTextNode(token));continue}
   const id=native[m.index+"-"+(m.index+token.length-1)];
-  const previewFallbackEmotes={peepoHappy:"🐸✨",monkaS:"😳",KEKW:"😂",catJAM:"🐱🎵",Sadge:"😢",PauseChamp:"😮"};
   const staticUrl=id?"https://static-cdn.jtvnw.net/emoticons/v2/"+id+"/default/dark/2.0":emotesByName.get(token);
   if(staticUrl){const img=document.createElement("img");img.alt=token;img.title=token;img.className="chat-emote";img.loading="lazy";img.decoding="async";if(id){img.src="https://static-cdn.jtvnw.net/emoticons/v2/"+id+"/animated/dark/2.0";img.onerror=()=>{img.onerror=()=>img.replaceWith(document.createTextNode(token));img.src=staticUrl;};}else{img.src=staticUrl;img.onerror=()=>img.replaceWith(document.createTextNode(token));}target.append(img)}
-  else appendEmojiAwareText(target,previewFallbackEmotes[token]||token);
+  else appendEmojiAwareText(target,token);
  }
 }
 const badgeImages=new Map();
@@ -143,11 +142,11 @@ function parseLine(line){if(line.startsWith("PING")){socket?.send("PONG :tmi.twi
 if(params.get("preview")==="1"){
   status.style.display="none";
   const samples=[
-    {user:"rueumur",text:"Всем привет! Добро пожаловать на стрим ✨ peepoHappy",tags:"badges=broadcaster/1;user-type="},
-    {user:"homka20_",text:"Как дела, чат? monkaS KEKW",tags:"badges=moderator/1;mod=1;user-type=mod"},
-    {user:"d1unizi",text:"Хорошего стрима всем 💜 catJAM",tags:"badges=vip/1;vip=1"},
-    {user:"medverina",text:"LUL вот это момент 😂 Sadge",tags:"badges=subscriber/12;subscriber=1"},
-    {user:"Зритель",text:"PogChamp Отличная игра! PauseChamp",tags:"badges="}
+    {user:"rueumur",text:"Всем привет! Добро пожаловать на стрим ✨ 🐸",tags:"badges=broadcaster/1;user-type="},
+    {user:"homka20_",text:"Как дела, чат? 😳 😂",tags:"badges=moderator/1;mod=1;user-type=mod"},
+    {user:"d1unizi",text:"Хорошего стрима всем 💜 🐱🎵",tags:"badges=vip/1;vip=1"},
+    {user:"medverina",text:"LUL вот это момент 😂 😢",tags:"badges=subscriber/12;subscriber=1"},
+    {user:"Зритель",text:"Отличная игра! 😮",tags:"badges="}
   ];
   // Загружаем реальные цвета Twitch после появления демонстрационных сообщений.
   const previewColorNames=samples.map(m=>m.user).filter(user=>/^[a-z0-9_]{1,25}$/i.test(user));

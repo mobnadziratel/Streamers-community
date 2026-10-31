@@ -101,9 +101,9 @@ function appendMessageText(target,text,tagMap){
  }
  native.sort((a,b)=>a.start-b.start);
  const appendPlain=(value)=>{
-  const re=/\\s+|[^\\s]+/g;let m;
+  const re=/\s+|[^\s]+/g;let m;
   while((m=re.exec(value))){
-   const token=m[0];if(/^\\s+$/.test(token)){target.append(document.createTextNode(token));continue}
+   const token=m[0];if(/^\s+$/.test(token)){target.append(document.createTextNode(token));continue}
    const twitchPreviewEmotes={Kappa:"25",LUL:"425618",PogChamp:"88",BibleThump:"86",HeyGuys:"30259",SeemsGood:"64138",KappaPride:"55338"};
    const url=emotesByName.get(token);
    if(url){const img=document.createElement("img");img.alt=token;img.title=token;img.className="chat-emote";img.loading="lazy";img.decoding="async";img.src=url;img.onerror=()=>img.replaceWith(document.createTextNode(token));target.append(img)}

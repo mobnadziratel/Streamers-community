@@ -103,9 +103,10 @@ function appendMessageText(target,text,tagMap){
  while((m=re.exec(text))){
   const token=m[0];if(/^\s+$/.test(token)){target.append(document.createTextNode(token));continue}
   const id=native[m.index+"-"+(m.index+token.length-1)];
+  const previewFallbackEmotes={peepoHappy:"🐸✨",monkaS:"😳",KEKW:"😂",catJAM:"🐱🎵",Sadge:"😢",PauseChamp:"😮"};
   const staticUrl=id?"https://static-cdn.jtvnw.net/emoticons/v2/"+id+"/default/dark/2.0":emotesByName.get(token);
   if(staticUrl){const img=document.createElement("img");img.alt=token;img.title=token;img.className="chat-emote";img.loading="lazy";img.decoding="async";if(id){img.src="https://static-cdn.jtvnw.net/emoticons/v2/"+id+"/animated/dark/2.0";img.onerror=()=>{img.onerror=()=>img.replaceWith(document.createTextNode(token));img.src=staticUrl;};}else{img.src=staticUrl;img.onerror=()=>img.replaceWith(document.createTextNode(token));}target.append(img)}
-  else appendEmojiAwareText(target,token);
+  else appendEmojiAwareText(target,previewFallbackEmotes[token]||token);
  }
 }
 const badgeImages=new Map();
@@ -168,6 +169,6 @@ if(params.get("preview")==="1"){
     refreshPreviewColors();
   });
 }else connect();
-if(selectedFont){setTimeout(()=>addMessage("mob_nadziratel","Любишь играть шрифтами - люби и автора кормить.","","font-credit-"+Date.now()),1800)}
+if(selectedFont){setTimeout(()=>addMessage("mob_nadziratel","Любишь играть шрифтами - люби и автора кормить.","","font-credit-"+Date.now()),params.get("preview")==="1"?7200:1800)}
 window.addEventListener("pageshow",()=>{if(!params.get("preview")&&(!socket||socket.readyState===WebSocket.CLOSED||socket.readyState===WebSocket.CLOSING))connect()});document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!params.get("preview")&&(!socket||socket.readyState===WebSocket.CLOSED||socket.readyState===WebSocket.CLOSING))connect()});window.addEventListener("beforeunload",()=>{closed=true;clearTimeout(reconnectTimer);try{socket?.close()}catch{}});
 </script></body></html>

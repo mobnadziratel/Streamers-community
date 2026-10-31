@@ -476,18 +476,18 @@ const server = http.createServer(async (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.setHeader("Cache-Control", "public, max-age=1800");
     try {
-      const globalPayload = await helix("chat/badges/global", new URLSearchParams());
-      const sets = [...(globalPayload.data || [])];
       const channelLogin = String(url.searchParams.get("channel") || "").trim().toLowerCase();
-      if (channelLogin && /^[a-z0-9_]{1,25}$/.test(channelLogin)) {
-        const userParams = new URLSearchParams(); userParams.append("login", channelLogin);
-        const userPayload = await helix("users", userParams);
-        const broadcaster = (userPayload.data || [])[0];
-        if (broadcaster) {
-          const badgeParams = new URLSearchParams({ broadcaster_id: String(broadcaster.id) });
-          const channelPayload = await helix("chat/badges", badgeParams);
-          sets.push(...(channelPayload.data || []));
-        }
+      const globalPromise = helix("chat/badges/global", new URLSearchParams());
+      const userPromise = channelLogin && /^[a-z0-9_]{1,25}$/.test(channelLogin)
+        ? helix("users", new URLSearchParams({ login: channelLogin }))
+        : Promise.resolve({ data: [] });
+      const [globalPayload, userPayload] = await Promise.all([globalPromise, userPromise]);
+      const sets = [...(globalPayload.data || [])];
+      const broadcaster = (userPayload.data || [])[0];
+      if (broadcaster) {
+        const badgeParams = new URLSearchParams({ broadcaster_id: String(broadcaster.id) });
+        const channelPayload = await helix("chat/badges", badgeParams);
+        sets.push(...(channelPayload.data || []));
       }
       const badges = {};
       for (const set of sets) {

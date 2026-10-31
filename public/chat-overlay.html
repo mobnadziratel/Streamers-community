@@ -140,7 +140,7 @@ async function loadOfficialBadges(){
  if(officialBadgesPromise)return officialBadgesPromise;
  officialBadgesPromise=(async()=>{
   try{
-   const response=await fetch("/api/chat-badges?channel="+encodeURIComponent(channel),{cache:"force-cache"});
+   const response=await fetch("/api/chat-badges?channel="+encodeURIComponent(channel),{cache:"no-cache"});
    if(!response.ok)throw new Error("Badge API returned "+response.status);
    const payload=await response.json();
    for(const [setId,set] of Object.entries(payload.badges||{}))for(const version of(set.versions||[]))if(version.url)badgeImages.set(setId+"/"+String(version.id),version.url);

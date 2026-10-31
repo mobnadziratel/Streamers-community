@@ -1,0 +1,11 @@
+/* Webfont: Architectural-MedExtExp */@font-face {
+    font-family: 'ArchitecturalMedExtExp';
+    src: url('Architectural-MedExtExp.eot'); /* IE9 Compat Modes */
+    src: url('Architectural-MedExtExp.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('Architectural-MedExtExp.woff') format('woff'), /* Modern Browsers */
+         url('Architectural-MedExtExp.ttf') format('truetype'); /* Safari, Android, iOS */
+             font-style: normal;
+    font-weight: normal;
+    text-rendering: optimizeLegibility;
+}
+

@@ -1,0 +1,11 @@
+/* Webfont: Architectural-LightExpanded */@font-face {
+    font-family: 'ArchitecturalLightExp';
+    src: url('Architectural-LightExpanded.eot'); /* IE9 Compat Modes */
+    src: url('Architectural-LightExpanded.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('Architectural-LightExpanded.woff') format('woff'), /* Modern Browsers */
+         url('Architectural-LightExpanded.ttf') format('truetype'); /* Safari, Android, iOS */
+             font-style: normal;
+    font-weight: normal;
+    text-rendering: optimizeLegibility;
+}
+

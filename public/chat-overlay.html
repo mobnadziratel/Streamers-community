@@ -94,43 +94,62 @@ function appendEmojiAwareText(target,value){
  if(last<value.length)target.append(document.createTextNode(value.slice(last)));
 }
 function appendMessageText(target,text,tagMap){
- const native={};
+ const native=[];
  for(const entry of (tagMap.emotes||"").split("/")){
-  const parts=entry.split(":"),id=parts[0],positions=parts[1];if(!positions)continue;
-  for(const p of positions.split(",")){const ab=p.split("-").map(Number);if(Number.isInteger(ab[0])&&Number.isInteger(ab[1]))native[ab[0]+"-"+ab[1]]=id}
+  const parts=entry.split(":"),id=parts[0],positions=parts[1];if(!id||!positions)continue;
+  for(const p of positions.split(",")){const ab=p.split("-").map(Number);if(ab.length===2&&Number.isInteger(ab[0])&&Number.isInteger(ab[1])&&ab[0]>=0&&ab[1]>=ab[0]&&ab[1]<text.length)native.push({start:ab[0],end:ab[1]+1,id})}
  }
- const re=/\s+|\S+/g;let m;
- while((m=re.exec(text))){
-  const token=m[0];if(/^\s+$/.test(token)){target.append(document.createTextNode(token));continue}
-  const id=native[m.index+"-"+(m.index+token.length-1)];
-  const staticUrl=id?"https://static-cdn.jtvnw.net/emoticons/v2/"+id+"/default/dark/2.0":emotesByName.get(token);
-  if(staticUrl){const img=document.createElement("img");img.alt=token;img.title=token;img.className="chat-emote";img.loading="lazy";img.decoding="async";if(id){img.src="https://static-cdn.jtvnw.net/emoticons/v2/"+id+"/animated/dark/2.0";img.onerror=()=>{img.onerror=()=>img.replaceWith(document.createTextNode(token));img.src=staticUrl;};}else{img.src=staticUrl;img.onerror=()=>img.replaceWith(document.createTextNode(token));}target.append(img)}
-  else appendEmojiAwareText(target,token);
+ native.sort((a,b)=>a.start-b.start);
+ const appendPlain=(value)=>{
+  const re=/\\s+|[^\\s]+/g;let m;
+  while((m=re.exec(value))){
+   const token=m[0];if(/^\\s+$/.test(token)){target.append(document.createTextNode(token));continue}
+   const url=emotesByName.get(token);
+   if(url){const img=document.createElement("img");img.alt=token;img.title=token;img.className="chat-emote";img.loading="lazy";img.decoding="async";img.src=url;img.onerror=()=>img.replaceWith(document.createTextNode(token));target.append(img)}
+   else appendEmojiAwareText(target,token);
+  }
+ };
+ let cursor=0;
+ for(const emote of native){
+  if(emote.start<cursor)continue;
+  if(emote.start>cursor)appendPlain(text.slice(cursor,emote.start));
+  const token=text.slice(emote.start,emote.end);
+  const img=document.createElement("img");img.alt=token;img.title=token;img.className="chat-emote";img.loading="eager";img.decoding="async";
+  const staticUrl="https://static-cdn.jtvnw.net/emoticons/v2/"+encodeURIComponent(emote.id)+"/default/dark/2.0";
+  img.src="https://static-cdn.jtvnw.net/emoticons/v2/"+encodeURIComponent(emote.id)+"/animated/dark/2.0";
+  img.onerror=()=>{img.onerror=()=>img.replaceWith(document.createTextNode(token));img.src=staticUrl};
+  target.append(img);cursor=emote.end;
  }
+ if(cursor<text.length)appendPlain(text.slice(cursor));
 }
 const badgeImages=new Map();
-function makeBadge(targetRoles,setId,version,label,cls){const url=badgeImages.get(setId+"/"+version)||badgeImages.get(setId+"/1");if(url){const img=document.createElement("img");img.className="role-badge";img.src=url;img.alt=label;img.title=label;img.loading="lazy";targetRoles.append(img)}else{const b=document.createElement("span");b.className="role-badge fallback "+cls;b.textContent=label;b.dataset.setId=setId;b.dataset.version=version;b.dataset.label=label;b.dataset.badgeClass=cls;targetRoles.append(b)}}
+let officialBadgesPromise=null;
+function makeBadge(targetRoles,setId,version,label,cls){
+ const key=setId+"/"+version,url=badgeImages.get(key)||badgeImages.get(setId+"/1");
+ if(url){
+  const img=document.createElement("img");img.className="role-badge";img.src=url;img.alt=label;img.title=label;img.loading="eager";img.decoding="async";
+  img.onerror=()=>{const fallback=document.createElement("span");fallback.className="role-badge fallback "+cls;fallback.textContent=label;fallback.dataset.setId=setId;fallback.dataset.version=version;fallback.dataset.label=label;fallback.dataset.badgeClass=cls;img.replaceWith(fallback)};
+  targetRoles.append(img);
+ }else{
+  const b=document.createElement("span");b.className="role-badge fallback "+cls;b.textContent=label;b.dataset.setId=setId;b.dataset.version=version;b.dataset.label=label;b.dataset.badgeClass=cls;targetRoles.append(b);
+ }
+}
 async function loadOfficialBadges(){
-  try {
-    const response = await fetch("/api/chat-badges?channel="+encodeURIComponent(channel), {cache:"no-store"});
-    if(!response.ok) throw new Error("Badge API returned "+response.status);
-    const payload = await response.json();
-    for(const [setId,set] of Object.entries(payload.badges||{})){
-      for(const version of (set.versions||[])){
-        if(version.url) badgeImages.set(setId+"/"+String(version.id),version.url);
-      }
-    }
-    document.querySelectorAll(".role-badge.fallback[data-set-id]").forEach(old=>{
-      const url=badgeImages.get(old.dataset.setId+"/"+old.dataset.version)||badgeImages.get(old.dataset.setId+"/1");
-      if(!url)return;
-      const img=document.createElement("img");
-      img.className="role-badge";img.src=url;img.alt=old.dataset.label;img.title=old.dataset.label;img.loading="lazy";
-      img.onerror=()=>{img.replaceWith(old)};
-      old.replaceWith(img);
-    });
-  } catch(e) {
-    console.warn("Could not load Twitch badges from server API",e);
-  }
+ if(officialBadgesPromise)return officialBadgesPromise;
+ officialBadgesPromise=(async()=>{
+  try{
+   const response=await fetch("/api/chat-badges?channel="+encodeURIComponent(channel),{cache:"force-cache"});
+   if(!response.ok)throw new Error("Badge API returned "+response.status);
+   const payload=await response.json();
+   for(const [setId,set] of Object.entries(payload.badges||{}))for(const version of(set.versions||[]))if(version.url)badgeImages.set(setId+"/"+String(version.id),version.url);
+   document.querySelectorAll(".role-badge.fallback[data-set-id]").forEach(old=>{
+    const url=badgeImages.get(old.dataset.setId+"/"+old.dataset.version)||badgeImages.get(old.dataset.setId+"/1");if(!url)return;
+    const img=document.createElement("img");img.className="role-badge";img.src=url;img.alt=old.dataset.label;img.title=old.dataset.label;img.loading="eager";img.decoding="async";
+    img.onerror=()=>{img.replaceWith(old)};old.replaceWith(img);
+   });
+  }catch(e){console.warn("Could not load Twitch badges from server API",e);officialBadgesPromise=null}
+ })();
+ return officialBadgesPromise;
 }
 loadOfficialBadges();
 function renderBadge(targetRoles,setId,version,label,cls){makeBadge(targetRoles,setId,version,label,cls)}

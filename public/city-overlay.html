@@ -190,7 +190,7 @@ function drawPerson(p,t){
  if(showMessages&&p.message&&Date.now()-p.messageAt<9000&&width>30&&height>30){
   const bubbleText=p.message.slice(0,220);
    const wordsForEmotes=bubbleText.split(/(\s+)/);
-  ctx.save();ctx.font="bold 12px Arial,sans-serif";ctx.textAlign="left";ctx.textBaseline="top";
+  ctx.save();ctx.font='bold 12px Arial,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';ctx.textAlign="left";ctx.textBaseline="top";
   const padX=8,padY=6,lineHeight=15;
   const maxBubbleWidth=Math.min(260,width-12);
   const maxTextWidth=Math.max(12,maxBubbleWidth-padX*2);
@@ -224,17 +224,20 @@ function drawPerson(p,t){
     let matchEmote=null,matchAt=-1;
     if(showEmotes){
      for(const name of emoteImages.keys()){
-      const at=token.indexOf(name);if(at<0)continue;
-      const before=at?token[at-1]:"",after=at+name.length<token.length?token[at+name.length]:"";
-      if((!before||!/[a-zA-Z0-9_]/.test(before))&&(!after||!/[a-zA-Z0-9_]/.test(after))&&(!matchEmote||name.length>matchEmote.length)){matchEmote=name;matchAt=at;}
+      let at=token.indexOf(name);
+      while(at>=0){
+       const before=at?token[at-1]:"",after=at+name.length<token.length?token[at+name.length]:"";
+       if((!before||!/[a-zA-Z0-9_]/.test(before))&&(!after||!/[a-zA-Z0-9_]/.test(after))&&(!matchEmote||name.length>matchEmote.length)){matchEmote=name;matchAt=at;}
+       at=token.indexOf(name,at+1);
+      }
      }
     }
     const img=matchEmote?emoteImages.get(matchEmote):null;
     if(img&&img.complete&&img.naturalWidth>0){
      const before=token.slice(0,matchAt),after=token.slice(matchAt+matchEmote.length);
      if(before){ctx.fillText(before,cursorX,by+padY+i*lineHeight);cursorX+=ctx.measureText(before).width;}
-     const size=18;if(cursorX+size>bx+bw-padX+2)break;
-     ctx.drawImage(img,cursorX,by+padY+i*lineHeight-2,size,size);cursorX+=size+2;
+     const size=20;if(cursorX+size>bx+bw-padX+2)break;
+     ctx.drawImage(img,cursorX,by+padY+i*lineHeight-3,size,size);cursorX+=size+2;
      if(after){ctx.fillText(after,cursorX,by+padY+i*lineHeight);cursorX+=ctx.measureText(after).width;}
     }else{ctx.fillText(token,cursorX,by+padY+i*lineHeight);cursorX+=ctx.measureText(token).width;}
    }

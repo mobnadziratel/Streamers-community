@@ -51,6 +51,8 @@ let refreshInFlight = null;
 let twitchDiagnosticsCache = null;
 let twitchDiagnosticsExpiresAt = 0;
 let twitchDiagnosticsInFlight = null;
+const chatColorsCache = new Map();
+const chatColorsInFlight = new Map();
 
 async function getTwitchDiagnostics() {
   if (twitchDiagnosticsCache && Date.now() < twitchDiagnosticsExpiresAt) return twitchDiagnosticsCache;
@@ -445,6 +447,9 @@ const server = http.createServer(async (req, res) => {
     const logins = [...new Set(String(url.searchParams.get("logins") || "")
       .split(",").map(value => value.trim().toLowerCase()).filter(value => /^[a-z0-9_]{1,25}$/.test(value)))].slice(0, 100);
     if (!logins.length) { res.writeHead(200); res.end(JSON.stringify({ colors: {} })); return; }
+    const cacheKey = logins.slice().sort().join(",");
+    const cached = chatColorsCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) { res.writeHead(200); res.end(JSON.stringify({ colors: cached.colors })); return; }
     try {
       const usersParams = new URLSearchParams();
       for (const login of logins) usersParams.append("login", login);
@@ -457,6 +462,8 @@ const server = http.createServer(async (req, res) => {
       for (const item of colorsPayload.data || []) {
         if (item.color) colors[String(item.user_login || "").toLowerCase()] = item.color;
       }
+      chatColorsCache.set(cacheKey, { colors, expiresAt: Date.now() + 60 * 60 * 1000 });
+      if (chatColorsCache.size > 500) chatColorsCache.delete(chatColorsCache.keys().next().value);
       res.writeHead(200); res.end(JSON.stringify({ colors }));
     } catch (error) {
       console.error("Could not load Twitch chat colors: " + error.message);
@@ -860,6 +867,8 @@ const server = http.createServer(async (req, res) => {
     const ext = path.extname(filePath);
     const types = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".svg": "image/svg+xml", ".otf": "font/otf", ".ttf": "font/ttf", ".woff": "font/woff", ".woff2": "font/woff2" };
     const headers = { "Content-Type": types[ext] || "application/octet-stream" };
+    // Cache versioned/static assets aggressively; keep HTML fresh after deployments.
+    if (ext !== ".html") headers["Cache-Control"] = "public, max-age=2592000, stale-while-revalidate=86400";
     // HTML must not be served from a stale browser/proxy cache after deployments (e.g. old music-login instructions).
     if (ext === ".html") {
       headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate";

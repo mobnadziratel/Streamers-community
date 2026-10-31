@@ -458,9 +458,13 @@ const server = http.createServer(async (req, res) => {
       const colorParams = new URLSearchParams();
       for (const user of users) colorParams.append("user_id", String(user.id));
       const colorsPayload = users.length ? await helix("chat/color", colorParams) : { data: [] };
+      // Helix Get User Chat Color returns user_id (not user_login).
+      // Resolve the IDs through the users response so every requested login gets its color.
+      const loginById = new Map(users.map(user => [String(user.id), String(user.login || "").toLowerCase()]));
       const colors = {};
       for (const item of colorsPayload.data || []) {
-        if (item.color) colors[String(item.user_login || "").toLowerCase()] = item.color;
+        const login = loginById.get(String(item.user_id));
+        if (login && item.color) colors[login] = item.color;
       }
       chatColorsCache.set(cacheKey, { colors, expiresAt: Date.now() + 60 * 60 * 1000 });
       if (chatColorsCache.size > 500) chatColorsCache.delete(chatColorsCache.keys().next().value);

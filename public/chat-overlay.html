@@ -16,7 +16,6 @@
 @font-face{font-family:"CommunityOrientir";src:url("/fonts/orientir/Orientir.otf") format("opentype");font-display:swap}
 @font-face{font-family:"CommunityHolodilnik";src:url("/fonts/holodilnik_1.1/Holodilnik_1.1.otf") format("opentype");font-display:swap}
 @font-face{font-family:"CommunitySolKol";src:url("/fonts/sol%20kol%20font/sol%20kol%20font/Sol%20Kol.ttf") format("truetype");font-display:swap}
-@font-face{font-family:"CommunitySnip";src:url("/fonts/snip%20sans/SNIP%20SANS/snip.251220-1852.ttf") format("truetype");font-display:swap}
 @font-face{font-family:"CommunityNevalyashka";src:url("/fonts/nevalyashka/NEVALYASHKA/NEVALYASHKA.ttf") format("truetype");font-display:swap}
 @font-face{font-family:"CommunityKosolapa";src:url("/fonts/kosolapa_script/KosolapaScript-Regular.ttf") format("truetype");font-display:swap}
 @font-face{font-family:"CommunityPassions";src:url("/fonts/passions%20conflict%20rus/PassionsConflictRUS-Regular.otf") format("opentype");font-display:swap}
@@ -59,7 +58,7 @@ const validColor=v=>/^#[0-9a-fA-F]{6}$/.test(v||"");
 if(!/^[a-z0-9_]{1,25}$/.test(channel)){document.getElementById("status").textContent="Укажи Twitch-канал в параметре channel";throw new Error("Invalid Twitch channel")}
 document.body.classList.add("template-"+(["terminal","neon","soft","pixel","glass","minimal","aurora","cyber","vhs","sakura","ocean","bloodmoon","gold","comic","matrix","bubblegum","mono","ember"].includes(theme)?theme:"terminal"));
 const root=document.documentElement;
-const fontMap={"brevis":"CommunityBrevis","st-kidloco":"CommunityKidLoco","architectural":"CommunityArchitectural","cheharda":"CommunityCheharda","ckazka":"CommunityCkazka","oprah":"CommunityOprah","panama":"CommunityPanama","perspective":"CommunityPerspective","lozung-caps":"CommunityLozung","eastern-rhodopes":"CommunityEastern","orientir":"CommunityOrientir","holodilnik":"CommunityHolodilnik","sol-kol":"CommunitySolKol","snip-sans":"CommunitySnip","nevalyashka":"CommunityNevalyashka","kosolapa-script":"CommunityKosolapa","passions-conflict-rus":"CommunityPassions","moscow2024":"CommunityMoscow"};
+const fontMap={"brevis":"CommunityBrevis","st-kidloco":"CommunityKidLoco","architectural":"CommunityArchitectural","cheharda":"CommunityCheharda","ckazka":"CommunityCkazka","oprah":"CommunityOprah","panama":"CommunityPanama","perspective":"CommunityPerspective","lozung-caps":"CommunityLozung","eastern-rhodopes":"CommunityEastern","orientir":"CommunityOrientir","holodilnik":"CommunityHolodilnik","sol-kol":"CommunitySolKol","nevalyashka":"CommunityNevalyashka","kosolapa-script":"CommunityKosolapa","passions-conflict-rus":"CommunityPassions","moscow2024":"CommunityMoscow"};
 const selectedFont=fontMap[params.get("font")||""];
 if(selectedFont)root.style.setProperty("--chat-font",`"${selectedFont}",Inter,system-ui,sans-serif`);
 if(params.get("preview")==="1"){document.documentElement.style.backgroundColor="#777777";document.body.style.backgroundColor="#777777";}

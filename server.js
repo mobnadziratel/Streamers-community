@@ -474,7 +474,8 @@ const server = http.createServer(async (req, res) => {
 
   if (url.pathname === "/api/chat-badges") {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
-    res.setHeader("Cache-Control", "public, max-age=1800");
+    // Never cache a failed Twitch response; only successful badge payloads are cacheable.
+    res.setHeader("Cache-Control", "no-store");
     try {
       const channelLogin = String(url.searchParams.get("channel") || "").trim().toLowerCase();
       const globalPromise = helix("chat/badges/global", new URLSearchParams());
@@ -498,6 +499,7 @@ const server = http.createServer(async (req, res) => {
         })).filter(version => version.url);
         if (versions.length) badges[set.set_id] = { title: set.set_id, versions };
       }
+      res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=300");
       res.writeHead(200); res.end(JSON.stringify({ badges }));
     } catch (error) {
       console.error("Could not load official Twitch chat badges: " + error.message);

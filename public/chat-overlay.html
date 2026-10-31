@@ -104,9 +104,10 @@ function appendMessageText(target,text,tagMap){
   const re=/\\s+|[^\\s]+/g;let m;
   while((m=re.exec(value))){
    const token=m[0];if(/^\\s+$/.test(token)){target.append(document.createTextNode(token));continue}
+   const twitchPreviewEmotes={Kappa:"25",LUL:"425618",PogChamp:"88",BibleThump:"86",HeyGuys:"30259",SeemsGood:"64138",KappaPride:"55338"};
    const url=emotesByName.get(token);
    if(url){const img=document.createElement("img");img.alt=token;img.title=token;img.className="chat-emote";img.loading="lazy";img.decoding="async";img.src=url;img.onerror=()=>img.replaceWith(document.createTextNode(token));target.append(img)}
-   else appendEmojiAwareText(target,token);
+   else if(twitchPreviewEmotes[token]){const img=document.createElement("img");img.alt=token;img.title=token;img.className="chat-emote";img.loading="eager";img.decoding="async";img.src="https://static-cdn.jtvnw.net/emoticons/v2/"+twitchPreviewEmotes[token]+"/default/dark/2.0";img.onerror=()=>img.replaceWith(document.createTextNode(token));target.append(img)}else appendEmojiAwareText(target,token);
   }
  };
  let cursor=0;
@@ -161,11 +162,11 @@ function parseLine(line){if(line.startsWith("PING")){socket?.send("PONG :tmi.twi
 if(params.get("preview")==="1"){
   status.style.display="none";
   const samples=[
-    {user:"rueumur",text:"Всем привет! Добро пожаловать на стрим ✨ 🐸",tags:"badges=broadcaster/1;user-type="},
-    {user:"homka20_",text:"Как дела, чат? 😳 😂",tags:"badges=moderator/1;mod=1;user-type=mod"},
-    {user:"d1unizi",text:"Хорошего стрима всем 💜 🐱🎵",tags:"badges=vip/1;vip=1"},
-    {user:"medverina",text:"LUL вот это момент 😂 😢",tags:"badges=subscriber/12;subscriber=1"},
-    {user:"Зритель",text:"Отличная игра! 😮",tags:"badges="}
+    {user:"rueumur",text:"Всем привет! Добро пожаловать на стрим ✨ Kappa",tags:"badges=broadcaster/1;user-type="},
+    {user:"homka20_",text:"Как дела, чат? Kappa LUL",tags:"badges=moderator/1;mod=1;user-type=mod"},
+    {user:"d1unizi",text:"Хорошего стрима всем 💜 PogChamp",tags:"badges=vip/1;vip=1"},
+    {user:"medverina",text:"LUL вот это момент BibleThump",tags:"badges=subscriber/12;subscriber=1"},
+    {user:"Зритель",text:"Отличная игра! HeyGuys",tags:"badges="}
   ];
   // Загружаем реальные цвета Twitch после появления демонстрационных сообщений.
   const previewColorNames=samples.map(m=>m.user).filter(user=>/^[a-z0-9_]{1,25}$/i.test(user));

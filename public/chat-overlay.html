@@ -3,6 +3,14 @@
 <style>
 :root{--accent:#9b8cff;--text:#f5f5f7;--bubble:rgba(20,20,27,.94);--name:#9b8cff;--chat-font:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
 
+@font-face{font-family:"CommunityBrevis";src:url("/fonts/Brevis/Brevis%20-%20Fontfabric/WEB/Brevis-Regular.woff2") format("woff2");font-display:swap}
+@font-face{font-family:"CommunityKidLoco";src:url("/fonts/ST-Kidloco/ST-Kidloco.otf") format("opentype");font-display:swap}
+@font-face{font-family:"CommunityArchitectural";src:url("/fonts/architectural_2_0/Architectural/Web-TT/Architectural-Regular.woff") format("woff");font-display:swap}
+@font-face{font-family:"CommunityCheharda";src:url("/fonts/cheharda/Cheharda.otf") format("opentype");font-display:swap}
+@font-face{font-family:"CommunityCkazka";src:url("/fonts/ckazka/ckazka/Ckazka.ttf") format("truetype");font-display:swap}
+@font-face{font-family:"CommunityOprah";src:url("/fonts/oprah/oprah/OPRAH/Oprah.otf") format("opentype");font-display:swap}
+@font-face{font-family:"CommunityPanama";src:url("/fonts/panama/panama/Panama-Regular.ttf") format("truetype");font-display:swap}
+@font-face{font-family:"CommunityPerspective";src:url("/fonts/perspective_font/Perspective%20font/Perspective.woff") format("woff");font-display:swap}
 @font-face{font-family:"CommunityLozung";src:url("/fonts/lozung-caps/Lozung%20Caps%20Black.otf") format("opentype");font-display:swap}
 @font-face{font-family:"CommunityEastern";src:url("/fonts/eastern%20rhodopes/Eastern%20rhodopes.otf") format("opentype");font-display:swap}
 @font-face{font-family:"CommunityOrientir";src:url("/fonts/orientir/Orientir.otf") format("opentype");font-display:swap}
@@ -51,7 +59,7 @@ const validColor=v=>/^#[0-9a-fA-F]{6}$/.test(v||"");
 if(!/^[a-z0-9_]{1,25}$/.test(channel)){document.getElementById("status").textContent="Укажи Twitch-канал в параметре channel";throw new Error("Invalid Twitch channel")}
 document.body.classList.add("template-"+(["terminal","neon","soft","pixel","glass","minimal","aurora","cyber","vhs","sakura","ocean","bloodmoon","gold","comic","matrix","bubblegum","mono","ember"].includes(theme)?theme:"terminal"));
 const root=document.documentElement;
-const fontMap={"lozung-caps":"CommunityLozung","eastern-rhodopes":"CommunityEastern","orientir":"CommunityOrientir","holodilnik":"CommunityHolodilnik","sol-kol":"CommunitySolKol","snip-sans":"CommunitySnip","nevalyashka":"CommunityNevalyashka","kosolapa-script":"CommunityKosolapa","passions-conflict-rus":"CommunityPassions","moscow2024":"CommunityMoscow"};
+const fontMap={"brevis":"CommunityBrevis","st-kidloco":"CommunityKidLoco","architectural":"CommunityArchitectural","cheharda":"CommunityCheharda","ckazka":"CommunityCkazka","oprah":"CommunityOprah","panama":"CommunityPanama","perspective":"CommunityPerspective","lozung-caps":"CommunityLozung","eastern-rhodopes":"CommunityEastern","orientir":"CommunityOrientir","holodilnik":"CommunityHolodilnik","sol-kol":"CommunitySolKol","snip-sans":"CommunitySnip","nevalyashka":"CommunityNevalyashka","kosolapa-script":"CommunityKosolapa","passions-conflict-rus":"CommunityPassions","moscow2024":"CommunityMoscow"};
 const selectedFont=fontMap[params.get("font")||""];
 if(selectedFont)root.style.setProperty("--chat-font",`"${selectedFont}",Inter,system-ui,sans-serif`);
 if(params.get("preview")==="1"){document.documentElement.style.backgroundColor="#777777";document.body.style.backgroundColor="#777777";}

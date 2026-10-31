@@ -155,6 +155,6 @@ if(params.get("preview")==="1"){
   };
   samples.forEach((m,i)=>setTimeout(()=>{addMessage(m.user,m.text,m.tags,"preview-"+i);refreshPreviewColors()},(i+1)*1250));
 }else connect();
-if(selectedFont){setTimeout(()=>addMessage("Автор шрифта","Любишь играть шрифтами - люби и автора кормить.","","font-credit-"+Date.now()),1800)}
+if(selectedFont){setTimeout(()=>addMessage("mob_nadziratel","Любишь играть шрифтами - люби и автора кормить.","","font-credit-"+Date.now()),1800)}
 window.addEventListener("pageshow",()=>{if(!params.get("preview")&&(!socket||socket.readyState===WebSocket.CLOSED||socket.readyState===WebSocket.CLOSING))connect()});document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!params.get("preview")&&(!socket||socket.readyState===WebSocket.CLOSED||socket.readyState===WebSocket.CLOSING))connect()});window.addEventListener("beforeunload",()=>{closed=true;clearTimeout(reconnectTimer);try{socket?.close()}catch{}});
 </script></body></html>

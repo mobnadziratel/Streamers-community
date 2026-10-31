@@ -157,7 +157,7 @@ if(params.get("preview")==="1"){
       }).catch(()=>{});
   };
   (previewEmotesReady||Promise.resolve()).finally(()=>{
-    samples.forEach((m,i)=>addMessage(m.user,m.text,m.tags,"preview-"+i));
+    samples.forEach((m,i)=>setTimeout(()=>addMessage(m.user,m.text,m.tags,"preview-"+i), (i+1)*1250));
     refreshPreviewColors();
   });
 }else connect();

@@ -76,8 +76,10 @@ async function loadEmotes(){
  ];
  await Promise.allSettled(jobs);
 }
-// Defer third-party emote catalogs so the chat paints immediately.
-if("requestIdleCallback" in window)requestIdleCallback(()=>loadEmotes(),{timeout:2500});else setTimeout(loadEmotes,1200);
+// In preview, wait for extension emotes so sample messages can render them.
+let previewEmotesReady=null;
+if(params.get("preview")==="1")previewEmotesReady=loadEmotes();
+else if("requestIdleCallback" in window)requestIdleCallback(()=>loadEmotes(),{timeout:2500});else setTimeout(loadEmotes,1200);
 function appendEmojiAwareText(target,value){
  const emojiPattern=/(\p{Extended_Pictographic}(?:\uFE0F|\uFE0E)?(?:\u{1F3FB}-\u{1F3FF})?(?:\u200D\p{Extended_Pictographic}(?:\uFE0F|\uFE0E)?(?:\u{1F3FB}-\u{1F3FF})?)*|\p{Regional_Indicator}{2}|[#*0-9]\uFE0F?\u20E3)/gu;
  let last=0,match;
@@ -133,11 +135,11 @@ function parseLine(line){if(line.startsWith("PING")){socket?.send("PONG :tmi.twi
 if(params.get("preview")==="1"){
   status.style.display="none";
   const samples=[
-    {user:"rueumur",text:"Всем привет! Добро пожаловать на стрим ✨",tags:"badges=broadcaster/1;user-type="},
-    {user:"homka20_",text:"Как дела, чат? Kappa",tags:"badges=moderator/1;mod=1;user-type=mod;emotes=25:15-19"},
-    {user:"d1unizi",text:"Хорошего стрима всем 💜",tags:"badges=vip/1;vip=1"},
-    {user:"medverina",text:"LUL вот это момент 😂",tags:"badges=subscriber/12;subscriber=1;emotes=425618:0-2"},
-    {user:"Зритель",text:"PogChamp Отличная игра!",tags:"badges=;emotes=305954156:0-7"}
+    {user:"rueumur",text:"Всем привет! Добро пожаловать на стрим ✨ peepoHappy",tags:"badges=broadcaster/1;user-type="},
+    {user:"homka20_",text:"Как дела, чат? monkaS KEKW",tags:"badges=moderator/1;mod=1;user-type=mod"},
+    {user:"d1unizi",text:"Хорошего стрима всем 💜 catJAM",tags:"badges=vip/1;vip=1"},
+    {user:"medverina",text:"LUL вот это момент 😂 Sadge",tags:"badges=subscriber/12;subscriber=1"},
+    {user:"Зритель",text:"PogChamp Отличная игра! PauseChamp",tags:"badges="}
   ];
   // Загружаем реальные цвета Twitch после появления демонстрационных сообщений.
   const previewColorNames=samples.map(m=>m.user).filter(user=>/^[a-z0-9_]{1,25}$/i.test(user));
@@ -154,8 +156,10 @@ if(params.get("preview")==="1"){
         }
       }).catch(()=>{});
   };
-  samples.forEach((m,i)=>addMessage(m.user,m.text,m.tags,"preview-"+i));
-  refreshPreviewColors();
+  (previewEmotesReady||Promise.resolve()).finally(()=>{
+    samples.forEach((m,i)=>addMessage(m.user,m.text,m.tags,"preview-"+i));
+    refreshPreviewColors();
+  });
 }else connect();
 if(selectedFont){setTimeout(()=>addMessage("mob_nadziratel","Любишь играть шрифтами - люби и автора кормить.","","font-credit-"+Date.now()),1800)}
 window.addEventListener("pageshow",()=>{if(!params.get("preview")&&(!socket||socket.readyState===WebSocket.CLOSED||socket.readyState===WebSocket.CLOSING))connect()});document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!params.get("preview")&&(!socket||socket.readyState===WebSocket.CLOSED||socket.readyState===WebSocket.CLOSING))connect()});window.addEventListener("beforeunload",()=>{closed=true;clearTimeout(reconnectTimer);try{socket?.close()}catch{}});

@@ -454,7 +454,7 @@ const server = http.createServer(async (req, res) => {
         const me=await helixUser(tokenData.access_token,"users",new URLSearchParams());
         const user=(me.data||[])[0];if(!user||String(user.login).toLowerCase()!==saved.channel)throw Error("Авторизованный Twitch-аккаунт не совпадает с каналом "+saved.channel+". Подключи именно аккаунт владельца канала.");
         const db=await readAuth();db[saved.channel]={userId:String(user.id),login:String(user.login),displayName:String(user.display_name||user.login),accessToken:tokenData.access_token,refreshToken:tokenData.refresh_token,expiresAt:Date.now()+Number(tokenData.expires_in||3600)*1000,scopes:tokenData.scope||[]};await writeAuth(db);
-        res.writeHead(302,{Location:"/widgets?tab=polls&connected=1","Cache-Control":"no-store"});res.end();return;
+        res.writeHead(302,{Location:"/widgets?tab=polls&connected=1&channel="+encodeURIComponent(saved.channel),"Cache-Control":"no-store"});res.end();return;
       }catch(error){console.error("Twitch polls OAuth failed:",error.message);res.writeHead(400,{"Content-Type":"text/html; charset=utf-8"});res.end("<h2>Не удалось подключить Twitch</h2><p>"+String(error.message).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))+"</p><p><a href='/widgets'>Вернуться к виджетам</a></p>");return}
     }
     if(url.pathname==="/api/twitch-widget/data"){

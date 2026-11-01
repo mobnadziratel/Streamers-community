@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Twitch — опросы и прогнозы</title>
+<style>
+:root{color-scheme:dark;--accent:#a970ff;--text:#f5f3fb;--muted:#b9b4c8}
+*{box-sizing:border-box}html,body{margin:0;width:100%;min-height:100%;background:transparent;color:var(--text);font-family:Inter,Arial,sans-serif}
+#root{display:grid;gap:14px;padding:4px}.card{padding:18px 20px;border:1px solid #a970ff66;border-radius:18px;background:linear-gradient(145deg,rgba(24,19,36,.94),rgba(13,12,20,.9));box-shadow:0 10px 35px #0004;backdrop-filter:blur(8px)}
+.kind{font-size:11px;font-weight:900;letter-spacing:.15em;color:#c5a3ff;text-transform:uppercase;margin-bottom:8px}.title{font-size:clamp(18px,3vw,28px);font-weight:900;line-height:1.2;margin:0 0 15px;overflow-wrap:anywhere}
+.choice{margin:10px 0}.choice-top{display:flex;justify-content:space-between;gap:12px;font-size:14px;font-weight:750}.track{height:9px;border-radius:99px;background:#ffffff18;overflow:hidden;margin-top:6px}.fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#9147ff,#c4a0ff);min-width:0}
+.meta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-top:13px}.empty{padding:22px;text-align:center;color:var(--muted);font-size:14px;border:1px dashed #a970ff55;border-radius:16px;background:#17132199}
+.hidden{display:none!important}
+</style></head><body><main id="root"><div class="empty">Ожидаем активный опрос или прогноз Twitch…</div></main>
+<script>
+const channel=new URLSearchParams(location.search).get("channel")||"",root=document.getElementById("root");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function card(kind,item,isPrediction){
+ const opts=isPrediction?(item.outcomes||[]):(item.choices||[]),total=opts.reduce((n,o)=>n+Number(isPrediction?o.channel_points||0:o.votes||0),0);
+ const rows=opts.map(o=>{const count=Number(isPrediction?o.channel_points||0:o.votes||0),pct=total?Math.round(count/total*100):0;return '<div class="choice"><div class="choice-top"><span>'+esc(o.title)+'</span><span>'+pct+'% · '+count.toLocaleString("ru-RU")+'</span></div><div class="track"><div class="fill" style="width:'+pct+'%"></div></div></div>'}).join("");
+ const status=isPrediction?item.status:item.status,started=item.started_at?new Date(item.started_at).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"}):"";
+ return '<section class="card"><div class="kind">'+kind+'</div><h2 class="title">'+esc(item.title)+'</h2>'+rows+'<div class="meta"><span>'+ (status==="ACTIVE"?"Идёт сейчас":esc(status||"")) +'</span><span>'+ (isPrediction?"Баллы канала":"Голосов")+': '+total.toLocaleString("ru-RU")+'</span></div></section>';
+}
+async function refresh(){
+ if(!/^[a-z0-9_]{1,25}$/.test(channel)){root.innerHTML='<div class="empty">Укажи канал Twitch в ссылке виджета.</div>';return}
+ try{
+  const r=await fetch("/api/twitch-widget/data?channel="+encodeURIComponent(channel),{cache:"no-store"}),d=await r.json();
+  if(!r.ok)throw Error(d.error||"Нет данных Twitch");
+  const poll=(d.polls||[]).find(x=>x.status==="ACTIVE"),prediction=(d.predictions||[]).find(x=>x.status==="ACTIVE"||x.status==="LOCKED");
+  const cards=[];if(poll)cards.push(card("ОПРОС TWITCH",poll,false));if(prediction)cards.push(card("ПРОГНОЗ TWITCH",prediction,true));
+  root.innerHTML=cards.join("")||'<div class="empty">Сейчас на канале нет активных опросов или прогнозов.</div>';
+ }catch(e){root.innerHTML='<div class="empty">'+esc(e.message)+'</div>'}
+}
+refresh();setInterval(refresh,5000);
+</script></body></html>

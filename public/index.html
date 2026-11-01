@@ -1718,16 +1718,17 @@ html[data-theme="light"] .back-to-top { color:#252b18; background:linear-gradien
 }
 
 
-/* Community caution notice — neutral card, not seasonal decoration. */
-.pumpkin-warning{position:relative;z-index:6;top:auto;left:auto;width:min(390px,100%);min-height:0;box-sizing:border-box;padding:22px 24px;overflow:visible;border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:0 8px 24px rgba(0,0,0,.16);color:var(--text);text-align:left;transform:none}
-.pumpkin-warning::before,.pumpkin-warning-stem{display:none}
-.pumpkin-warning-content{position:relative;z-index:2}
-.pumpkin-warning-kicker{display:inline-block;margin:0 0 8px;padding:5px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel2);color:var(--muted);font:800 11px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;box-shadow:none}
-.pumpkin-warning h2{margin:0 0 8px;color:var(--text);font-size:22px;line-height:1.15;letter-spacing:0;text-shadow:none;text-transform:none}
-.pumpkin-warning p{margin:0 0 9px;max-width:none;font-size:14px;line-height:1.5;font-weight:600;color:var(--text)}
-.pumpkin-warning a{color:var(--accent);font-weight:800;text-decoration-thickness:2px;text-underline-offset:2px;overflow-wrap:anywhere}
-.pumpkin-warning .pumpkin-warning-note{display:block;margin-top:8px;font-size:11px;line-height:1.4;font-weight:600;letter-spacing:0;color:var(--muted)}
-@media(max-width:650px){.pumpkin-warning{top:auto;left:auto;width:100%;min-height:0;padding:18px;transform:none}.pumpkin-warning h2{font-size:20px}.pumpkin-warning p{font-size:13px}}
+/* Pumpkin-shaped caution sign on the community wall. */
+.pumpkin-warning{position:relative;z-index:6;top:auto;left:auto;width:min(390px,100%);min-height:220px;box-sizing:border-box;padding:58px 36px 34px;overflow:visible;border:3px solid #8d3b12;border-radius:46% 46% 43% 43% / 34% 34% 48% 48%;background:radial-gradient(ellipse at 50% 12%,#ffbd55 0 8%,transparent 9%),repeating-linear-gradient(90deg,rgba(132,48,9,.2) 0 5px,transparent 5px 34px),linear-gradient(100deg,#e86b16 0%,#ff9a26 22%,#f47a18 48%,#ff9c2b 76%,#d95712 100%);box-shadow:inset 0 8px 15px #ffd17a80,inset 0 -13px 18px #8f300c66,0 12px 20px rgba(0,0,0,.32);color:#281006;text-align:center;transform:rotate(-2deg)}
+.pumpkin-warning::before{content:"";position:absolute;z-index:0;top:-19px;left:calc(50% - 12px);width:24px;height:32px;border:3px solid #345322;border-radius:7px 7px 3px 3px;background:linear-gradient(90deg,#365b25,#78923a 48%,#29491f);transform:rotate(8deg);box-shadow:2px 2px 0 #203919}
+.pumpkin-warning-stem{display:block;position:absolute;z-index:1;top:-17px;left:calc(50% + 5px);width:18px;height:8px;border-radius:50%;background:#6f8b35;transform:rotate(-24deg)}
+.pumpkin-warning-content{position:relative;z-index:2;text-shadow:0 1px #ffd27a}
+.pumpkin-warning-kicker{display:inline-block;margin:0 0 8px;padding:6px 12px;border:1px solid #7e3210;border-radius:999px;background:#5b210e;color:#ffe2a8;font:900 11px/1 Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 2px 0 #a94b13}
+.pumpkin-warning h2{margin:0 0 9px;color:#321205;font-size:23px;line-height:1.1;letter-spacing:-.03em;text-shadow:0 1px #ffc56b}
+.pumpkin-warning p{margin:0 auto 9px;max-width:290px;font-size:14px;line-height:1.45;font-weight:750;color:#321205}
+.pumpkin-warning a{color:#4b1608;font-weight:950;text-decoration-thickness:2px;text-underline-offset:2px;overflow-wrap:anywhere}
+.pumpkin-warning .pumpkin-warning-note{display:block;margin-top:8px;font-size:11px;line-height:1.4;font-weight:700;color:#57200c}
+@media(max-width:650px){.pumpkin-warning{width:min(100%,330px);min-height:205px;padding:52px 27px 30px;transform:rotate(-1deg)}.pumpkin-warning h2{font-size:clamp(20px,6vw,25px)}.pumpkin-warning p{font-size:13px}}
  
 /* Community wall submissions and moderation */
 .community-wall-tools{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.7fr);gap:16px;margin:0 0 24px}

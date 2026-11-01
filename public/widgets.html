@@ -1868,13 +1868,6 @@ html[data-theme="light"] .back-to-top { color:#252b18; background:linear-gradien
 /* Music request widget */
 .music-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-top:16px}.music-card{min-width:0;padding:20px;border:1px solid var(--line);border-radius:18px;background:var(--panel);box-shadow:0 10px 28px rgba(0,0,0,.08)}.music-card h2{margin:0 0 8px;font-size:20px}.music-card p{line-height:1.55}.music-field{display:grid;gap:7px;margin:13px 0}.music-field label{font-size:13px;font-weight:750;color:var(--muted)}.music-field input{width:100%;min-width:0;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--input-bg,rgba(255,255,255,.04));color:var(--text);font:inherit}.music-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.music-button{border:1px solid var(--line);border-radius:11px;padding:10px 14px;background:var(--panel);color:var(--text);font:inherit;font-weight:800;cursor:pointer}.music-button.primary{background:var(--accent);color:#111;border-color:transparent}.music-button:disabled{opacity:.5;cursor:wait}.music-status{font-size:13px;line-height:1.5;color:var(--muted);min-height:1.5em}.music-queue{display:grid;gap:9px;margin-top:14px}.music-item{display:flex;align-items:center;gap:10px;min-width:0;padding:11px;border:1px solid var(--line);border-radius:12px;background:rgba(127,127,127,.05)}.music-item-info{flex:1;min-width:0}.music-item-title{font-weight:800;overflow-wrap:anywhere}.music-item-meta{font-size:12px;color:var(--muted);margin-top:4px}.music-item-actions{display:flex;gap:5px;flex-wrap:wrap}.music-item-actions .music-button{padding:7px 9px;font-size:12px}.music-playing{border-color:var(--accent);box-shadow:inset 3px 0 var(--accent)}.music-preview{width:100%;height:320px;border:1px solid var(--line);border-radius:14px;background:#08080b;overflow:hidden}.music-preview iframe{display:block;width:100%;height:100%;border:0}@media(max-width:760px){.music-grid{grid-template-columns:1fr}.music-card{padding:15px}.music-preview{height:230px}.music-item{align-items:flex-start;flex-wrap:wrap}.music-item-info{flex-basis:65%}.music-item-actions{width:100%}}
 
-
-.polls-connect-card{max-width:760px;margin:22px auto;padding:20px;border:1px solid var(--line);border-radius:16px;background:var(--bg)}
-.polls-connect-card .chat-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
-.polls-connect-card .chat-note{line-height:1.55}
-#pollsPreviewFrame{display:block;width:100%;height:330px;border:0;background:transparent}
-#pollsObsLink{min-width:0}
-@media(max-width:650px){.polls-connect-card{padding:15px}.polls-connect-card .chat-actions>*{flex:1 1 100%}#pollsPreviewFrame{height:280px}}
 </style>
 </head><body>
 <header><div class="wrap nav">
@@ -1890,7 +1883,7 @@ html[data-theme="light"] .back-to-top { color:#252b18; background:linear-gradien
 </div></header>
 <main class="wrap chat-builder">
   <section class="chat-intro" id="chatIntro"><h1>Виджет чата для OBS</h1><p>Настрой оформление, цвета ников и Twitch-значки. Справа — живой пример того, как будет выглядеть чат.</p></section>
-  <nav class="widget-tabs tabs" role="tablist" aria-label="Разделы"><button class="tab-button active" id="chatWidgetTab" type="button" role="tab" aria-selected="true" aria-controls="chatWidgetPanel">Чат</button><button class="tab-button" id="cityWidgetTab" type="button" role="tab" aria-selected="false" aria-controls="cityWidgetPanel">Город</button><button class="tab-button" id="musicWidgetTab" type="button" role="tab" aria-selected="false" aria-controls="musicWidgetPanel">Музыка</button><button class="tab-button" id="pollsWidgetTab" type="button" role="tab" aria-selected="false" aria-controls="pollsWidgetPanel">Прогнозы и опросы</button></nav>
+  <nav class="widget-tabs tabs" role="tablist" aria-label="Разделы"><button class="tab-button active" id="chatWidgetTab" type="button" role="tab" aria-selected="true" aria-controls="chatWidgetPanel">Чат</button><button class="tab-button" id="cityWidgetTab" type="button" role="tab" aria-selected="false" aria-controls="cityWidgetPanel">Город</button><button class="tab-button" id="musicWidgetTab" type="button" role="tab" aria-selected="false" aria-controls="musicWidgetPanel">Музыка</button></nav>
   <div class="chat-layout" id="chatWidgetPanel" role="tabpanel" aria-labelledby="chatWidgetTab">
     <section class="chat-panel">
       <h2>Оформление</h2>
@@ -1970,18 +1963,7 @@ html[data-theme="light"] .back-to-top { color:#252b18; background:linear-gradien
 </section>
 </section>
 
-<section id="pollsWidgetPanel" class="city-widget-panel" role="tabpanel" aria-labelledby="pollsWidgetTab" hidden>
- <h2>ПРОГНОЗЫ И ОПРОСЫ <span style="color:var(--accent)">✦</span></h2>
- <p class="city-lead">Показывает настоящие опросы Twitch и прогнозы за баллы канала. Подключи аккаунт владельца канала — после этого виджет сам будет обновлять результаты в OBS.</p>
- <div class="polls-connect-card">
-  <div class="chat-field"><label for="pollsChannel">Канал Twitch</label><input id="pollsChannel" type="text" maxlength="25" placeholder="например, mob_nadziratel" autocomplete="off" spellcheck="false"></div>
-  <div class="chat-actions"><button class="chat-action" id="pollsConnect" type="button">Подключить Twitch</button><button class="chat-action chat-secondary" id="pollsDisconnect" type="button">Отключить канал</button></div>
-  <p id="pollsStatus" class="chat-note" aria-live="polite">Нужна авторизация именно аккаунта владельца указанного канала.</p>
- </div>
- <div class="city-preview-wrap"><div class="city-preview-label">ПРЕДПРОСМОТР · ПРОЗРАЧНЫЙ ФОН</div><iframe id="pollsPreviewFrame" title="Предпросмотр опросов и прогнозов Twitch" loading="eager"></iframe></div>
- <div class="chat-field city-link-field"><label for="pollsObsLink">Ссылка для OBS</label><input id="pollsObsLink" type="url" readonly placeholder="Сначала подключи канал"><button id="pollsCopyLink" class="refresh-clips" type="button">Скопировать ссылку</button></div>
- <p class="chat-note">Добавь ссылку в OBS как источник «Браузер». Опросы и прогнозы создаются обычным способом на Twitch — виджет только отображает их и статистику голосов.</p>
-</section>
+
 </section>
 
 </main>
@@ -2238,7 +2220,7 @@ html[data-theme="light"] .back-to-top { color:#252b18; background:linear-gradien
  });
  update();
 })();
-(function initWidgetTabs(){const tabs=[["chat",document.getElementById("chatWidgetTab"),document.getElementById("chatWidgetPanel")],["city",document.getElementById("cityWidgetTab"),document.getElementById("cityWidgetPanel")],["music",document.getElementById("musicWidgetTab"),document.getElementById("musicWidgetPanel")],["polls",document.getElementById("pollsWidgetTab"),document.getElementById("pollsWidgetPanel")]],intro=document.getElementById("chatIntro"),obs=document.getElementById("obsLinkPanel"),key="small-streamers-widget-active-tab";if(tabs.some(t=>!t[1]||!t[2]))return;function activate(name,save=true){for(const[n,b,p]of tabs){b.classList.toggle("active",n===name);b.setAttribute("aria-selected",String(n===name));p.hidden=n!==name}if(intro)intro.hidden=name!=="chat";if(obs)obs.hidden=name!=="chat";if(save)try{localStorage.setItem(key,name)}catch(_){}}let saved="chat";try{saved=new URLSearchParams(location.search).get("tab")||localStorage.getItem(key)||"chat"}catch(_){}activate(tabs.some(t=>t[0]===saved)?saved:"chat",false);tabs.forEach(([name,b])=>b.addEventListener("click",()=>activate(name)))})();;
+(function initWidgetTabs(){const tabs=[["chat",document.getElementById("chatWidgetTab"),document.getElementById("chatWidgetPanel")],["city",document.getElementById("cityWidgetTab"),document.getElementById("cityWidgetPanel")],["music",document.getElementById("musicWidgetTab"),document.getElementById("musicWidgetPanel")]],intro=document.getElementById("chatIntro"),obs=document.getElementById("obsLinkPanel"),key="small-streamers-widget-active-tab";if(tabs.some(t=>!t[1]||!t[2]))return;function activate(name,save=true){for(const[n,b,p]of tabs){b.classList.toggle("active",n===name);b.setAttribute("aria-selected",String(n===name));p.hidden=n!==name}if(intro)intro.hidden=name!=="chat";if(obs)obs.hidden=name!=="chat";if(save)try{localStorage.setItem(key,name)}catch(_){}}let saved="chat";try{saved=new URLSearchParams(location.search).get("tab")||localStorage.getItem(key)||"chat"}catch(_){}activate(tabs.some(t=>t[0]===saved)?saved:"chat",false);tabs.forEach(([name,b])=>b.addEventListener("click",()=>activate(name)))})();;
 
 (function initMusicWidget(){
  const $=id=>document.getElementById(id),form=$("musicRequestForm"),channel=$("musicChannel"),nickname=$("musicNickname"),videoUrl=$("musicUrl"),requestStatus=$("musicRequestStatus");
@@ -2258,59 +2240,7 @@ html[data-theme="light"] .back-to-top { color:#252b18; background:linear-gradien
 })();;
 
 
-(function initTwitchPollsWidget(){
- const $=id=>document.getElementById(id),channel=$("pollsChannel"),connect=$("pollsConnect"),disconnect=$("pollsDisconnect"),status=$("pollsStatus"),link=$("pollsObsLink"),frame=$("pollsPreviewFrame"),copy=$("pollsCopyLink");
- if(!channel||!connect||!status||!link||!frame)return;
- // OAuth, API и OBS-виджет должны работать на одном постоянном хосте.
- const serviceOrigin="https://small-streamers.de1.netrun.io";
- const serviceUrl=path=>serviceOrigin+path;
- const norm=v=>String(v||"").trim().replace(/^@/,"").toLowerCase(),valid=v=>/^[a-z0-9_]{1,25}$/.test(norm(v));
- function updateLink(){
-  const ch=norm(channel.value);
-  if(!valid(ch)){link.value="";frame.src="about:blank";return}
-  const u=new URL(serviceUrl("/polls-overlay.html"));u.searchParams.set("channel",ch);
-  link.value=u.href;
-  if(frame.src!==u.href)frame.src=u.href;
- }
- async function check(){
-  const ch=norm(channel.value);if(!valid(ch))return;
-  try{
-   const r=await fetch(serviceUrl("/api/twitch-widget/data?channel="+encodeURIComponent(ch)),{cache:"no-store"});
-   const d=await r.json();
-   if(r.ok)status.textContent="Подключён канал "+(d.displayName||d.channel)+". Опросы и прогнозы Twitch обновляются автоматически.";
-   else status.textContent=d.error||"Канал не подключён.";
-  }catch(_){status.textContent="Не удалось связаться с сервером виджетов Netrun."}
- }
- try{
-  const p=new URLSearchParams(location.search);
-  const returnedChannel=norm(p.get("channel")||"");
-  if(valid(returnedChannel)){channel.value=returnedChannel;localStorage.setItem("community-polls-channel",returnedChannel)}
-  if(p.get("tab")==="polls"&&p.get("connected")==="1")status.textContent="Twitch подключён. Проверяю доступ к опросам и прогнозам…";
-  const saved=localStorage.getItem("community-polls-channel");
-  if(!channel.value&&saved)channel.value=saved;
- }catch(_){}
- channel.addEventListener("input",updateLink);
- channel.addEventListener("change",()=>{updateLink();check()});
- connect.addEventListener("click",()=>{
-  const ch=norm(channel.value);
-  if(!valid(ch)){status.textContent="Введи корректный логин Twitch.";return}
-  try{localStorage.setItem("community-polls-channel",ch)}catch(_){}
-  location.href=serviceUrl("/api/twitch-widget/connect?channel="+encodeURIComponent(ch));
- });
- if(disconnect)disconnect.addEventListener("click",async()=>{
-  const ch=norm(channel.value);if(!valid(ch)){status.textContent="Введи логин канала.";return}
-  try{
-   const r=await fetch(serviceUrl("/api/twitch-widget/disconnect?channel="+encodeURIComponent(ch)),{cache:"no-store"});
-   const d=await r.json();status.textContent=r.ok?"Канал отключён.":(d.error||"Не удалось отключить канал.");
-  }catch(_){status.textContent="Не удалось связаться с сервером виджетов Netrun."}
- });
- if(copy)copy.addEventListener("click",async()=>{
-  if(!link.value){status.textContent="Сначала введи логин канала.";return}
-  try{await navigator.clipboard.writeText(link.value);status.textContent="Ссылка скопирована для OBS."}
-  catch(_){link.focus();link.select();status.textContent="Ссылка выделена — нажми Ctrl+C."}
- });
- updateLink();if(channel.value)check();
-})();;
+
 </script>
 </body>
 </html>

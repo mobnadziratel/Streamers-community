@@ -393,7 +393,7 @@ async function fetchClips(period) {
       }
     }
   }
-  await Promise.all(Array.from({ length: 3 }, worker));
+  await Promise.all(Array.from({ length: 8 }, worker));
   if (!all.length && failedChannels > 0) {
     throw new Error(`Twitch не вернул клипы: запросы к каналам завершились ошибкой (${failedChannels} неудачных запросов).`);
   }

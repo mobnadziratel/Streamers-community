@@ -2261,16 +2261,56 @@ html[data-theme="light"] .back-to-top { color:#252b18; background:linear-gradien
 (function initTwitchPollsWidget(){
  const $=id=>document.getElementById(id),channel=$("pollsChannel"),connect=$("pollsConnect"),disconnect=$("pollsDisconnect"),status=$("pollsStatus"),link=$("pollsObsLink"),frame=$("pollsPreviewFrame"),copy=$("pollsCopyLink");
  if(!channel||!connect||!status||!link||!frame)return;
+ // OAuth, API и OBS-виджет должны работать на одном постоянном хосте.
+ const serviceOrigin="https://small-streamers.de1.netrun.io";
+ const serviceUrl=path=>serviceOrigin+path;
  const norm=v=>String(v||"").trim().replace(/^@/,"").toLowerCase(),valid=v=>/^[a-z0-9_]{1,25}$/.test(norm(v));
- function updateLink(){const ch=norm(channel.value);if(!valid(ch)){link.value="";frame.src="about:blank";return}const u=new URL("/polls-overlay.html",location.origin);u.searchParams.set("channel",ch);link.value=u.href;if(frame.src!==u.href)frame.src=u.href}
- async function check(){const ch=norm(channel.value);if(!valid(ch))return;try{const r=await fetch("/api/twitch-widget/data?channel="+encodeURIComponent(ch),{cache:"no-store"});const d=await r.json();if(r.ok)status.textContent="Подключён канал "+(d.displayName||d.channel)+". Опросы и прогнозы обновляются автоматически.";else status.textContent=d.error||"Канал не подключён."}catch(_){status.textContent="Не удалось проверить подключение."}}
- try{const p=new URLSearchParams(location.search);if(p.get("tab")==="polls"&&p.get("connected")==="1")status.textContent="Twitch успешно подключён. Проверяю доступ к опросам и прогнозам…";const saved=localStorage.getItem("community-polls-channel");if(saved)channel.value=saved}catch(_){}
- channel.addEventListener("input",updateLink);channel.addEventListener("change",()=>{updateLink();check()});
- connect.addEventListener("click",()=>{const ch=norm(channel.value);if(!valid(ch)){status.textContent="Введи корректный логин Twitch.";return}try{localStorage.setItem("community-polls-channel",ch)}catch(_){}location.href="/api/twitch-widget/connect?channel="+encodeURIComponent(ch)});
- if(disconnect)disconnect.addEventListener("click",async()=>{const ch=norm(channel.value);if(!valid(ch)){status.textContent="Введи логин канала.";return}try{const r=await fetch("/api/twitch-widget/disconnect?channel="+encodeURIComponent(ch));const d=await r.json();status.textContent=r.ok?"Канал отключён.":(d.error||"Не удалось отключить.");}catch(_){status.textContent="Не удалось отключить канал."}});
- if(copy)copy.addEventListener("click",async()=>{if(!link.value){status.textContent="Сначала введи логин канала.";return}try{await navigator.clipboard.writeText(link.value);status.textContent="Ссылка скопирована для OBS."}catch(_){link.focus();link.select();status.textContent="Ссылка выделена — нажми Ctrl+C."}});
+ function updateLink(){
+  const ch=norm(channel.value);
+  if(!valid(ch)){link.value="";frame.src="about:blank";return}
+  const u=new URL(serviceUrl("/polls-overlay.html"));u.searchParams.set("channel",ch);
+  link.value=u.href;
+  if(frame.src!==u.href)frame.src=u.href;
+ }
+ async function check(){
+  const ch=norm(channel.value);if(!valid(ch))return;
+  try{
+   const r=await fetch(serviceUrl("/api/twitch-widget/data?channel="+encodeURIComponent(ch)),{cache:"no-store"});
+   const d=await r.json();
+   if(r.ok)status.textContent="Подключён канал "+(d.displayName||d.channel)+". Опросы и прогнозы Twitch обновляются автоматически.";
+   else status.textContent=d.error||"Канал не подключён.";
+  }catch(_){status.textContent="Не удалось связаться с сервером виджетов Netrun."}
+ }
+ try{
+  const p=new URLSearchParams(location.search);
+  const returnedChannel=norm(p.get("channel")||"");
+  if(valid(returnedChannel)){channel.value=returnedChannel;localStorage.setItem("community-polls-channel",returnedChannel)}
+  if(p.get("tab")==="polls"&&p.get("connected")==="1")status.textContent="Twitch подключён. Проверяю доступ к опросам и прогнозам…";
+  const saved=localStorage.getItem("community-polls-channel");
+  if(!channel.value&&saved)channel.value=saved;
+ }catch(_){}
+ channel.addEventListener("input",updateLink);
+ channel.addEventListener("change",()=>{updateLink();check()});
+ connect.addEventListener("click",()=>{
+  const ch=norm(channel.value);
+  if(!valid(ch)){status.textContent="Введи корректный логин Twitch.";return}
+  try{localStorage.setItem("community-polls-channel",ch)}catch(_){}
+  location.href=serviceUrl("/api/twitch-widget/connect?channel="+encodeURIComponent(ch));
+ });
+ if(disconnect)disconnect.addEventListener("click",async()=>{
+  const ch=norm(channel.value);if(!valid(ch)){status.textContent="Введи логин канала.";return}
+  try{
+   const r=await fetch(serviceUrl("/api/twitch-widget/disconnect?channel="+encodeURIComponent(ch)),{cache:"no-store"});
+   const d=await r.json();status.textContent=r.ok?"Канал отключён.":(d.error||"Не удалось отключить канал.");
+  }catch(_){status.textContent="Не удалось связаться с сервером виджетов Netrun."}
+ });
+ if(copy)copy.addEventListener("click",async()=>{
+  if(!link.value){status.textContent="Сначала введи логин канала.";return}
+  try{await navigator.clipboard.writeText(link.value);status.textContent="Ссылка скопирована для OBS."}
+  catch(_){link.focus();link.select();status.textContent="Ссылка выделена — нажми Ctrl+C."}
+ });
  updateLink();if(channel.value)check();
-})();
+})();;
 </script>
 </body>
 </html>

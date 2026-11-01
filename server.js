@@ -424,6 +424,65 @@ const server = http.createServer(async (req, res) => {
     res.end("Bad Request");
     return;
   }
+
+  if (url.pathname.startsWith("/api/twitch-widget/")) {
+    const json=(status,data)=>{res.writeHead(status,{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"});res.end(JSON.stringify(data))};
+    const redirectUri=String(process.env.TWITCH_WIDGET_REDIRECT_URI||"").trim();
+    const authDir=process.env.WALL_DATA_DIR||path.join(__dirname,"data");
+    const authFile=path.join(authDir,"twitch-widget-auth.json");
+    const states=globalThis.__twitchWidgetOAuthStates||(globalThis.__twitchWidgetOAuthStates=new Map());
+    async function readAuth(){try{const d=JSON.parse(await fs.promises.readFile(authFile,"utf8"));return d&&typeof d==="object"?d:{}}catch(e){if(e.code==="ENOENT")return{};throw e}}
+    async function writeAuth(d){await fs.promises.mkdir(authDir,{recursive:true});const tmp=authFile+".tmp";await fs.promises.writeFile(tmp,JSON.stringify(d,null,2),{mode:0o600});await fs.promises.rename(tmp,authFile)}
+    async function helixUser(accessToken,endpoint,params){const r=await fetch("https://api.twitch.tv/helix/"+endpoint+"?"+params.toString(),{headers:{"Client-Id":CLIENT_ID,"Authorization":"Bearer "+accessToken},signal:AbortSignal.timeout(10000)});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.message||("Twitch API "+r.status));return d}
+    if(url.pathname==="/api/twitch-widget/connect"){
+      const channel=String(url.searchParams.get("channel")||"").trim().replace(/^@/,"").toLowerCase();
+      if(!CLIENT_ID||!CLIENT_SECRET||!redirectUri){json(503,{error:"На сервере не настроены TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET или TWITCH_WIDGET_REDIRECT_URI."});return}
+      if(!/^[a-z0-9_]{1,25}$/.test(channel)){json(400,{error:"Укажи корректный логин Twitch-канала."});return}
+      const state=require("node:crypto").randomBytes(24).toString("hex");
+      states.set(state,{channel,expiresAt:Date.now()+10*60*1000});
+      const q=new URLSearchParams({client_id:CLIENT_ID,redirect_uri:redirectUri,response_type:"code",scope:"channel:read:polls channel:read:predictions",state,force_verify:"true"});
+      res.writeHead(302,{Location:"https://id.twitch.tv/oauth2/authorize?"+q.toString(),"Cache-Control":"no-store"});res.end();return;
+    }
+    if(url.pathname==="/api/twitch-widget/callback"){
+      const state=String(url.searchParams.get("state")||""),code=String(url.searchParams.get("code")||""),saved=states.get(state);
+      states.delete(state);
+      if(!saved||saved.expiresAt<Date.now()||!code){res.writeHead(400,{"Content-Type":"text/html; charset=utf-8"});res.end("<h2>Авторизация Twitch не завершена</h2><p>Вернись в раздел «Прогнозы и опросы» и попробуй ещё раз.</p>");return}
+      try{
+        const body=new URLSearchParams({client_id:CLIENT_ID,client_secret:CLIENT_SECRET,code,grant_type:"authorization_code",redirect_uri:redirectUri});
+        const tokenResponse=await fetch("https://id.twitch.tv/oauth2/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body,signal:AbortSignal.timeout(12000)});
+        const tokenData=await tokenResponse.json();if(!tokenResponse.ok)throw Error(tokenData.message||"Не удалось получить токен Twitch.");
+        const me=await helixUser(tokenData.access_token,"users",new URLSearchParams());
+        const user=(me.data||[])[0];if(!user||String(user.login).toLowerCase()!==saved.channel)throw Error("Авторизованный Twitch-аккаунт не совпадает с каналом "+saved.channel+". Подключи именно аккаунт владельца канала.");
+        const db=await readAuth();db[saved.channel]={userId:String(user.id),login:String(user.login),displayName:String(user.display_name||user.login),accessToken:tokenData.access_token,refreshToken:tokenData.refresh_token,expiresAt:Date.now()+Number(tokenData.expires_in||3600)*1000,scopes:tokenData.scope||[]};await writeAuth(db);
+        res.writeHead(302,{Location:"/widgets?tab=polls&connected=1","Cache-Control":"no-store"});res.end();return;
+      }catch(error){console.error("Twitch polls OAuth failed:",error.message);res.writeHead(400,{"Content-Type":"text/html; charset=utf-8"});res.end("<h2>Не удалось подключить Twitch</h2><p>"+String(error.message).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))+"</p><p><a href='/widgets'>Вернуться к виджетам</a></p>");return}
+    }
+    if(url.pathname==="/api/twitch-widget/data"){
+      const channel=String(url.searchParams.get("channel")||"").trim().replace(/^@/,"").toLowerCase();
+      if(!/^[a-z0-9_]{1,25}$/.test(channel)){json(400,{error:"Некорректный логин канала."});return}
+      try{
+        const db=await readAuth(),auth=db[channel];if(!auth){json(401,{connected:false,error:"Канал ещё не подключён. Сначала авторизуй аккаунт владельца канала."});return}
+        let accessToken=auth.accessToken;
+        if(Date.now()>Number(auth.expiresAt||0)-60000){
+          const refreshBody=new URLSearchParams({grant_type:"refresh_token",refresh_token:auth.refreshToken,client_id:CLIENT_ID,client_secret:CLIENT_SECRET});
+          const rr=await fetch("https://id.twitch.tv/oauth2/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:refreshBody,signal:AbortSignal.timeout(12000)});
+          const rd=await rr.json();if(!rr.ok)throw Error("Сессия Twitch истекла. Переподключи канал.");
+          auth.accessToken=rd.access_token;auth.refreshToken=rd.refresh_token||auth.refreshToken;auth.expiresAt=Date.now()+Number(rd.expires_in||3600)*1000;db[channel]=auth;await writeAuth(db);accessToken=auth.accessToken;
+        }
+        const params=new URLSearchParams({broadcaster_id:auth.userId,first:"5"});
+        const [polls,predictions]=await Promise.all([helixUser(accessToken,"polls",params),helixUser(accessToken,"predictions",params)]);
+        json(200,{connected:true,channel:auth.login,displayName:auth.displayName,updatedAt:new Date().toISOString(),polls:(polls.data||[]).slice(0,3),predictions:(predictions.data||[]).slice(0,3)});
+      }catch(error){console.error("Twitch poll/prediction fetch failed:",error.message);json(503,{error:error.message||"Не удалось получить опросы и прогнозы Twitch."})}
+      return;
+    }
+    if(url.pathname==="/api/twitch-widget/disconnect"){
+      const channel=String(url.searchParams.get("channel")||"").trim().replace(/^@/,"").toLowerCase();
+      try{const db=await readAuth();delete db[channel];await writeAuth(db);json(200,{ok:true})}catch(error){json(500,{error:"Не удалось отключить канал."})}
+      return;
+    }
+    json(404,{error:"Неизвестный маршрут Twitch-виджета."});return;
+  }
+
   if (url.pathname === "/api/followers") {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.setHeader("Cache-Control", "no-store");

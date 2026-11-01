@@ -427,7 +427,7 @@ const server = http.createServer(async (req, res) => {
 
   if (url.pathname.startsWith("/api/twitch-widget/")) {
     const json=(status,data)=>{res.writeHead(status,{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"});res.end(JSON.stringify(data))};
-    const redirectUri=String(process.env.TWITCH_WIDGET_REDIRECT_URI||"").trim();
+    const redirectUri=String(process.env.TWITCH_WIDGET_REDIRECT_URI||"https://small-streamers.de1.netrun.io/api/twitch-widget/callback").trim();
     const authDir=process.env.WALL_DATA_DIR||path.join(__dirname,"data");
     const authFile=path.join(authDir,"twitch-widget-auth.json");
     const states=globalThis.__twitchWidgetOAuthStates||(globalThis.__twitchWidgetOAuthStates=new Map());

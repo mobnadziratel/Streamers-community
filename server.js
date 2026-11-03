@@ -711,7 +711,7 @@ const server = http.createServer(async (req, res) => {
       if (!payload || payload.ok !== true || !payload.body) return json(404, { error: "Комната не найдена или уже закрыта." });
       const room = payload.body;
       if (room.appTag !== "quiplash3-tjsp") return json(409, { error: "Эта комната запущена не в Quiplash 3.", game: room.appTag || "unknown" });
-      if (room.passwordRequired && !password) return json(403, { error: "Для этой комнаты требуется пароль. Добавь его в поле пароля." });
+      if (room.passwordRequired && !password) return json(403, { error: "Для этой комнаты требуется пароль. Поддержка защищённых паролем комнат пока не реализована." });
       if (room.passwordRequired) return json(501, { error: "Проверка пароля для этой версии протокола пока не реализована. Пароль не отправлялся." });
       const role = room.full ? "audience" : "player";
       if (role === "audience" && !room.audienceEnabled) return json(409, { error: "Комната заполнена, а аудитория отключена." });
@@ -720,7 +720,7 @@ const server = http.createServer(async (req, res) => {
       if (!allowedHost) return json(502, { error: "Jackbox вернул неизвестный адрес игрового сервера." });
       const ticket = require("node:crypto").randomBytes(24).toString("hex");
       for (const [key, value] of jackboxTickets) if (value.expiresAt < now) jackboxTickets.delete(key);
-      jackboxTickets.set(ticket, { code, name, role, host, password, userId: require("node:crypto").randomUUID(), secret: require("node:crypto").randomUUID(), expiresAt: now + 60000 });
+      jackboxTickets.set(ticket, { code, name, role, host, userId: require("node:crypto").randomUUID(), secret: require("node:crypto").randomUUID(), expiresAt: now + 60000 });
       return json(200, { ok: true, ticket, game: "Quiplash 3", room: code, role, players: Number(room.maxPlayers || 0), expiresIn: 60 });
     } catch (error) {
       console.error("Jackbox room check:", error.message);

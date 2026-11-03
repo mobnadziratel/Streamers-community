@@ -1,6 +1,7 @@
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
+const WebSocket = require("ws");
 
 const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
 
@@ -8,6 +9,8 @@ const PORT = Number(process.env.PORT || 3000);
 const CLIENT_ID = process.env.TWITCH_CLIENT_ID;
 const CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
 const PUBLIC_DIR = path.join(__dirname, "public");
+const jackboxTickets = new Map();
+const jackboxRoomChecks = new Map();
 
 const LOGINS = [
   "mob_nadziratel",
@@ -687,6 +690,44 @@ const server = http.createServer(async (req, res) => {
   }
 
   // Community suggestion box: submissions remain private until moderator approval.
+  if (url.pathname === "/api/jackbox/room-check") {
+    const json = (status, payload) => { res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }); res.end(JSON.stringify(payload)); };
+    if (req.method !== "POST") return json(405, { error: "Используй POST." });
+    try {
+      const body = await (async () => { const chunks=[]; let size=0; for await (const chunk of req) { size += chunk.length; if (size > 4096) throw Object.assign(new Error("Слишком большой запрос."), {statusCode:413}); chunks.push(chunk); } try { return JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}"); } catch (_) { throw Object.assign(new Error("Некорректный JSON."), {statusCode:400}); } })();
+      const code = String(body.room || "").trim().toUpperCase();
+      const name = String(body.nickname || "").trim().slice(0, 20);
+      const password = String(body.password || "").slice(0, 64);
+      if (!/^[A-Z]{4}$/.test(code)) return json(400, { error: "Код комнаты должен состоять из четырёх латинских букв." });
+      if (!/^[\p{L}\p{N}_ .-]{1,20}$/u.test(name)) return json(400, { error: "Никнейм: до 20 букв, цифр, пробелов, точек, дефисов или подчёркиваний." });
+      const ip = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown").split(",")[0].trim();
+      const now = Date.now();
+      const attempts = (jackboxRoomChecks.get(ip) || []).filter(t => now - t < 60000);
+      if (attempts.length >= 12) return json(429, { error: "Слишком много проверок комнат. Подожди минуту." });
+      attempts.push(now); jackboxRoomChecks.set(ip, attempts);
+      const response = await fetch("https://ecast.jackboxgames.com/api/v2/rooms/" + encodeURIComponent(code), { headers: { "Accept": "application/json" }, signal: AbortSignal.timeout(8000) });
+      if (!response.ok) return json(response.status === 404 ? 404 : 502, { error: response.status === 404 ? "Комната не найдена или уже закрыта." : "Сервер Jackbox временно не ответил." });
+      const payload = await response.json();
+      if (!payload || payload.ok !== true || !payload.body) return json(404, { error: "Комната не найдена или уже закрыта." });
+      const room = payload.body;
+      if (room.appTag !== "quiplash3-tjsp") return json(409, { error: "Эта комната запущена не в Quiplash 3.", game: room.appTag || "unknown" });
+      if (room.passwordRequired && !password) return json(403, { error: "Для этой комнаты требуется пароль. Добавь его в поле пароля." });
+      if (room.passwordRequired) return json(501, { error: "Проверка пароля для этой версии протокола пока не реализована. Пароль не отправлялся." });
+      const role = room.full ? "audience" : "player";
+      if (role === "audience" && !room.audienceEnabled) return json(409, { error: "Комната заполнена, а аудитория отключена." });
+      const host = role === "audience" ? room.audienceHost : room.host;
+      const allowedHost = typeof host === "string" && (host === "ecast.jackboxgames.com" || /^[a-z0-9.-]+\.play\.jackboxgames\.com$/i.test(host));
+      if (!allowedHost) return json(502, { error: "Jackbox вернул неизвестный адрес игрового сервера." });
+      const ticket = require("node:crypto").randomBytes(24).toString("hex");
+      for (const [key, value] of jackboxTickets) if (value.expiresAt < now) jackboxTickets.delete(key);
+      jackboxTickets.set(ticket, { code, name, role, host, password, userId: require("node:crypto").randomUUID(), secret: require("node:crypto").randomUUID(), expiresAt: now + 60000 });
+      return json(200, { ok: true, ticket, game: "Quiplash 3", room: code, role, players: Number(room.maxPlayers || 0), expiresIn: 60 });
+    } catch (error) {
+      console.error("Jackbox room check:", error.message);
+      return json(error.statusCode || 502, { error: error.statusCode ? error.message : "Не удалось связаться с сервером Jackbox." });
+    }
+  }
+
   if (url.pathname.startsWith("/api/community/")) {
     const sendJson = (status, payload, extraHeaders = {}) => {
       res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...extraHeaders });
@@ -942,6 +983,32 @@ const server = http.createServer(async (req, res) => {
     }
     res.writeHead(200, headers);
     res.end(data);
+  });
+});
+
+const jackboxWebSocketServer = new WebSocket.Server({ noServer: true });
+server.on("upgrade", (req, socket, head) => {
+  let requestUrl;
+  try { requestUrl = new URL(req.url, "http://" + (req.headers.host || "localhost")); } catch (_) { socket.destroy(); return; }
+  if (requestUrl.pathname !== "/api/jackbox/socket") { socket.destroy(); return; }
+  const origin = req.headers.origin;
+  if (!origin || (() => { try { return new URL(origin).host !== req.headers.host; } catch (_) { return true; } })()) { socket.destroy(); return; }
+  const ticket = requestUrl.searchParams.get("ticket") || "";
+  const session = jackboxTickets.get(ticket);
+  if (!session || session.expiresAt < Date.now()) { jackboxTickets.delete(ticket); socket.write("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\n\r\n"); socket.destroy(); return; }
+  jackboxTickets.delete(ticket);
+  jackboxWebSocketServer.handleUpgrade(req, socket, head, client => {
+    const endpoint = session.role === "audience" ? "/api/v2/audience/" : "/api/v2/rooms/";
+    const upstreamUrl = "wss://" + session.host + endpoint + encodeURIComponent(session.code) + "/play?role=" + session.role + "&name=" + encodeURIComponent(session.name) + "&format=json&user-id=" + encodeURIComponent(session.userId) + "&secret=" + encodeURIComponent(session.secret);
+    const upstream = new WebSocket(upstreamUrl, "ecast-v0", { handshakeTimeout: 10000 });
+    const pending = [];
+    client.on("message", data => { if (upstream.readyState === WebSocket.OPEN) upstream.send(data); else if (upstream.readyState === WebSocket.CONNECTING && pending.length < 20) pending.push(data); });
+    client.on("close", () => { if (upstream.readyState === WebSocket.OPEN || upstream.readyState === WebSocket.CONNECTING) upstream.close(); });
+    client.on("error", () => { if (upstream.readyState === WebSocket.OPEN || upstream.readyState === WebSocket.CONNECTING) upstream.terminate(); });
+    upstream.on("open", () => { for (const data of pending.splice(0)) upstream.send(data); });
+    upstream.on("message", data => { if (client.readyState === WebSocket.OPEN) client.send(data); });
+    upstream.on("close", (code, reason) => { if (client.readyState === WebSocket.OPEN) client.close(code || 1000, reason.toString().slice(0, 120)); });
+    upstream.on("error", () => { if (client.readyState === WebSocket.OPEN) { client.send(JSON.stringify({ pc: 0, opcode: "error", result: { msg: "Не удалось установить соединение с сервером игры." } })); client.close(1011, "Upstream connection failed"); } });
   });
 });
 

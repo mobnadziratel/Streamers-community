@@ -975,7 +975,7 @@ const server = http.createServer(async (req, res) => {
     const types = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".svg": "image/svg+xml", ".otf": "font/otf", ".ttf": "font/ttf", ".woff": "font/woff", ".woff2": "font/woff2" };
     const headers = { "Content-Type": types[ext] || "application/octet-stream" };
     // Cache versioned/static assets aggressively; keep HTML fresh after deployments.
-    if (ext !== ".html") headers["Cache-Control"] = "public, max-age=2592000, stale-while-revalidate=86400";
+    if (ext !== ".html") headers["Cache-Control"] = filePath === path.join(PUBLIC_DIR, "jackbox-controller.js") ? "no-store, no-cache, must-revalidate" : "public, max-age=2592000, stale-while-revalidate=86400";
     // HTML must not be served from a stale browser/proxy cache after deployments (e.g. old music-login instructions).
     if (ext === ".html") {
       headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate";

@@ -17,6 +17,13 @@ h1{font-size:clamp(30px,8vw,45px);letter-spacing:-.045em;margin:0 0 10px}.lead{c
 .status{display:none;margin-top:16px;padding:14px;border:1px solid #ffffff1a;border-radius:12px;background:#171220;color:#d7c9e5;font-size:13px;line-height:1.55}.status.show{display:block}.status.error{border-color:#9c555577;color:#ffc5c5}.status strong{color:white}
 .note{text-align:center;color:#887c96;font-size:11px;line-height:1.6;margin:18px 8px 0}.footer{text-align:center;color:#726780;font-size:11px;margin:35px 0 12px}.footer a{color:#c3a2e8;text-decoration:none}
 @media(max-width:520px){body{padding:16px}.top{margin-bottom:35px}.row{grid-template-columns:1fr}.card{border-radius:19px}}
+
+.game-screen{margin-top:18px;padding:18px;border:1px solid #ffffff20;border-radius:16px;background:#171220}
+.game-screen[hidden]{display:none}.game-screen h2{font-size:20px;margin:0 0 10px}
+.game-prompt{color:#f1e7fb;line-height:1.55;margin:12px 0;overflow-wrap:anywhere}
+.game-hint{font-size:11px;color:var(--muted);margin-top:12px}
+.game-choices{display:grid;gap:10px}.choice{padding:13px;border:1px solid var(--line);border-radius:10px;background:#2b2239;color:white;font:inherit;font-weight:700;text-align:left;cursor:pointer}
+.answer{width:100%;min-height:110px;padding:13px;border-radius:10px;border:1px solid var(--line);background:#15111e;color:white;font:inherit;resize:vertical}
 </style>
 </head>
 <body>
@@ -37,9 +44,10 @@ h1{font-size:clamp(30px,8vw,45px);letter-spacing:-.045em;margin:0 0 10px}.lead{c
 <button class="btn" id="joinButton" type="submit">ПОДКЛЮЧИТЬСЯ</button>
 </form>
 <div class="status" id="status" role="status" aria-live="polite"></div>
+<section class="game-screen" id="gameScreen" hidden><h2 id="gameTitle">Quiplash 3</h2><div class="game-prompt" id="gamePrompt"></div><div class="game-choices" id="gameChoices"></div><div class="game-hint" id="gameHint"></div></section>
 </section>
 <p class="note">Поддержка сейчас добавляется для Quiplash 3. Контроллер проверяет комнату на сервере Jackbox и устанавливает защищённое WebSocket-соединение. Игровые экраны и отправка ответов будут подключаться по мере проверки событий протокола.</p>
 <footer class="footer"><a href="/">Streamers Community</a> · Jackbox Controller</footer>
 </main>
-<script src="/jackbox-controller.js?v=quiplash3-2" defer></script>
+<script src="/jackbox-controller.js?v=quiplash3-adapter-1" defer></script>
 </body></html>

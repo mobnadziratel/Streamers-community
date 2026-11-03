@@ -712,6 +712,7 @@ const server = http.createServer(async (req, res) => {
       const room = payload.body;
       if (room.appTag !== "quiplash3-tjsp") return json(409, { error: "Эта комната запущена не в Quiplash 3.", game: room.appTag || "unknown" });
       if (room.passwordRequired && !password) return json(403, { error: "Для этой комнаты требуется пароль. Поддержка защищённых паролем комнат пока не реализована." });
+      if (room.twitchLocked) return json(409, { error: "В настройках этой комнаты включено REQUIRE TWITCH. Авторизация Twitch в контроллере пока не подключена — отключи это требование в настройках игры." });
       if (room.passwordRequired) return json(501, { error: "Проверка пароля для этой версии протокола пока не реализована. Пароль не отправлялся." });
       const role = room.full ? "audience" : "player";
       if (role === "audience" && !room.audienceEnabled) return json(409, { error: "Комната заполнена, а аудитория отключена." });

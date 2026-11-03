@@ -34,9 +34,9 @@
     .split{width:34px;height:2px;background:#c5acdF;margin:9px 0 8px;border-radius:2px}
     .specials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:15px}
     .special{display:flex;gap:15px;padding:19px 17px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,#29213f,#211a32);min-width:0}
-    .special-icon{flex:0 0 34px;color:#d7c1f0;padding-top:2px}
-    .special-icon svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.special-icon img{display:block;width:100%;max-width:116px;max-height:54px;object-fit:contain;filter:drop-shadow(0 3px 6px #09071188)}
-    .special h3{font-size:17px;margin:0 0 5px}
+    .special-icon{flex:0 0 120px;width:120px;color:#d7c1f0;padding-top:2px;display:flex;align-items:flex-start;justify-content:center}
+    .special-icon svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.special-icon img{display:block;width:100%;max-width:116px;max-height:64px;object-fit:contain;filter:drop-shadow(0 3px 6px #09071188)}
+    .special h3{display:none}
     .special .games{font-size:15px}
     .links{display:grid;gap:12px;margin-top:18px}
     .site-link{position:relative;display:flex;align-items:center;gap:15px;min-height:70px;padding:12px 20px;border-radius:16px 16px 26px 16px;background:linear-gradient(110deg,#8e70ad,#70558f);color:#fff;text-decoration:none;box-shadow:0 7px 22px #09071130;transition:transform .18s,filter .18s}
@@ -49,7 +49,7 @@
     .site-copy small{display:block;margin-top:1px;color:#f0e8f7;font-size:13px}
     footer{text-align:center;color:#9f94ad;font-size:13px;margin-top:27px}
     footer a{color:#c8b4df;text-decoration:none}
-    @media(max-width:650px){.wrap{width:min(100% - 24px,500px);padding-top:22px}.hero{padding-bottom:18px}.avatar{width:96px;height:96px}.packs{grid-template-columns:1fr}.pack{padding:18px 5px 19px;gap:9px}.pack-art{width:100%;min-height:58px}.pack-art img{max-height:62px}.specials{grid-template-columns:1fr}.section-title{margin-top:20px}.site-link{min-height:66px;padding:10px 15px}}
+    @media(max-width:650px){.wrap{width:min(100% - 24px,500px);padding-top:22px}.hero{padding-bottom:18px}.avatar{width:96px;height:96px}.packs{grid-template-columns:1fr}.pack{padding:18px 5px 19px;gap:9px}.pack-art{width:100%;min-height:58px}.pack-art img{max-height:62px}.specials{grid-template-columns:1fr}.special-icon{flex-basis:110px;width:110px}.section-title{margin-top:20px}.site-link{min-height:66px;padding:10px 15px}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
   </style>
 </head>
@@ -90,7 +90,7 @@
         <article class="special"><div class="special-icon"><img src="https://i.ibb.co/HLy7G6rs/logo-scramble.png" alt="The Jackbox Survey Scramble" loading="lazy"></div><div><h3>Борьба опросов</h3><div class="games"><span>Турнир</span><span>Выше — Ниже</span><span>Скорость</span><span>Квадраты</span><span>Понг</span><span>Ставки</span><span>Скачки</span></div></div></article>
         <article class="special"><div class="special-icon"><img src="https://i.ibb.co/Q7SRf60F/The-Jackbox-Party-Starter-wordmark.webp" alt="The Jackbox Party Starter" loading="lazy"></div><div><h3>Starter пак</h3><div class="games"><span>Смехлыст 3</span><span>Футбол К.О.</span><span>Смертельная Вечеринка 2</span></div></div></article>
         <article class="special"><div class="special-icon"><img src="https://i.ibb.co/DPjdm2pJ/The-Jackbox-Naughty-Pack-wordmark.webp" alt="The Jackbox Naughty Pack" loading="lazy"></div><div><h3>Naughty пак</h3><div class="games"><span>Подло Вы Меня на всю ночь</span><span>Грязная Рисня</span><span>Дай я кончу</span></div></div></article>
-        <article class="special"><div class="special-icon"><img src="https://i.ibb.co/mCwbJjz3/7439f8fe-0801-46fd-988d-3577d339a35e.png" alt="Отдельные игры" loading="lazy"></div><div><h3>Отдельные игры</h3><div class="games"><span>Рисовач 2</span><span>Смехлыст</span><span>Бредовуха XL</span><span><img src="https://i.ibb.co/sJcNXshf/logo-1.png" alt="Какого дубля?!" loading="lazy" style="display:block;max-width:150px;max-height:54px;object-fit:contain;object-position:left center"></span></div></div></article>
+        <article class="special"><div class="special-icon"><img src="https://i.ibb.co/mCwbJjz3/7439f8fe-0801-46fd-988d-3577d339a35e.png" alt="Отдельные игры" loading="lazy"></div><div><h3>Отдельные игры</h3><div class="games"><span>Рисовач 2</span><span>Смехлыст</span><span>Бредовуха XL</span><span>Какого Дубля?!</span></div></div></article>
         <article class="special"><div class="special-icon"><img src="https://i.ibb.co/ZRhY2YRR/logo.png" alt="Party Box" loading="lazy"></div><div><h3>Party Box</h3><div class="games"><span>Честно Говоря</span><span>Правда Или Ложь</span><span>Кто Из Нас</span><span>Квиз</span><span>Пати Гессер</span><span>Маджинариум</span><s>Сказка на ночь</s><span>Резонанс</span></div></div></article>
       </div>
     </section>

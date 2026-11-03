@@ -28,17 +28,17 @@ h1{font-size:clamp(30px,8vw,45px);letter-spacing:-.045em;margin:0 0 10px}.lead{c
 </section>
 <section class="card">
 <form id="joinForm">
-<div class="field"><label for="room">КОД КОМНАТЫ</label><input id="room" name="room" maxlength="6" minlength="4" placeholder="Например, ABCD" autocomplete="off" autocapitalize="characters" required></div>
+<div class="field"><label for="room">КОД КОМНАТЫ</label><input id="room" name="room" maxlength="4" minlength="4" placeholder="Например, ABCD" autocomplete="off" autocapitalize="characters" required></div>
 <div class="field"><label for="nickname">ТВОЙ НИКНЕЙМ</label><input id="nickname" name="nickname" maxlength="20" placeholder="Как тебя будут видеть?" autocomplete="nickname" required></div>
 <div class="row">
-<div class="field"><label for="game">ИГРА</label><select id="game" name="game"><option value="auto">Автоопределение</option><option value="quiplash">Quiplash / Бредовуха</option><option value="drawful">Drawful / Рисовач</option><option value="fibbage">Fibbage</option><option value="other">Другая игра</option></select></div>
+<div class="field"><label for="game">ИГРА</label><select id="game" name="game"><option value="quiplash3" selected>Quiplash 3</option></select></div>
 <div class="field"><label for="language">ЯЗЫК</label><select id="language" name="language"><option value="ru">Русский</option><option value="en">English</option></select></div>
 </div>
 <button class="btn" id="joinButton" type="submit">ПОДКЛЮЧИТЬСЯ</button>
 </form>
 <div class="status" id="status" role="status" aria-live="polite"></div>
 </section>
-<p class="note">Сейчас готов интерфейс подключения. Для реальной замены jackbox.tv необходим отдельный совместимый адаптер игрового протокола; пока он не подключён, сайт честно сообщит об этом, а не будет имитировать вход.</p>
+<p class="note">Поддержка сейчас добавляется для Quiplash 3. Контроллер проверяет комнату на сервере Jackbox и устанавливает защищённое WebSocket-соединение. Игровые экраны и отправка ответов будут подключаться по мере проверки событий протокола.</p>
 <footer class="footer"><a href="/">Streamers Community</a> · Jackbox Controller</footer>
 </main>
 <script src="/jackbox-controller.js" defer></script>

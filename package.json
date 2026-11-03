@@ -10,6 +10,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.850.0"
+    "@aws-sdk/client-s3": "^3.850.0",
+    "ws": "^8.18.3"
   }
 }

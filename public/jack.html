@@ -4,35 +4,108 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow, noarchive">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#171326">
-  <title>Jack</title>
+  <meta name="description" content="Подборка игр Jackbox: паки, отдельные игры и полезные сайты для игры с друзьями.">
+  <title>Все игры Jackbox — Стримерское комьюнити</title>
   <style>
-    :root { color-scheme: dark; font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    * { box-sizing: border-box; }
-    html, body { width: 100%; min-width: 320px; height: 100%; margin: 0; background: #171326; }
-    body { overflow: hidden; }
-    .page { position: relative; width: 100%; height: 100%; min-height: 100dvh; background: radial-gradient(ellipse at 50% 0%, #30224a 0%, #171326 55%); }
-    .embed { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: transparent; }
-    .open-original { position: fixed; z-index: 5; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 17px; border: 1px solid rgba(255,255,255,.18); border-radius: 999px; background: rgba(30,23,47,.88); color: #fff; text-decoration: none; font-size: 13px; font-weight: 650; letter-spacing: .01em; box-shadow: 0 8px 30px rgba(0,0,0,.28); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); transition: transform .2s ease, background .2s ease; }
-    .open-original:hover { transform: translateY(-2px); background: rgba(58,42,83,.96); }
-    .open-original svg { width: 15px; height: 15px; opacity: .85; }
-    @media (max-width: 600px) { .open-original { right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); min-height: 40px; padding: 0 14px; font-size: 12px; } }
+    :root{color-scheme:dark;--bg:#171326;--panel:#211b35;--panel2:#29213f;--accent:#a98acb;--accent2:#d2b9ef;--text:#f5f1fa;--muted:#b9afc8;--line:rgba(222,207,244,.14);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:var(--bg)}
+    body{margin:0;min-width:320px;color:var(--text);background:radial-gradient(ellipse at 50% -12%,#493565 0,transparent 43%),linear-gradient(180deg,#1d1730 0%,#171326 48%,#14111f 100%);font-size:16px;line-height:1.48}
+    a{color:inherit}
+    .wrap{width:min(100% - 32px,900px);margin:0 auto;padding:38px 0 56px}
+    .hero{text-align:center;padding:16px 12px 28px}
+    .avatar{width:116px;height:116px;margin:0 auto 17px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#74569b,#302443 68%);border:3px solid rgba(255,255,255,.2);box-shadow:0 14px 45px #09071188}
+    .avatar svg{width:65px;height:65px;opacity:.96}
+    h1{font-size:clamp(25px,5vw,36px);line-height:1.15;margin:0 0 8px;font-weight:800;letter-spacing:-.035em}
+    .subtitle{color:#e2d9ed;font-size:16px;margin:0}
+    .jump{display:inline-flex;margin-top:22px;color:var(--muted);text-decoration:none;font-size:22px;transition:transform .2s}
+    .jump:hover{transform:translateY(4px);color:#fff}
+    .section-title{display:flex;align-items:center;gap:12px;margin:24px 0 5px;color:var(--accent2);font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+    .section-title:after{content:"";height:1px;flex:1;background:var(--line)}
+    .packs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}
+    .pack{display:grid;grid-template-columns:48px 1fr;gap:14px;padding:22px 10px 23px;border-bottom:1px solid var(--line);min-width:0}
+    .number{font-size:24px;font-weight:300;color:#d8c8ea;text-align:center;padding-top:1px;font-variant-numeric:tabular-nums}
+    .pack h2{font-size:17px;margin:0 0 5px;font-weight:750;color:#fff}
+    .games{display:flex;flex-direction:column;gap:2px;color:#e8e1f0}
+    .games span{display:block}
+    .split{width:34px;height:2px;background:#c5acdF;margin:9px 0 8px;border-radius:2px}
+    .specials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:15px}
+    .special{display:flex;gap:15px;padding:19px 17px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,#29213f,#211a32);min-width:0}
+    .special-icon{flex:0 0 34px;color:#d7c1f0;padding-top:2px}
+    .special-icon svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+    .special h3{font-size:17px;margin:0 0 5px}
+    .special .games{font-size:15px}
+    .links{display:grid;gap:12px;margin-top:18px}
+    .site-link{position:relative;display:flex;align-items:center;gap:15px;min-height:70px;padding:12px 20px;border-radius:16px 16px 26px 16px;background:linear-gradient(110deg,#8e70ad,#70558f);color:#fff;text-decoration:none;box-shadow:0 7px 22px #09071130;transition:transform .18s,filter .18s}
+    .site-link:hover{transform:translateY(-2px);filter:brightness(1.12)}
+    .site-link:focus-visible,.jump:focus-visible{outline:3px solid #e1c8ff;outline-offset:3px}
+    .site-icon{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center}
+    .site-icon svg{width:32px;height:32px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+    .site-copy{text-align:center;flex:1;min-width:0;padding-right:28px}
+    .site-copy strong{display:block;font-size:16px;font-weight:750}
+    .site-copy small{display:block;margin-top:1px;color:#f0e8f7;font-size:13px}
+    footer{text-align:center;color:#9f94ad;font-size:13px;margin-top:27px}
+    footer a{color:#c8b4df;text-decoration:none}
+    @media(max-width:650px){.wrap{width:min(100% - 24px,500px);padding-top:22px}.hero{padding-bottom:18px}.avatar{width:96px;height:96px}.packs{grid-template-columns:1fr}.pack{padding:18px 5px 19px}.specials{grid-template-columns:1fr}.section-title{margin-top:20px}.site-link{min-height:66px;padding:10px 15px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
   </style>
 </head>
 <body>
-  <main class="page">
-    <iframe class="embed"
-      src="https://taplink.cc/mob_jack"
-      title="Страница mob_jack"
-      loading="eager"
-      referrerpolicy="strict-origin-when-cross-origin"
-      allow="fullscreen; autoplay; encrypted-media; picture-in-picture"
-      allowfullscreen></iframe>
-    <a class="open-original" href="https://taplink.cc/mob_jack" target="_blank" rel="noopener noreferrer" aria-label="Открыть исходную страницу Taplink в новой вкладке">
-      Открыть отдельно
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h6"/></svg>
-    </a>
+  <main class="wrap">
+    <header class="hero">
+      <div class="avatar" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="10" y="19" width="44" height="32" rx="6"/><path d="M22 19l-8-9M42 19l8-9M26 31h.1M38 31h.1M25 41c4 4 10 4 14 0"/>
+        </svg>
+      </div>
+      <h1>Все игры Jackbox</h1>
+      <p class="subtitle">На канале <strong>mob_nadziratel</strong></p>
+      <a class="jump" href="#catalog" aria-label="Перейти к списку игр">⌄</a>
+    </header>
+
+    <section id="catalog">
+      <div class="section-title">Коллекция Jackbox</div>
+      <div class="packs">
+        <article class="pack"><div class="number">1</div><div><h2>1 пак</h2><div class="games"><span>Рисовач</span><span>Слово Блуд</span><span>Мухи Врухи</span><span>Бредовуха XL</span><span>You Don't Know Jack 2015</span><i class="split"></i><span>Word Spud 2.0</span></div></div></article>
+        <article class="pack"><div class="number">2</div><div><h2>2 пак</h2><div class="games"><span>Бредовуха 2</span><span>Звукварь</span><span>Дуракцион</span><span>СмеХлыст</span><span>Бомб Корп.</span><i class="split"></i><span>МРЗ-БРЕД</span><span>Закамский Аукцион</span></div></div></article>
+        <article class="pack"><div class="number">3</div><div><h2>3 пак</h2><div class="games"><span>Смехлыст 2</span><span>Смертельная Вечеринка</span><span>Нашшпионаж</span><span>Обмани меня!</span><span>Футбол К.О.</span></div></div></article>
+        <article class="pack"><div class="number">4</div><div><h2>4 пак</h2><div class="games"><span>Бредовуха 3</span><span>Выжить В Интернете</span><span>Монстр Ищет Монстра</span><span>Панччемпионат</span><span>Гражданский холст</span><i class="split"></i><span>Выжить В Котлете</span></div></div></article>
+        <article class="pack"><div class="number">5</div><div><h2>5 пак</h2><div class="games"><span>А ГОЛОВУ ТЫ НЕ ЗАБЫЛ?</span><span>Раздели Комнату</span><span>Город Злых Рифм</span><span>Купол Зипол</span><span>Творим Патенты</span></div></div></article>
+        <article class="pack"><div class="number">6</div><div><h2>6 пак</h2><div class="games"><span>Смертельная Вечеринка 2</span><span>Анализ Роли</span><span>Корабль Смеха</span><span>Словариум</span><span>Жми На Кнопку</span><span>Blather Round</span><i class="split"></i><span>Корабль Кринжа 18+</span></div></div></article>
+        <article class="pack"><div class="number">7</div><div><h2>7 пак</h2><div class="games"><span>Смехлыст 3</span><span>Дьяволы в Деталях</span><span>ГладиАРТоры</span><span>На Пальцах</span><span>Густой Трёп</span><i class="split"></i><span>У Дим-Димыча</span></div></div></article>
+        <article class="pack"><div class="number">8</div><div><h2>8 пак</h2><div class="games"><span>Рисовач: Анимач</span><span>Колесо невероятных масштабов</span><span>За работой</span><span>Подземнения</span><span>Преступление и рисование</span><i class="split"></i><span>Импостерс Дравун</span><span>Колесо Ненормального Троллинга</span></div></div></article>
+        <article class="pack"><div class="number">9</div><div><h2>9 пак</h2><div class="games"><span>Бредовуха 4</span><span>Квартиранг</span><span>Хламотопия</span><span>Несуразум</span><span>Скоросорт</span><i class="split"></i><span>Свинотопия</span></div></div></article>
+        <article class="pack"><div class="number">10</div><div><h2>10 пак</h2><div class="games"><span>Футбол К.О. 2</span><span>Хроноворот</span><span>ТекстоПрав</span><span>Додо Ре Ми</span><span>Гипнозарение</span></div></div></article>
+        <article class="pack"><div class="number">11</div><div><h2>11 пак</h2><div class="games"><span>Громинант</span><span>Звук Вслух</span><span>Дом Печений</span><span>Подозрективы</span><span>Legends Of Trivia</span></div></div></article>
+        <article class="pack"><div class="number">12</div><div><h2>12 пак</h2><div class="games"><span>Вы забыли открытку</span><span>Мегадруг</span><span>Дебаты Навыворот</span><span>Фейсконтроль</span><span>Культовый Бой (Демо)</span></div></div></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">Дополнительные подборки</div>
+      <div class="specials">
+        <article class="special"><div class="special-icon"><svg viewBox="0 0 32 32"><path d="M16 3 29 10v13l-13 7L3 23V10z"/><path d="m3 10 13 7 13-7M16 17v13"/></svg></div><div><h3>Борьба опросов</h3><div class="games"><span>Турнир</span><span>Выше — Ниже</span><span>Скорость</span><span>Квадраты</span><span>Понг</span><span>Ставки</span><span>Скачки</span></div></div></article>
+        <article class="special"><div class="special-icon"><svg viewBox="0 0 32 32"><path d="M5 4v24l22-12z"/></svg></div><div><h3>Starter пак</h3><div class="games"><span>Смехлыст 3</span><span>Футбол К.О.</span><span>Смертельная Вечеринка 2</span></div></div></article>
+        <article class="special"><div class="special-icon"><svg viewBox="0 0 32 32"><path d="M21 3a13 13 0 1 0 8 22A12 12 0 0 1 21 3z"/></svg></div><div><h3>Naughty пак</h3><div class="games"><span>Подло Вы Меня на всю ночь</span><span>Грязная Рисня</span><span>Дай я кончу</span></div></div></article>
+        <article class="special"><div class="special-icon"><svg viewBox="0 0 32 32"><rect x="3" y="8" width="26" height="20" rx="3"/><path d="M11 8 6 3M21 8l5-5"/></svg></div><div><h3>Отдельные игры</h3><div class="games"><span>Рисовач 2</span><span>Смехлыст</span><span>Бредовуха XL</span><span>Какого дубля?!</span></div></div></article>
+        <article class="special"><div class="special-icon"><svg viewBox="0 0 32 32"><rect x="3" y="7" width="26" height="20" rx="3"/><path d="M11 3 7 7M21 3l4 4"/></svg></div><div><h3>Party Box</h3><div class="games"><span>Честно Говоря</span><span>Правда Или Ложь</span><span>Кто Из Нас</span><span>Квиз</span><span>Пати Гессер</span><span>Маджинариум</span><s>Сказка на ночь</s><span>Резонанс</span></div></div></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">Полезные сайты</div>
+      <nav class="links" aria-label="Сайты для игры">
+        <a class="site-link" href="https://jackbox.fun/" target="_blank" rel="noopener noreferrer"><span class="site-icon"><svg viewBox="0 0 32 32"><path d="m3 12 13-8 13 8-13 4zM3 12v13l13 4V16M29 12v13l-13 4"/></svg></span><span class="site-copy"><strong>На сайт JACKBOX.FUN</strong><small>Обычные игры</small></span></a>
+        <a class="site-link" href="https://jackbox.ru/" target="_blank" rel="noopener noreferrer"><span class="site-icon"><svg viewBox="0 0 32 32"><path d="m3 12 13-8 13 8-13 4zM3 12v13l13 4V16M29 12v13l-13 4"/></svg></span><span class="site-copy"><strong>На сайт JACKBOX.RU</strong><small>Модовые игры</small></span></a>
+        <a class="site-link" href="https://jack.trgu.ru/" target="_blank" rel="noopener noreferrer"><span class="site-icon"><svg viewBox="0 0 32 32"><path d="m3 12 13-8 13 8-13 4zM3 12v13l13 4V16M29 12v13l-13 4"/></svg></span><span class="site-copy"><strong>На сайт JACK.TRGU.RU</strong><small>Борьба Опросов, МПЗ — БРЕД</small></span></a>
+        <a class="site-link" href="https://sdvgbox.ru/" target="_blank" rel="noopener noreferrer"><span class="site-icon"><svg viewBox="0 0 32 32"><path d="m3 12 13-8 13 8-13 4zM3 12v13l13 4V16M29 12v13l-13 4"/></svg></span><span class="site-copy"><strong>На сайт SDVGBOX.RU</strong><small>Выжить в Котлете</small></span></a>
+        <a class="site-link" href="https://jackbox.su/" target="_blank" rel="noopener noreferrer"><span class="site-icon"><svg viewBox="0 0 32 32"><path d="m3 12 13-8 13 8-13 4zM3 12v13l13 4V16M29 12v13l-13 4"/></svg></span><span class="site-copy"><strong>На сайт JACKBOX.SU</strong><small>Naughty Pack</small></span></a>
+        <a class="site-link" href="https://partybox.games/" target="_blank" rel="noopener noreferrer"><span class="site-icon"><svg viewBox="0 0 32 32"><rect x="3" y="8" width="26" height="20" rx="3"/><path d="M11 8 6 3M21 8l5-5"/></svg></span><span class="site-copy"><strong>На сайт PARTYBOX.GAMES</strong><small>Party Box</small></span></a>
+        <a class="site-link" href="https://wtd.tdot.space/" target="_blank" rel="noopener noreferrer"><span class="site-icon"><svg viewBox="0 0 32 32"><rect x="5" y="3" width="22" height="26" rx="2"/><path d="M10 3v26M22 3v26M5 10h22M5 22h22"/></svg></span><span class="site-copy"><strong>На сайт WTD.TDOT.SPACE</strong><small>Какого дубля?!</small></span></a>
+      </nav>
+    </section>
+    <footer>Страница проекта <a href="https://small-streamers.de1.netrun.io/">Streamers community</a></footer>
   </main>
 </body>
 </html>

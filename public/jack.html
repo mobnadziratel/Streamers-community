@@ -15,10 +15,7 @@
     a{color:inherit}
     .wrap{width:min(100% - 32px,900px);margin:0 auto;padding:38px 0 56px}
     .hero{text-align:center;padding:16px 12px 28px}
-    .avatar{width:116px;height:116px;margin:0 auto 17px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#74569b,#302443 68%);border:3px solid rgba(255,255,255,.2);box-shadow:0 14px 45px #09071188}
-    .avatar svg{width:65px;height:65px;opacity:.96}
     h1{font-size:clamp(25px,5vw,36px);line-height:1.15;margin:0 0 8px;font-weight:800;letter-spacing:-.035em}
-    .subtitle{color:#e2d9ed;font-size:16px;margin:0}
     .jump{display:inline-flex;margin-top:22px;color:var(--muted);text-decoration:none;font-size:22px;transition:transform .2s}
     .jump:hover{transform:translateY(4px);color:#fff}
     .section-title{display:flex;align-items:center;gap:12px;margin:24px 0 5px;color:var(--accent2);font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
@@ -51,20 +48,14 @@
     .site-copy small{display:block;margin-top:1px;color:#f0e8f7;font-size:13px}
     footer{text-align:center;color:#9f94ad;font-size:13px;margin-top:27px}
     footer a{color:#c8b4df;text-decoration:none}
-    @media(max-width:650px){.wrap{width:min(100% - 24px,500px);padding-top:22px}.hero{padding-bottom:18px}.avatar{width:96px;height:96px}.packs{grid-template-columns:1fr}.pack{padding:18px 5px 19px;gap:9px}.pack-art{width:100%;min-height:58px}.pack-art img{max-height:62px}.specials{grid-template-columns:1fr}.special-icon{flex-basis:110px;width:110px}.section-title{margin-top:20px}.site-link{min-height:66px;padding:10px 15px}}
+    @media(max-width:650px){.wrap{width:min(100% - 24px,500px);padding-top:22px}.hero{padding-bottom:18px}.packs{grid-template-columns:1fr}.pack{padding:18px 5px 19px;gap:9px}.pack-art{width:100%;min-height:58px}.pack-art img{max-height:62px}.specials{grid-template-columns:1fr}.special-icon{flex-basis:110px;width:110px}.section-title{margin-top:20px}.site-link{min-height:66px;padding:10px 15px}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
   </style>
 </head>
 <body>
   <main class="wrap">
     <header class="hero">
-      <div class="avatar" aria-hidden="true">
-        <svg viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="10" y="19" width="44" height="32" rx="6"/><path d="M22 19l-8-9M42 19l8-9M26 31h.1M38 31h.1M25 41c4 4 10 4 14 0"/>
-        </svg>
-      </div>
       <h1>Все игры Jackbox</h1>
-      <p class="subtitle">На канале <strong>mob_nadziratel</strong></p>
       <a class="jump" href="#catalog" aria-label="Перейти к списку игр">⌄</a>
     </header>
 

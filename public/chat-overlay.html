@@ -84,9 +84,9 @@ async function loadEmotes(){
  await Promise.allSettled(jobs);
 }
 // In preview, wait for extension emotes so sample messages can render them.
-let previewEmotesReady=null;
-if(params.get("preview")==="1")previewEmotesReady=loadEmotes();
-else if("requestIdleCallback" in window)requestIdleCallback(()=>loadEmotes(),{timeout:2500});else setTimeout(loadEmotes,1200);
+// Загружаем наборы BTTV, FFZ и 7TV до подключения к чату:
+ // иначе первые сообщения успевают отобразиться обычным текстом и уже не обновляются.
+ const previewEmotesReady=loadEmotes();
 function appendEmojiAwareText(target,value){
  const emojiPattern=/(\p{Extended_Pictographic}(?:\uFE0F|\uFE0E)?(?:\u{1F3FB}-\u{1F3FF})?(?:\u200D\p{Extended_Pictographic}(?:\uFE0F|\uFE0E)?(?:\u{1F3FB}-\u{1F3FF})?)*|\p{Regional_Indicator}{2}|[#*0-9]\uFE0F?\u20E3)/gu;
  let last=0,match;
@@ -190,7 +190,7 @@ if(params.get("preview")==="1"){
     samples.forEach((m,i)=>setTimeout(()=>addMessage(m.user,m.text,m.tags,"preview-"+i,m.user), (i+1)*1250));
     setTimeout(refreshPreviewColors,samples.length*1250+250);
   });
-}else connect();
+}else (previewEmotesReady||Promise.resolve()).finally(connect);
 // Font credit is intentionally shown only in the settings preview, never in live chat.
 if(selectedFont&&params.get("preview")==="1"){setTimeout(()=>addMessage("mob_nadziratel","Любишь играть шрифтами - люби и автора кормить.","","font-credit-"+Date.now()),7200)}
 window.addEventListener("pageshow",()=>{if(!params.get("preview")&&(!socket||socket.readyState===WebSocket.CLOSED||socket.readyState===WebSocket.CLOSING))connect()});document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!params.get("preview")&&(!socket||socket.readyState===WebSocket.CLOSED||socket.readyState===WebSocket.CLOSING))connect()});window.addEventListener("beforeunload",()=>{closed=true;clearTimeout(reconnectTimer);try{socket?.close()}catch{}});

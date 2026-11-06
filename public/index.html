@@ -3890,7 +3890,7 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
   const output=document.getElementById("plovecmolodecCountdownValue");
   if(!output)return;
   // Moscow is UTC+3; target is midnight at the start of November 12, 2026.
-  const target=Date.UTC(2026,10,11,21,0,0);
+  const target=Date.UTC(2026,10,12,21,0,0);
   const pad=n=>String(n).padStart(2,"0");
   function update(){
     const diff=target-Date.now();

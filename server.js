@@ -25,6 +25,7 @@ const LOGINS = [
   "cherrys_fox",
   "hdr_straiker",
   "kostyan_321r",
+  "say_valyush",
   "sayjos",
   "lo4kalove",
   "slavabraze",

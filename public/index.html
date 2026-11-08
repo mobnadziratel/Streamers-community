@@ -1074,6 +1074,16 @@ html[data-theme="light"] .tabs .tab-button + .tab-button::before {
  /* Keep wall content in normal document flow on narrow screens so cards never collide. */
  #wallPanel,.wall-mural{min-width:0;width:100%;max-width:100%}
  .wall-mural{min-height:0;padding:25px 12px 30px;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:18px}
+ /* Mobile wall: place every major element in the flow instead of using desktop canvas coordinates. */
+ #wallPanel{margin:0 0 22px;overflow:hidden}
+ .wall-mural{box-sizing:border-box;gap:16px;padding:14px 10px 22px}
+ #plovecmolodecCountdown{position:relative!important;top:auto!important;left:auto!important;transform:none!important;width:100%!important;max-width:100%!important;margin:0 auto 2px;padding:11px 10px!important}
+ #plovecmolodecCountdown>div:first-child{line-height:1.25}
+ .vysluga-graffiti-photo{position:relative;top:auto!important;left:auto!important;width:min(100%,520px);max-width:100%;margin:0 auto;transform:none}
+ .vysluga-graffiti-art{width:100%;height:auto;display:block}
+ .wall-uploaded-character{position:relative;top:auto!important;left:auto!important;right:auto!important;width:84px;height:84px;align-self:flex-end;margin:-8px 4px 0 0}
+ #communityWallFeed{width:100%;max-width:100%;box-sizing:border-box;min-width:0}
+
  .wall-graffiti{width:100%;font-size:clamp(24px,7.2vw,38px);line-height:1.18;padding:8px 0 12px;overflow-wrap:anywhere}
  .wall-graffiti-line{max-width:100%;overflow-wrap:anywhere}
  .wall-paint-mark,.wall-splatter,.wall-tag,.wall-square-sign{display:none}

@@ -44,7 +44,8 @@ const LOGINS = [
   "medverina",
   "ne_twig",
   "screada67",
-  "alicefagg"
+  "alicefagg",
+  "uman_kind"
 ];
 
 let token = null;

@@ -8,30 +8,30 @@
   <meta name="description" content="Подборка игр Jackbox: паки, отдельные игры и полезные сайты для игры с друзьями.">
   <title>Все игры Jackbox — Стримерское комьюнити</title>
   <style>
-:root{color-scheme:dark;--night:#10172d;--cream:#fff5df;--yellow:#ffe56d;--pink:#ff6e9c;--blue:#62dcff;--green:#a9f078;--ink:#fff9ec;--muted:#b7c1d7;font-family:Arial,Helvetica,sans-serif}
+:root{color-scheme:dark;--night:#10172d;--cream:#e8e5dc;--yellow:#e5cf79;--pink:#d9829b;--blue:#82b9ce;--green:#a8c78a;--ink:#eeeaf0;--muted:#aeb6c8;font-family:Arial,Helvetica,sans-serif}
 *{box-sizing:border-box}
 html,body{margin:0;min-width:320px;min-height:100%;background:#10172d!important;color:var(--ink)}
-body{font-size:15px;line-height:1.45;background:radial-gradient(ellipse at 50% 0%,#25345b 0,transparent 55%),#10172d!important}
+body{font-size:15px;line-height:1.45;background:radial-gradient(ellipse at 50% 0%,#202b48 0,transparent 55%),#121a2d!important}
 .wrap{width:min(100% - 36px,1160px);margin:auto;padding:26px 0 58px}
-.hero{height:14px;margin:0 0 26px;border:0;background:linear-gradient(90deg,var(--pink),var(--yellow),var(--blue),var(--green));border-radius:99px;box-shadow:0 0 24px #62dcff33}
-.section-title{display:flex;align-items:center;gap:12px;margin:35px 0 18px;color:var(--yellow);font-size:13px;font-weight:1000;letter-spacing:.13em;text-transform:uppercase}
+.hero{height:14px;margin:0 0 26px;border:0;background:linear-gradient(90deg,#d9829b,#e5cf79,#82b9ce,#a8c78a);border-radius:99px;box-shadow:0 0 12px #82b9ce22}
+.section-title{display:flex;align-items:center;gap:12px;margin:35px 0 18px;color:#d9c98d;font-size:13px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
 .section-title:before{content:"";width:10px;height:10px;background:var(--pink);border:2px solid var(--cream);border-radius:3px;transform:rotate(-8deg)}
 .section-title:after{content:"";height:3px;flex:1;background:repeating-linear-gradient(90deg,#65759b 0 8px,transparent 8px 14px);opacity:.55}
 .packs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 34px}
-.pack{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(145px,.78fr);align-items:center;gap:12px;min-width:0;min-height:165px;padding:8px 0 13px;border:0;border-bottom:2px dashed #64708c;background:transparent!important;box-shadow:none!important;border-radius:0;transition:transform .2s}
+.pack{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(145px,.78fr);align-items:center;gap:12px;min-width:0;min-height:165px;padding:8px 0 13px;border:0;border-bottom:1px dashed #4d5a75;background:transparent!important;box-shadow:none!important;border-radius:0;transition:transform .2s}
 .pack:hover{transform:translateY(-2px)}
 .pack:before{display:none!important}
 .pack-art{grid-column:2;grid-row:1/3;display:flex;align-items:center;justify-content:center;min-width:0;min-height:116px;padding:0;overflow:visible;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;cursor:help;transition:transform .2s,filter .2s}
-.pack-art img{display:block;width:100%;max-width:245px;max-height:125px;object-fit:contain;filter:drop-shadow(0 5px 0 #080d1b) drop-shadow(0 10px 12px #0006)}
-.pack-art:hover,.pack-art:focus-visible,.pack-art.game-active{background:transparent!important;border:0!important;outline:0;transform:scale(1.06);filter:drop-shadow(0 0 13px #ffe56d99)}
-.pack h2{display:block;grid-column:1;grid-row:1;margin:0 0 2px;color:var(--yellow);font-size:11px;font-weight:1000;letter-spacing:.2em;text-transform:uppercase}
+.pack-art img{display:block;width:100%;max-width:245px;max-height:125px;object-fit:contain;filter:drop-shadow(0 3px 0 #080d1b) drop-shadow(0 6px 8px #0005)}
+.pack-art:hover,.pack-art:focus-visible,.pack-art.game-active{background:transparent!important;border:0!important;outline:0;transform:scale(1.06);filter:drop-shadow(0 0 8px #e5cf7944)}
+/* Номер набора скрыт: его визуально заменяет оригинальный логотип справа. Текст оставлен в DOM для скрипта описаний. */\n.pack h2{display:none!important}
 .pack>div:last-child{grid-column:1;grid-row:2;min-width:0}
 .games{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0}
 .games span{display:block;align-self:flex-start;width:auto;max-width:100%;min-width:0;margin:0;padding:0;border:0!important;border-radius:0!important;overflow:visible;white-space:nowrap;text-overflow:clip;line-height:1;cursor:help;outline:none;background:transparent!important;transition:transform .16s,filter .16s}
-.games span:not(.split):hover,.games span:not(.split):focus-visible,.games span.game-active{background:transparent!important;border:0!important;transform:translateX(5px) scale(1.04);filter:drop-shadow(0 0 8px #ffe56d88)}
+.games span:not(.split):hover,.games span:not(.split):focus-visible,.games span.game-active{background:transparent!important;border:0!important;transform:translateX(5px) scale(1.04);filter:drop-shadow(0 0 5px #e5cf7944)}
 .games span:not(.split):after{display:none!important}
 .games span.game-logo-item img{display:block;width:auto;max-width:min(100%,235px);height:27px;object-fit:contain;object-position:left center;filter:drop-shadow(0 2px 0 #090e1d);transition:filter .16s}
-.games span.game-logo-item:hover img,.games span.game-logo-item:focus-visible img,.games span.game-logo-item.game-active img{filter:drop-shadow(0 0 7px #ffe56d) drop-shadow(0 2px 0 #090e1d)}
+.games span.game-logo-item:hover img,.games span.game-logo-item:focus-visible img,.games span.game-logo-item.game-active img{filter:drop-shadow(0 0 5px #e5cf7966) drop-shadow(0 2px 0 #090e1d)}
 .games .split{display:block;width:35px;height:3px;margin:7px 0;border:0;border-radius:5px;background:linear-gradient(90deg,var(--pink),transparent)}
 .additional-collections .section-title{margin-top:46px}
 .specials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 30px}
@@ -52,11 +52,11 @@ body{font-size:15px;line-height:1.45;background:radial-gradient(ellipse at 50% 0
 .site-copy{flex:1;min-width:0}
 .site-copy strong{display:block;color:var(--yellow);font-size:13px;font-weight:1000;letter-spacing:.04em}
 .site-copy small{display:block;margin-top:3px;color:#d2daea;font-size:12px}
-.game-info{position:fixed;z-index:30;left:50%;bottom:20px;transform:translate(-50%,12px);width:min(480px,calc(100vw - 28px));padding:18px 20px;border:3px solid var(--yellow);border-radius:15px;background:#202d4d!important;box-shadow:6px 6px 0 #080e1d,0 18px 50px #0009;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .16s,transform .16s,visibility .16s}
+.game-info{position:fixed;z-index:30;left:50%;bottom:20px;transform:translate(-50%,12px);width:min(480px,calc(100vw - 28px));padding:18px 20px;border:2px solid #c9b77a;border-radius:12px;background:#202b43!important;box-shadow:4px 4px 0 #080e1d,0 14px 38px #0008;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .16s,transform .16s,visibility .16s}
 .game-info.visible{opacity:1;visibility:visible;transform:translate(-50%,0)}
-.game-info strong{display:block;margin:0 0 6px;color:var(--yellow);font-size:20px;line-height:1.2;font-weight:1000}
-.game-info small{display:block;margin-bottom:8px;color:var(--blue);font-size:10px;font-weight:1000;letter-spacing:.15em;text-transform:uppercase}
-.game-info p{margin:0;color:#fff8e9;font-size:14px;line-height:1.55}
+.game-info strong{display:block;margin:0 0 6px;color:#e5cf79;font-size:19px;line-height:1.2;font-weight:1000}
+.game-info small{display:block;margin-bottom:8px;color:#91bdcc;font-size:10px;font-weight:1000;letter-spacing:.15em;text-transform:uppercase}
+.game-info p{margin:0;color:#e8e7e6;font-size:14px;line-height:1.55}
 footer{margin-top:36px;padding-top:18px;border-top:2px dashed #64708c;text-align:center;color:#b7c1d7;font-size:12px}
 footer a{color:var(--yellow);text-decoration:none}
 @media(max-width:760px){.wrap{width:min(100% - 26px,560px);padding:17px 0 40px}.hero{height:9px;margin-bottom:20px}.packs,.specials,.links{grid-template-columns:1fr}.pack{min-height:135px;grid-template-columns:minmax(0,1fr) minmax(110px,.72fr);gap:8px;padding:7px 0 11px}.pack-art{min-height:90px}.pack-art img{max-height:94px}.games{gap:8px}.games span.game-logo-item img{height:25px}.special{min-height:88px;gap:13px}.special-icon{flex-basis:96px;width:96px;min-height:65px}.special-icon img{max-height:60px}.section-title{margin:27px 0 14px}.additional-collections .section-title{margin-top:36px}.game-info{bottom:10px;padding:15px 16px}}

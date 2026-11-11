@@ -81,7 +81,7 @@
     /* Pack descriptions are triggered by the visible logo, not the hidden heading. */
     .pack .pack-art.pack-hover-title{cursor:help;min-width:0;border-radius:10px;outline-offset:3px}
     .pack .pack-art.pack-hover-title:hover,.pack .pack-art.pack-hover-title:focus-visible,.pack .pack-art.pack-hover-title.game-active{filter:brightness(1.16);box-shadow:0 0 0 1px rgba(190,135,255,.42),0 0 18px rgba(160,105,255,.2)}
-    .games span{display:block;align-self:flex-start;width:max-content;max-width:100%;min-width:0;box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
+    .games span{display:block;align-self:flex-start;width:max-content;max-width:none;min-width:0;box-sizing:border-box;white-space:nowrap;overflow:visible;text-overflow:clip;line-height:1.35}
 </style>
 </head>
 <body>
@@ -98,7 +98,7 @@
         <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/m5ZWM8qG/The-Jackbox-Party-Pack-3-wordmark.webp" alt="Оригинальный логотип The Jackbox Party Pack 3" loading="lazy"></div><div><h2>3 пак</h2><div class="games"><span>Смехлыст 2</span><span>Смертельная Вечеринка</span><span>Нашшпионаж</span><span>Обмани меня!</span><span>Футбол К.О.</span></div></div></article>
         <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/W4DVNFd9/The-Jackbox-Party-Pack-4-wordmark.webp" alt="Оригинальный логотип The Jackbox Party Pack 4" loading="lazy"></div><div><h2>4 пак</h2><div class="games"><span>Бредовуха 3</span><span>Выжить В Интернете</span><span>Монстр Ищет Монстра</span><span>Панччемпионат</span><span>Гражданский холст</span><i class="split"></i><span>Выжить В Котлете</span></div></div></article>
         <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/ns7Prrxs/The-Jackbox-Party-Pack-5-2018-logo-official-SGDB-101844.png" alt="Оригинальный логотип The Jackbox Party Pack 5" loading="lazy"></div><div><h2>5 пак</h2><div class="games"><span>А ГОЛОВУ ТЫ НЕ ЗАБЫЛ?</span><span>Раздели Комнату</span><span>Город Злых Рифм</span><span>Купол Зипол</span><span>Творим Патенты</span></div></div></article>
-        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/4bVXfhW/The-Jackbox-Party-Pack-6-wordmark.webp" alt="The Jackbox Party Pack 6" loading="lazy"></div><div><h2>6 пак</h2><div class="games"><span>Смертельная Вечеринка 2</span><span>Анализ Роли</span><span>Корабль Смеха</span><span>Словариум</span><span>Жми На Кнопку</span><span>Blather Round</span><i class="split"></i><span>Корабль Кринжа 18+</span></div></div></article>
+        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/4bVXfhW/The-Jackbox-Party-Pack-6-wordmark.webp" alt="The Jackbox Party Pack 6" loading="lazy"></div><div><h2>6 пак</h2><div class="games"><span>Смертельная Вечеринка 2</span><span>Анализ Роли</span><span>Корабль Смеха</span><span>Словариум</span><span>Жми На Кнопку</span><i class="split"></i><span>Корабль Кринжа 18+</span></div></div></article>
         <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/gLT3gf2S/The-Jackbox-Party-Pack-7-wordmark.webp" alt="Оригинальный логотип The Jackbox Party Pack 7" loading="lazy"></div><div><h2>7 пак</h2><div class="games"><span>Смехлыст 3</span><span>Дьяволы в Деталях</span><span>ГладиАРТоры</span><span>На Пальцах</span><span>Густой Трёп</span><i class="split"></i><span>У Дим-Димыча</span></div></div></article>
         <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/YTL01BjW/PP-8-Logo-Alt-cf4a25987a.avif" alt="The Jackbox Party Pack 8" loading="lazy"></div><div><h2>8 пак</h2><div class="games"><span>Рисовач: Анимач</span><span>Колесо невероятных масштабов</span><span>За работой</span><span>Подземнения</span><span>Преступление и рисование</span><i class="split"></i><span>Импостерс Дравун</span><span>Колесо Ненормального Троллинга</span></div></div></article>
         <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/xycGPXW/The-Jackbox-Party-Pack-9-wordmark.webp" alt="The Jackbox Party Pack 9" loading="lazy"></div><div><h2>9 пак</h2><div class="games"><span>Бредовуха 4</span><span>Квартиранг</span><span>Хламотопия</span><span>Несуразум</span><span>Скоросорт</span><i class="split"></i><span>Свинотопия</span></div></div></article>
@@ -176,7 +176,6 @@
         'Выжить В Интернете':'Превратите обычные сообщения в смешные интернет-посты.',
         'Монстр Ищет Монстра':'Знакомьтесь, переписывайтесь и угадывайте, кто скрывается за сообщениями.',
         'Гражданский холст':'Вместе создавайте рисунок, выполняя задания и дополняя работу других.',
-        'Blather Round':'Объясняйте известные вещи подсказками, не называя их напрямую.',
         'Жми На Кнопку':'Реагируйте на задания и принимайте решения под давлением времени.',
         'Trivia Murder Party 3':'Викторина в хоррор-атмосфере: отвечайте правильно, чтобы остаться в игре.',
         'Борьба опросов':'Угадывайте самые популярные ответы на вопросы опроса.',
@@ -252,21 +251,26 @@
         'Какого Дубля?!':'Подборка игр, в которых участники придумывают ответы, соревнуются в остроумии и выбирают самые смешные варианты.',
         'Party Box':'Дополнительная коллекция игр для совместных вечеринок.'
       };
+      specialDescriptions['Verse Surf']='Самостоятельная музыкальная игра: создавайте и проходите уровни, составленные из музыки.';
+      specialDescriptions['Dungeon Box Demo']='Демо самостоятельной игры-приключения с исследованием подземелий и испытаниями.';
       document.querySelectorAll('.special').forEach(card=>{
         const heading=card.querySelector('h3');
-        if(!heading) return;
+        const trigger=card.querySelector('.special-icon')||heading;
+        if(!heading||!trigger) return;
         const name=heading.textContent.trim();
         const copy=specialDescriptions[name];
         if(!copy) return;
-        heading.classList.add('pack-hover-title');
-        heading.tabIndex=0;
-        heading.setAttribute('role','button');
-        heading.setAttribute('aria-label','Описание подборки '+name);
-        const open=()=>showPack(heading,name,copy);
-        heading.addEventListener('pointerenter',open);
-        heading.addEventListener('focus',open);
-        heading.addEventListener('click',open);
-        heading.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
+        trigger.classList.add('pack-hover-title');
+        trigger.tabIndex=0;
+        trigger.setAttribute('role','button');
+        trigger.setAttribute('aria-label','Описание подборки '+name);
+        const open=()=>showPack(trigger,name,copy);
+        trigger.addEventListener('pointerenter',open);
+        trigger.addEventListener('pointerleave',()=>hideDescription(trigger));
+        trigger.addEventListener('focus',open);
+        trigger.addEventListener('blur',()=>hideDescription(trigger));
+        trigger.addEventListener('click',open);
+        trigger.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
       });
 
       const gameDescriptionFixes = {
@@ -301,7 +305,6 @@
         'Корабль Смеха':'Участвуйте в комедийном круизе: придумывайте шутки и выбирайте самые смешные.',
         'Словариум':'Придумывайте определения необычным словам и пытайтесь обмануть остальных игроков.',
         'Жми На Кнопку':'Выполняйте задания и принимайте решения в напряжённом игровом шоу.',
-        'Blather Round':'Объясняйте известных персонажей, места и события короткими подсказками, не называя их прямо.',
         'Смехлыст 3':'Создавайте смешные ответы на новые задания и голосуйте за самые удачные шутки.',
         'Дьяволы в Деталях':'Выполняйте командные задания и помогайте друг другу выбраться из адских неприятностей.',
         'ГладиАРТоры':'Рисуйте и соревнуйтесь в творческих поединках, чтобы завоевать признание публики.',

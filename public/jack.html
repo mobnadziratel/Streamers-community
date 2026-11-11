@@ -67,7 +67,14 @@
     @media(prefers-reduced-motion:reduce){.games span,.game-info{transition:none!important}}
 
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
-  </style>
+  
+    .pack-description{margin:5px 0 12px;color:#b9aecb;font-size:12px;line-height:1.55;max-width:38ch}
+    .pack h2{margin-bottom:3px}
+    .pack-description a{color:#c6aaff;text-decoration:none}
+    .pack-description a:hover{text-decoration:underline}
+    .special-description{margin:5px 0 0;color:#b9aecb;font-size:12px;line-height:1.5;max-width:36ch}
+    @media(max-width:650px){.pack-description,.special-description{font-size:12px;max-width:none}}
+</style>
 </head>
 <body>
   <main class="wrap">
@@ -128,6 +135,60 @@
       const title = document.getElementById('gameTitle');
       const collection = document.getElementById('gameCollection');
       const description = document.getElementById('gameDescription');
+      const packDescriptions = {
+        '1 пак':'Пять игр для компании: комедийная викторина, блеф с фактами, рисование, звуковые факты и словесная игра. Игроки используют телефоны как контроллеры.',
+        '2 пак':'Пять новых party-игр: музыкальные эффекты, викторина-блеф, аукцион рисунков, словесные баттлы и кооперативная головоломка с бомбами.',
+        '3 пак':'Подборка для шумной компании: словесные дуэли, викторина с испытаниями, угадывание опросов, поиск самозванца и рисунки на футболках.',
+        '4 пак':'Пять игр с абсурдными ответами, интернет-мемами, необычными знакомствами, турниром идей и совместным рисованием.',
+        '5 пак':'Комедийная компания из пяти игр: викторина, разделение мнений, рэп-баттлы, космические испытания и создание нелепых изобретений.',
+        '6 пак':'В этой подборке — викторина на выживание, определение ролей, шутки на лодке, словарные определения и поиск инопланетян среди друзей.',
+        '7 пак':'Пять командных и творческих игр: словесные ответы, управление маленьким адом, рисовальные баттлы, выступления и объяснение понятий.',
+        '8 пак':'Анимационные рисунки, голосование по группам, гигантское колесо вопросов, игра со словами из чужих ответов и детективное рисование.',
+        '9 пак':'Пять игр на импровизацию и сообразительность: выдуманные истории, необычные персонажи, творческие ответы, угадывание и сортировка.',
+        '10 пак':'Юбилейная подборка с музыкальным соревнованием, путешествием во времени, редактированием текста, скрытыми ролями и рисовальным баттлом.',
+        '11 пак':'Пять новых игр: записывайте голосовые реплики, портите добрые шутки, создавайте необычную выпечку, расследуйте социальные подсказки и проходите викторину командой.',
+        '12 пак':'Пять новых игр: создавайте странные открытки, проверяйте насколько хорошо понимаете друзей, спорьте на смешные темы, сортируйте факты командами и искажайте фотографии.'
+      };
+      const officialPackLinks = {
+        '1 пак':'https://www.jackboxgames.com/games/packs/the-jackbox-party-pack-1',
+        '2 пак':'https://www.jackboxgames.com/games/packs/the-jackbox-party-pack-2',
+        '12 пак':'https://www.jackboxgames.com/games/packs/the-jackbox-party-pack-12'
+      };
+      document.querySelectorAll('.pack').forEach(pack=>{
+        const heading=pack.querySelector('h2');
+        if(!heading) return;
+        const name=heading.textContent.trim();
+        const copy=packDescriptions[name];
+        if(!copy) return;
+        const p=document.createElement('p');
+        p.className='pack-description';
+        p.textContent=copy;
+        const url=officialPackLinks[name];
+        if(url){
+          const link=document.createElement('a');
+          link.href=url;link.target='_blank';link.rel='noopener noreferrer';
+          link.textContent='Официальное описание';
+          p.append(' ',link);
+        }else{
+          p.append(' ',document.createTextNode('Описание составлено по официальному составу и концепциям игр.'));
+        }
+        heading.insertAdjacentElement('afterend',p);
+      });
+      const specialDescriptions = {
+        'Борьба опросов':'Угадывайте самые популярные ответы реальных людей и набирайте очки за совпадения.',
+        'Naughty пак':'Взрослая подборка с провокационными заданиями, рисованием и импровизацией. Содержит материалы 18+.',
+        'Starter пак':'Три проверенные игры для быстрого старта: рисунки на футболках, словесные баттлы и викторина с испытаниями.',
+        'Отдельные игры':'Дополнительные самостоятельные игры, которые не входят в основные подборки.'
+      };
+      document.querySelectorAll('.special').forEach(card=>{
+        const heading=card.querySelector('h3');
+        if(!heading) return;
+        const copy=specialDescriptions[heading.textContent.trim()];
+        if(!copy) return;
+        const p=document.createElement('p');p.className='special-description';p.textContent=copy;
+        heading.insertAdjacentElement('afterend',p);
+      });
+
       const details = {
         'Рисовач':'Рисуйте по заданию, а остальные пытаются угадать, что изображено.',
         'Рисовач 2':'Продолжение весёлой игры на рисование и угадывание.',

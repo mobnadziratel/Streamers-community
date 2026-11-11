@@ -8,97 +8,64 @@
   <meta name="description" content="Подборка игр Jackbox: паки, отдельные игры и полезные сайты для игры с друзьями.">
   <title>Все игры Jackbox — Стримерское комьюнити</title>
   <style>
-    :root{color-scheme:dark;--bg:#171326;--panel:#211b35;--panel2:#29213f;--accent:#a98acb;--accent2:#d2b9ef;--text:#f5f1fa;--muted:#b9afc8;--line:rgba(222,207,244,.14);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth;background:var(--bg)}
-    body{margin:0;min-width:320px;color:var(--text);background:radial-gradient(ellipse at 50% -12%,#493565 0,transparent 43%),linear-gradient(180deg,#1d1730 0%,#171326 48%,#14111f 100%);font-size:16px;line-height:1.48}
-    a{color:inherit}
-    .wrap{width:min(100% - 32px,900px);margin:0 auto;padding:38px 0 56px}
-    .hero{text-align:center;padding:16px 12px 28px}
-    h1{font-size:clamp(25px,5vw,36px);line-height:1.15;margin:0 0 8px;font-weight:800;letter-spacing:-.035em}
-    .jump{display:inline-flex;margin-top:22px;color:var(--muted);text-decoration:none;font-size:22px;transition:transform .2s}
-    .jump:hover{transform:translateY(4px);color:#fff}
-    .section-title{display:flex;align-items:center;gap:12px;margin:24px 0 5px;color:var(--accent2);font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
-    .section-title:after{content:"";height:1px;flex:1;background:var(--line)}
-    .additional-collections > .section-title{font-size:15px}
-    .packs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}
-    .pack{display:flex;flex-direction:column;gap:9px;padding:22px 10px 23px;border-bottom:1px solid var(--line);min-width:0}
-    .pack-art{width:100%;min-height:62px;display:flex;align-items:center;justify-content:flex-start;align-self:start;padding:4px;overflow:hidden}
-    .pack-art img{display:block;max-width:100%;max-height:68px;object-fit:contain;filter:drop-shadow(0 4px 7px #09071188)}
-    .pack-art .no-logo{font-size:9px;line-height:1.15;text-align:center;letter-spacing:.08em;font-weight:800;color:#cdb9e5;opacity:.8}
-    .pack h2{display:none}
-    .games{display:flex;flex-direction:column;gap:2px;color:#e8e1f0}
-    .games span{display:block}
-    .split{width:34px;height:2px;background:#c5acdF;margin:9px 0 8px;border-radius:2px}
-    .specials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:15px}
-    .special{display:flex;gap:15px;padding:19px 17px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,#29213f,#211a32);min-width:0}
-    .special-icon{flex:0 0 120px;width:120px;color:#d7c1f0;padding-top:2px;display:flex;align-items:flex-start;justify-content:center}
-    .special-icon svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.special-icon img{display:block;width:100%;max-width:116px;max-height:64px;object-fit:contain;filter:drop-shadow(0 3px 6px #09071188)}
-    .special h3{display:none}
-    .special-named h3{display:block;margin:0;color:var(--text);font-size:18px;font-weight:800;line-height:1.25}
-    .special-dublya h3{display:block;margin:0;color:var(--text);font-size:18px;font-weight:800;line-height:1.25}
-    .special .games{font-size:15px}
-    .links{display:grid;gap:12px;margin-top:18px}
-    .site-link{position:relative;display:flex;align-items:center;gap:15px;min-height:70px;padding:12px 20px;border-radius:16px 16px 26px 16px;background:linear-gradient(110deg,#8e70ad,#70558f);color:#fff;text-decoration:none;box-shadow:0 7px 22px #09071130;transition:transform .18s,filter .18s}
-    .site-link:hover{transform:translateY(-2px);filter:brightness(1.12)}
-    .site-link:focus-visible,.jump:focus-visible{outline:3px solid #e1c8ff;outline-offset:3px}
-    .site-icon{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center}
-    .site-icon img{width:32px;height:32px;object-fit:contain;border-radius:7px}
-    .site-copy{text-align:center;flex:1;min-width:0;padding-right:28px}
-    .site-copy strong{display:block;font-size:16px;font-weight:750}
-    .site-copy small{display:block;margin-top:1px;color:#f0e8f7;font-size:13px}
-    footer{text-align:center;color:#9f94ad;font-size:13px;margin-top:27px}
-    footer a{color:#c8b4df;text-decoration:none}
-    @media(max-width:650px){.wrap{width:min(100% - 24px,500px);padding-top:22px}.hero{padding-bottom:18px}.packs{grid-template-columns:1fr}.pack{padding:18px 5px 19px;gap:9px}.pack-art{width:100%;min-height:58px}.pack-art img{max-height:62px}.specials{grid-template-columns:1fr}.special-icon{flex-basis:110px;width:110px}.section-title{margin-top:20px}.site-link{min-height:66px;padding:10px 15px}}
-
-    /* Jackbox-like interactive game cards */
-    .games span{position:relative;width:fit-content;max-width:100%;padding:3px 9px;margin:0 0 1px -9px;border:1px solid transparent;border-radius:8px;cursor:help;transition:background .16s,border-color .16s,color .16s,transform .16s;outline:none}
-    .games span:not(.split):hover,.games span:not(.split):focus-visible,.games span.game-active{color:#fff;background:linear-gradient(100deg,rgba(181,91,255,.23),rgba(74,205,255,.15));border-color:rgba(194,145,255,.42);transform:translateX(4px);text-shadow:0 0 14px rgba(196,148,255,.3)}
-    .games span:not(.split):after{content:"↗";display:inline-block;margin-left:7px;color:#c9aaff;font-size:.72em;opacity:0;transition:opacity .16s}
-    .games span:not(.split):hover:after,.games span:not(.split):focus-visible:after,.games span.game-active:after{opacity:.85}
-    .game-info{position:fixed;z-index:30;left:50%;bottom:24px;transform:translateX(-50%) translateY(12px);width:min(420px,calc(100vw - 28px));padding:17px 19px;border:1px solid rgba(195,151,255,.45);border-radius:17px;background:linear-gradient(135deg,rgba(40,25,65,.98),rgba(16,27,43,.98));box-shadow:0 18px 55px #05030c99,0 0 28px rgba(154,99,255,.18);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s,transform .18s,visibility .18s;backdrop-filter:blur(14px)}
-    .game-info.visible{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
-    .game-info strong{display:block;font-size:17px;line-height:1.25;color:#fff;margin-bottom:5px}
-    .game-info small{display:block;color:#bba9d5;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px}
-    .game-info p{margin:0;color:#e1d8ed;font-size:14px;line-height:1.5}
-    .pack,.special{transition:border-color .2s,box-shadow .2s}
-    .pack:has(.games span:hover),.special:has(.games span:hover){border-color:rgba(185,135,255,.35);box-shadow:0 8px 30px rgba(113,70,175,.12)}
-    @media(max-width:650px){.game-info{bottom:12px;padding:14px 16px}.games span{padding:5px 9px}}
-    @media(prefers-reduced-motion:reduce){.games span,.game-info{transition:none!important}}
-
-    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
-  
-    .pack-description{margin:5px 0 12px;color:#b9aecb;font-size:12px;line-height:1.55;max-width:38ch}
-    .pack h2{margin-bottom:3px}
-    .pack-description a{color:#c6aaff;text-decoration:none}
-    .pack-description a:hover{text-decoration:underline}
-    .special-description{margin:5px 0 0;color:#b9aecb;font-size:12px;line-height:1.5;max-width:36ch}
-    @media(max-width:650px){.pack-description,.special-description{font-size:12px;max-width:none}}
-
-    .pack-hover-title{display:inline-block;cursor:help;border-radius:7px;transition:color .16s,text-shadow .16s,transform .16s;outline-offset:4px}
-    .pack-hover-title:hover,.pack-hover-title:focus-visible,.pack-hover-title.game-active{color:#d8c1ff;text-shadow:0 0 16px rgba(190,135,255,.5);transform:translateY(-1px)}
-
-    /* Pack descriptions are triggered by the visible logo, not the hidden heading. */
-    .pack .pack-art.pack-hover-title{cursor:help;min-width:0;border-radius:10px;outline-offset:3px}
-    .pack .pack-art.pack-hover-title:hover,.pack .pack-art.pack-hover-title:focus-visible,.pack .pack-art.pack-hover-title.game-active{filter:brightness(1.16);box-shadow:0 0 0 1px rgba(190,135,255,.42),0 0 18px rgba(160,105,255,.2)}
-    .games span{display:block;align-self:flex-start;width:max-content;max-width:none;min-width:0;box-sizing:border-box;white-space:nowrap;overflow:visible;text-overflow:clip;line-height:1.35}
-
-/* JACKBOX — redesigned to match the refreshed Streamers Community */
-:root{color-scheme:dark;--bg:#0b0913;--panel:#151123;--panel2:#201832;--accent:#b48aff;--accent2:#e1c9ff;--text:#f7f2ff;--muted:#aaa0bc;--line:rgba(205,177,255,.17)}
-html{background:#0b0913!important}
-body{background:radial-gradient(ellipse at 50% -12%,rgba(123,76,187,.28),transparent 43%),radial-gradient(ellipse at 100% 40%,rgba(63,82,145,.12),transparent 35%),linear-gradient(180deg,#100c1b,#0b0913 68%,#090810)!important;color:var(--text)!important}
-.wrap{width:min(100% - 32px,1080px)!important}
-.hero{padding:28px 18px 34px!important;border:1px solid var(--line)!important;border-radius:26px!important;background:linear-gradient(140deg,rgba(34,24,53,.95),rgba(15,17,31,.94))!important;box-shadow:0 24px 70px rgba(0,0,0,.34)!important}
-h1{letter-spacing:-.04em!important;background:linear-gradient(100deg,#fff,#d8bcff 62%,#a9baff);-webkit-background-clip:text;background-clip:text;color:transparent}
-.pack,.special,.game-card{border:1px solid var(--line)!important;border-radius:20px!important;background:linear-gradient(145deg,rgba(29,22,46,.96),rgba(15,15,28,.98))!important;box-shadow:0 14px 40px rgba(0,0,0,.22)!important;transition:transform .2s,border-color .2s,box-shadow .2s!important}
-.pack:hover,.special:hover,.game-card:hover{transform:translateY(-3px);border-color:rgba(190,151,255,.42)!important;box-shadow:0 20px 46px rgba(0,0,0,.32),0 0 25px rgba(141,93,211,.1)!important}
-.pack-art,.special-icon{border-radius:14px!important}
-#gameInfo,.game-info,.description-panel{border:1px solid rgba(190,151,255,.3)!important;border-radius:18px!important;background:rgba(18,13,30,.97)!important;box-shadow:0 18px 50px rgba(0,0,0,.42)!important;backdrop-filter:blur(18px)}
-.pack h2,.special h3,.games span{letter-spacing:-.02em}
-.pack-hover-title:hover,.pack-hover-title:focus-visible,.pack-hover-title.game-active{color:#e4d3ff!important;text-shadow:0 0 18px rgba(190,135,255,.42)!important}
-.games span{overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important}
-@media(max-width:650px){.wrap{width:calc(100% - 24px)!important}.hero{border-radius:20px!important}.pack,.special{border-radius:16px!important}}
-
+:root{color-scheme:dark;--ink:#f9f5ff;--muted:#b9b0cc;--violet:#b77cff;--pink:#ff65c8;--cyan:#6de7ff;--lime:#d8ff72;--line:rgba(223,204,255,.18);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html{min-width:320px;background:#090812;scroll-behavior:smooth}
+body{margin:0;min-width:320px;color:var(--ink);font-size:15px;line-height:1.5;background:radial-gradient(ellipse at 50% -15%,rgba(130,70,196,.34),transparent 42%),radial-gradient(ellipse at 0% 48%,rgba(34,154,191,.1),transparent 34%),radial-gradient(ellipse at 100% 78%,rgba(214,72,170,.09),transparent 35%),#090812}
+a{color:inherit}
+.wrap{width:min(100% - 40px,1120px);margin:0 auto;padding:36px 0 60px}
+.hero{height:64px;margin:0 0 25px;position:relative;overflow:hidden;border:1px solid var(--line);border-radius:22px;background:linear-gradient(110deg,rgba(32,22,52,.92),rgba(13,22,36,.92));box-shadow:0 18px 50px #0005}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;filter:blur(2px)}
+.hero:before{width:220px;height:220px;left:12%;top:-190px;background:radial-gradient(circle,rgba(255,101,200,.4),transparent 68%)}
+.hero:after{width:240px;height:240px;right:12%;top:-190px;background:radial-gradient(circle,rgba(109,231,255,.35),transparent 68%)}
+.section-title{display:flex;align-items:center;gap:13px;margin:36px 0 17px;color:#f1e7ff;font-size:12px;font-weight:900;letter-spacing:.19em;text-transform:uppercase}
+.section-title:before{content:"";width:7px;height:7px;flex:0 0 7px;border-radius:2px;background:var(--pink);box-shadow:0 0 13px var(--pink);transform:rotate(45deg)}
+.section-title:after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba(183,124,255,.45),transparent)}
+.packs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.pack{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,.78fr);align-items:center;gap:14px;min-width:0;min-height:176px;padding:17px 19px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,rgba(29,23,46,.97),rgba(14,19,32,.98));box-shadow:0 13px 36px #0004;transition:transform .22s,border-color .22s,box-shadow .22s}
+.pack:before{content:"";position:absolute;z-index:-1;inset:0;border-radius:inherit;opacity:0;background:linear-gradient(120deg,rgba(255,101,200,.08),rgba(109,231,255,.08));transition:opacity .22s}
+.pack:hover,.pack:focus-within{transform:translateY(-3px);border-color:rgba(183,124,255,.55);box-shadow:0 20px 45px #0006,0 0 24px rgba(183,124,255,.1)}
+.pack:hover:before{opacity:1}
+.pack-art{grid-column:2;grid-row:1/3;display:flex;align-items:center;justify-content:center;align-self:stretch;min-width:0;min-height:110px;padding:9px;overflow:visible;border:1px solid rgba(255,255,255,.07);border-radius:15px;background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.015));cursor:help;transition:background .2s,border-color .2s,filter .2s}
+.pack-art img{display:block;width:100%;max-width:230px;max-height:100px;object-fit:contain;filter:drop-shadow(0 8px 12px #0008)}
+.pack-art:hover,.pack-art:focus-visible,.pack-art.game-active{border-color:rgba(109,231,255,.6);background:linear-gradient(145deg,rgba(183,124,255,.17),rgba(109,231,255,.08));filter:brightness(1.12);outline:2px solid rgba(109,231,255,.2);outline-offset:2px}
+.pack h2{display:block;grid-column:1;grid-row:1;margin:0;color:var(--muted);font-size:11px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}
+.pack>div:last-child{grid-column:1;grid-row:2;min-width:0}
+.games{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;color:#eae3f4;font-size:13px}
+.games span{position:relative;display:block;align-self:flex-start;width:max-content;max-width:100%;min-width:0;margin:0;padding:3px 8px;border:1px solid transparent;border-radius:7px;overflow:visible;white-space:nowrap;text-overflow:clip;line-height:1.35;cursor:help;outline:none;transition:background .16s,border-color .16s,color .16s,transform .16s}
+.games span:not(.split):hover,.games span:not(.split):focus-visible,.games span.game-active{color:#fff;background:linear-gradient(90deg,rgba(255,101,200,.16),rgba(109,231,255,.12));border-color:rgba(109,231,255,.28);transform:translateX(3px)}
+.games span:not(.split):after{content:"";display:inline-block;width:5px;height:5px;margin:0 0 2px 7px;border-radius:50%;background:var(--cyan);opacity:0;box-shadow:0 0 8px var(--cyan);transition:opacity .16s}
+.games span:not(.split):hover:after,.games span:not(.split):focus-visible:after,.games span.game-active:after{opacity:1}
+.games .split{display:block;width:28px;height:2px;margin:7px 0;border:0;border-radius:2px;background:linear-gradient(90deg,var(--pink),transparent)}
+.additional-collections .section-title{margin-top:45px}
+.specials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.special{position:relative;display:flex;align-items:center;gap:16px;min-width:0;min-height:126px;padding:17px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,rgba(32,24,50,.97),rgba(14,20,33,.98));box-shadow:0 12px 30px #0004;transition:transform .2s,border-color .2s,box-shadow .2s}
+.special:hover,.special:focus-within{transform:translateY(-3px);border-color:rgba(255,101,200,.48);box-shadow:0 18px 38px #0006}
+.special-icon{display:flex;flex:0 0 118px;width:118px;min-height:75px;align-items:center;justify-content:center;padding:8px;border:1px solid rgba(255,255,255,.07);border-radius:13px;background:rgba(255,255,255,.035);cursor:help;transition:border-color .2s,background .2s}
+.special-icon img{display:block;width:100%;max-width:110px;max-height:65px;object-fit:contain;filter:drop-shadow(0 5px 8px #0008)}
+.special-icon:hover,.special-icon:focus-visible,.special-icon.game-active{border-color:rgba(109,231,255,.55);background:rgba(109,231,255,.08);outline:2px solid rgba(109,231,255,.14);outline-offset:2px}
+.special h3{display:none}
+.special-named h3,.special-dublya h3{display:block;margin:0;color:#fff;font-size:17px;line-height:1.25;font-weight:850;letter-spacing:-.02em}
+.special .games{font-size:13px}
+.links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.site-link{display:flex;align-items:center;gap:13px;min-height:76px;padding:13px 16px;border:1px solid var(--line);border-radius:15px;background:linear-gradient(115deg,rgba(38,28,58,.96),rgba(16,24,38,.96));color:var(--ink);text-decoration:none;box-shadow:0 9px 25px #0003;transition:transform .18s,border-color .18s,background .18s}
+.site-link:hover{transform:translateY(-2px);border-color:rgba(109,231,255,.45);background:linear-gradient(115deg,rgba(57,37,80,.98),rgba(17,35,49,.98))}
+.site-link:focus-visible,.jump:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.site-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border:1px solid rgba(255,255,255,.1);border-radius:11px;background:rgba(255,255,255,.06)}
+.site-icon img{width:27px;height:27px;object-fit:contain;border-radius:6px}
+.site-copy{flex:1;min-width:0}
+.site-copy strong{display:block;font-size:13px;font-weight:850;letter-spacing:.04em}
+.site-copy small{display:block;margin-top:3px;color:var(--muted);font-size:12px}
+.game-info{position:fixed;z-index:30;left:50%;bottom:22px;transform:translate(-50%,14px);width:min(460px,calc(100vw - 28px));padding:18px 20px;border:1px solid rgba(109,231,255,.45);border-radius:17px;background:linear-gradient(135deg,rgba(27,19,43,.98),rgba(9,24,37,.98));box-shadow:0 22px 65px #000b,0 0 30px rgba(109,231,255,.12);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s,transform .18s,visibility .18s;backdrop-filter:blur(18px)}
+.game-info.visible{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.game-info strong{display:block;margin:0 0 6px;color:#fff;font-size:18px;line-height:1.25}
+.game-info small{display:block;margin-bottom:8px;color:var(--cyan);font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}
+.game-info p{margin:0;color:#e3dced;font-size:14px;line-height:1.55}
+footer{margin-top:35px;padding-top:20px;border-top:1px solid var(--line);text-align:center;color:#8f879f;font-size:12px}
+footer a{color:#cdb5ff;text-decoration:none}
+@media(max-width:760px){.wrap{width:min(100% - 26px,560px);padding:20px 0 42px}.hero{height:44px;border-radius:15px;margin-bottom:16px}.packs,.specials,.links{grid-template-columns:1fr}.pack{min-height:148px;padding:14px;grid-template-columns:minmax(0,1fr) minmax(118px,.72fr);gap:9px}.pack-art{min-height:95px;padding:6px}.pack-art img{max-height:82px}.pack .games{font-size:12px}.special{min-height:108px;padding:13px;gap:13px}.special-icon{flex-basis:102px;width:102px;min-height:68px}.special-icon img{max-height:58px}.section-title{margin:27px 0 13px}.additional-collections .section-title{margin-top:35px}.game-info{bottom:12px;padding:15px 16px}.games span{padding:5px 7px}}
+@media(max-width:390px){.pack{grid-template-columns:minmax(0,1fr) 112px}.pack h2{font-size:10px}.pack .games{font-size:11px}.special-icon{flex-basis:88px;width:88px}.special-named h3,.special-dublya h3{font-size:15px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
@@ -161,18 +128,18 @@ h1{letter-spacing:-.04em!important;background:linear-gradient(100deg,#fff,#d8bcf
       const collection = document.getElementById('gameCollection');
       const description = document.getElementById('gameDescription');
       const packDescriptions = {
-        '1 пак':'Первая коллекция серии: пять игр — викторина «А голову ты не забыл? 2015», рисовальная «Рисовач», словесная «Словоблуд», викторина-факты «Мухи-врухи» и блеф-викторина «Бредовуха XL». В наборе есть как быстрые вопросы, так и творческие задания для компании.',
-        '2 пак':'Пять игр для компании: «Бредовуха 2» — придумывайте ложные ответы и находите правду; «Звукварь» — изображайте звуки; «Дуракцион» — торгуйтесь за рисунки; «СмеXLыст» — соревнуйтесь в шутках; «Бомб Корп.» — вместе обезвреживайте бомбы.',
-        '3 пак':'Пять игр: «Смехлыст 2» с пользовательскими заданиями, «Смертельная вечеринка» — викторина с испытаниями убийцы, «Нашшпионаж» — угадывайте результаты опросов, «Обмани меня!» — ищите игрока, скрывающего вопрос, и «Футбол К.О.» — создавайте смешные футболки.',
-        '4 пак':'Пять игр с разными форматами: «Бредовуха 3» и режим «Мы всё про вас знаем», «Выжить в Интернете» — превращайте сообщения в вирусные посты, «Монстр ищет монстра» — свидания с тайными личностями, «Панччемпионат» — турнир смешных ответов и «Гражданский холст» — совместное украшение города рисунками.',
-        '5 пак':'Пять игр: «А голову ты не забыл? Full Stream» — викторина в вымышленном стриминговом сервисе, «Раздели комнату» — спорные ситуации «что, если», «Город злых рифм» — рэп-баттлы роботов, «Купол Зипол» — космическое состязание и «Творим патенты» — рисуйте изобретения для странных проблем.',
-        '6 пак':'Пять игр: «Смертельная вечеринка 2» — викторина на выживание, «Анализ роли» — определяйте характеры и роли, «Корабль смеха» — комедийное шоу на круизном лайнере, «Словариум» — придумывайте определения и «Жми на кнопку» — вычисляйте инопланетян среди людей.',
-        '7 пак':'Пять игр: «Смехлыст 3» — отвечайте на смешные задания, «Дьяволы в деталях» — семья демонов осваивает человеческую жизнь, «ГладиАРТоры» — создавайте бойцов с необычными титулами, «На пальцах» — импровизируйте с презентацией. Пятая игра набора — Blather ’Round; по прежней просьбе она не добавляется в список сайта.',
-        '8 пак':'Пять игр: «За работой» — составляйте ответы из слов коллег, «Подземнения» — командой проходите опросное подземелье, «Рисовач: Анимач» — создавайте анимации, «Колесо невероятных масштабов» — отвечайте на вопросы ради колеса фортуны и «Преступление и рисование» — расследуйте дело по рисункам.',
-        '9 пак':'Пять игр: Roomerang («Квартиранг») — реалити-шоу с ролями, Fibbage 4 — блефуйте и находите правду, Nonsensory — угадывайте значения по творческим подсказкам, Junktopia — превращайте странные предметы в ценные товары, Quixort — сортируйте ответы в правильном порядке.',
-        '10 пак':'Юбилейный десятый набор объединяет пять игр: «Футбол К.О. 2» — создавайте футболки и отправляйте их в бой; «Хроноворот» — викторина о событиях во времени; «ТекстоПрав» — совместно редактируйте текст; «Додо Ре Ми» — музыкальная игра; «Гипнозарение» — командная игра со скрытыми личностями.',
-        '11 пак':'В русской Jackbox Games Wiki отдельная статья с подтверждённым описанием этого набора пока не найдена.',
-        '12 пак':'В русской Jackbox Games Wiki отдельная статья с подтверждённым описанием этого набора пока не найдена.'
+        '1 пак':'Пять классических игр: «А голову ты не забыл? 2015» — музыкальная поп-культура и каверзная викторина; «Рисовач» — рисуйте и угадывайте; «Мухи-врухи» — отвечайте на необычные факты; «Бредовуха XL» — обманывайте друзей выдуманными ответами; Word Spud — продолжайте фразы словами.',
+        '2 пак':'Пять игр: «Бредовуха 2» — придумывайте ложные ответы и находите правду; «Звукварь» — создавайте звуки голосом; «Дуракцион» — торгуйтесь за абсурдные рисунки; «СмеХлыст» — соревнуйтесь в шутках; «Бомб Корп.» — вместе обезвреживайте бомбы в офисе.',
+        '3 пак':'Пять игр: «Смехлыст 2» — отвечайте на смешные задания; «Смертельная вечеринка» — выживайте в викторине серийного убийцы; «Нашшпионаж» — угадывайте результаты опросов; «Обмани меня!» — раскройте, кто скрывает вопрос; «Футбол К.О.» — создавайте необычные футболки.',
+        '4 пак':'Пять игр: «Бредовуха 3» — блефуйте и угадывайте правду; «Выжить в Интернете» — превращайте фразы в вирусные посты; «Монстр ищет монстра» — ищите пару среди монстров; «Панччемпионат» — пишите шутки для комедийного турнира; «Гражданский холст» — вместе меняйте облик города рисунками.',
+        '5 пак':'Пять игр: «А голову ты не забыл? Full Stream» — викторина в вымышленном стриминговом сервисе; «Раздели комнату» — спорьте о безумных гипотезах; «Город злых рифм» — устраивайте рэп-баттлы; «Купол Зипол» — соревнуйтесь в космическом шоу; «Творим патенты» — рисуйте изобретения для странных проблем.',
+        '6 пак':'Пять игр: «Смертельная вечеринка 2» — переживите викторину в отеле смерти; «Анализ роли» — вычисляйте характеры и скрытые роли; «Корабль смеха» — создавайте комедийное шоу; «Словариум» — придумывайте определения; «Жми на кнопку» — ищите инопланетян среди команды.',
+        '7 пак':'Пять игр: «Смехлыст 3» — придумывайте смешные ответы; «Дьяволы в деталях» — помогайте семье демонов справляться с человеческой жизнью; «ГладиАРТоры» — создавайте бойцов и их титулы; «На пальцах» — выступайте с неожиданными презентациями; «Густой трёп» — угадывайте поп-культурные понятия по подсказкам.',
+        '8 пак':'Пять игр: «Рисовач: Анимач» — создавайте короткие анимации; «Колесо невероятных масштабов» — отвечайте на вопросы ради главного приза; «За работой» — собирайте смешные ответы из слов коллег; «Подземнения» — командой выбирайтесь из логова ведьмы; «Преступление и рисование» — рисуйте улики и расследуйте убийства.',
+        '9 пак':'Пять игр: «Бредовуха 4» — обманывайте друзей новыми способами; «Квартиранг» — участвуйте в комедийном реалити-шоу; «Хламотопия» — придумывайте истории для странных предметов; «Несуразум» — передавайте идеи рисунками и словами; «Скоросорт» — быстро сортируйте ответы по категориям.',
+        '10 пак':'Пять игр: «Футбол К.О. 2» — создавайте футболки, которые сразятся друг с другом; «Хроноворот» — отвечайте на вопросы о событиях во времени; «ТекстоПрав» — редактируйте общий текст; «Додо Ре Ми» — сочиняйте музыку из звуков; «Гипнозарение» — вычисляйте скрытые роли по ответам.',
+        '11 пак':'Пять игр: «Подозрективы» (Suspectives) — раскройте преступление по ответам участников опроса; «Думинейт» (Doominate) — превращайте милое в разрушительное в юмористическом баттле; «Legends of Trivia» — проходите фэнтезийную RPG-викторину; «Звук Вслух» (Hear Say) — создавайте комичные звуковые сцены с микрофоном телефона; «Дом Печений» (Cookie Haus) — украшайте печенье по заказам необычных клиентов.',
+        '12 пак':'Пять новых игр: «Вы забыли открытку» — создавайте нелепые поздравительные открытки; «Гиперфейс» (Hyperface) — искажайте селфи и фотографии под забавные задания; «Дебаты навыворот» (Debate and Switch) — убеждайте компанию в своей позиции; «Айдол Фэкшнс» (Idol Factions) — командами сортируйте факты по категориям; «Мегадруг» (MegaPals) — проверяйте, насколько хорошо вы понимаете ход мыслей друзей.'
       };
       const details = {
         'Рисовач':'Рисуйте по заданию, а остальные пытаются угадать, что изображено.',
@@ -241,18 +208,19 @@ h1{letter-spacing:-.04em!important;background:linear-gradient(100deg,#fff,#d8bcf
         heading.classList.add('game-active');
         playHoverSound();
       }
-      document.querySelectorAll('.pack').forEach(card=>{
+      document.querySelectorAll('.pack').forEach((card,index)=>{
         const heading=card.querySelector('h2');
         const trigger=card.querySelector('.pack-art');
         if(!heading||!trigger) return;
         const name=heading.textContent.trim();
-        const copy=packDescriptions[name];
+        const number=(name.match(/\\d+/)||[])[0]||String(index+1);
+        const copy=packDescriptions[number+' пак'];
         if(!copy) return;
         trigger.classList.add('pack-hover-title');
         trigger.tabIndex=0;
         trigger.setAttribute('role','button');
-        trigger.setAttribute('aria-label','Описание набора '+name);
-        const open=()=>showPack(trigger,name,copy);
+        trigger.setAttribute('aria-label','Показать описание: The Jackbox Party Pack '+number);
+        const open=()=>showPack(trigger,'The Jackbox Party Pack '+number,copy);
         trigger.addEventListener('pointerenter',open);
         trigger.addEventListener('pointerleave',()=>hideDescription(trigger));
         trigger.addEventListener('focus',open);

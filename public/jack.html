@@ -50,6 +50,22 @@
     footer{text-align:center;color:#9f94ad;font-size:13px;margin-top:27px}
     footer a{color:#c8b4df;text-decoration:none}
     @media(max-width:650px){.wrap{width:min(100% - 24px,500px);padding-top:22px}.hero{padding-bottom:18px}.packs{grid-template-columns:1fr}.pack{padding:18px 5px 19px;gap:9px}.pack-art{width:100%;min-height:58px}.pack-art img{max-height:62px}.specials{grid-template-columns:1fr}.special-icon{flex-basis:110px;width:110px}.section-title{margin-top:20px}.site-link{min-height:66px;padding:10px 15px}}
+
+    /* Jackbox-like interactive game cards */
+    .games span{position:relative;width:fit-content;max-width:100%;padding:3px 9px;margin:0 0 1px -9px;border:1px solid transparent;border-radius:8px;cursor:help;transition:background .16s,border-color .16s,color .16s,transform .16s;outline:none}
+    .games span:not(.split):hover,.games span:not(.split):focus-visible,.games span.game-active{color:#fff;background:linear-gradient(100deg,rgba(181,91,255,.23),rgba(74,205,255,.15));border-color:rgba(194,145,255,.42);transform:translateX(4px);text-shadow:0 0 14px rgba(196,148,255,.3)}
+    .games span:not(.split):after{content:"↗";display:inline-block;margin-left:7px;color:#c9aaff;font-size:.72em;opacity:0;transition:opacity .16s}
+    .games span:not(.split):hover:after,.games span:not(.split):focus-visible:after,.games span.game-active:after{opacity:.85}
+    .game-info{position:fixed;z-index:30;left:50%;bottom:24px;transform:translateX(-50%) translateY(12px);width:min(420px,calc(100vw - 28px));padding:17px 19px;border:1px solid rgba(195,151,255,.45);border-radius:17px;background:linear-gradient(135deg,rgba(40,25,65,.98),rgba(16,27,43,.98));box-shadow:0 18px 55px #05030c99,0 0 28px rgba(154,99,255,.18);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s,transform .18s,visibility .18s;backdrop-filter:blur(14px)}
+    .game-info.visible{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+    .game-info strong{display:block;font-size:17px;line-height:1.25;color:#fff;margin-bottom:5px}
+    .game-info small{display:block;color:#bba9d5;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px}
+    .game-info p{margin:0;color:#e1d8ed;font-size:14px;line-height:1.5}
+    .pack,.special{transition:border-color .2s,box-shadow .2s}
+    .pack:has(.games span:hover),.special:has(.games span:hover){border-color:rgba(185,135,255,.35);box-shadow:0 8px 30px rgba(113,70,175,.12)}
+    @media(max-width:650px){.game-info{bottom:12px;padding:14px 16px}.games span{padding:5px 9px}}
+    @media(prefers-reduced-motion:reduce){.games span,.game-info{transition:none!important}}
+
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
   </style>
 </head>
@@ -103,5 +119,100 @@
     </section>
     <footer>Страница проекта <a href="https://small-streamers.de1.netrun.io/">Streamers community</a></footer>
   </main>
+  <aside class="game-info" id="gameInfo" role="status" aria-live="polite">
+    <small id="gameCollection"></small><strong id="gameTitle"></strong><p id="gameDescription"></p>
+  </aside>
+  <script>
+    (() => {
+      const panel = document.getElementById('gameInfo');
+      const title = document.getElementById('gameTitle');
+      const collection = document.getElementById('gameCollection');
+      const description = document.getElementById('gameDescription');
+      const details = {
+        'Рисовач':'Рисуйте по заданию, а остальные пытаются угадать, что изображено.',
+        'Рисовач 2':'Продолжение весёлой игры на рисование и угадывание.',
+        'Слово Блуд':'Соревнование в остроумных ответах и игре со словами.',
+        'Мухи Врухи':'Игра на блеф: придумайте убедительный ответ и распознайте выдумки.',
+        'Бредовуха XL':'Придумывайте смешные ответы и голосуйте за самые убедительные.',
+        'You Don\'t Know Jack 2015':'Шумная викторина с неожиданными вопросами и хитрыми вариантами ответов.',
+        'Смертельная Вечеринка':'Викторина, в которой неправильные ответы могут стоить игроку места в игре.',
+        'Смертельная Вечеринка 2':'Продолжение безумной викторины на знания и внимательность.',
+        'Смертельная Вечеринка 3':'Третья часть викторины с ловушками и неожиданными вопросами.',
+        'Смехлыст':'Придумайте смешное продолжение фразы и выберите лучший вариант.',
+        'Смехлыст 2':'Новый раунд словесных шуток, неожиданных сочетаний и голосования.',
+        'Смехлыст 3':'Третья версия состязания в коротких смешных ответах.',
+        'Нашшпионаж':'Попробуйте вычислить шпиона, задавая вопросы и анализируя ответы.',
+        'Обмани меня!':'Сочиняйте правдоподобные объяснения и находите настоящие факты.',
+        'Футбол К.О.':'Рисуйте и угадывайте слова в быстром командном соревновании.',
+        'Выжить В Интернете':'Превратите обычные сообщения в смешные интернет-посты.',
+        'Монстр Ищет Монстра':'Знакомьтесь, переписывайтесь и угадывайте, кто скрывается за сообщениями.',
+        'Гражданский холст':'Вместе создавайте рисунок, выполняя задания и дополняя работу других.',
+        'Blather Round':'Объясняйте известные вещи подсказками, не называя их напрямую.',
+        'Жми На Кнопку':'Реагируйте на задания и принимайте решения под давлением времени.',
+        'Trivia Murder Party 3':'Викторина в хоррор-атмосфере: отвечайте правильно, чтобы остаться в игре.',
+        'Борьба опросов':'Угадывайте самые популярные ответы на вопросы опроса.',
+        'Турнир':'Соревнуйтесь в раундах и попробуйте добраться до победы.',
+        'Выше — Ниже':'Угадайте, какое значение выше, а какое ниже.',
+        'Понг':'Классическая аркадная дуэль на реакцию.',
+        'Ставки':'Рискните очками, поставив на предполагаемый результат.',
+        'Скачки':'Выбирайте фаворита и следите за гонкой до финиша.',
+        'Verse Surf':'Создавайте и проходите музыкальные уровни вместе с другими игроками.',
+        'Dungeon Box Demo':'Совместное приключение в подземелье с испытаниями и неожиданностями.'
+      };
+      let audio;
+      let lastSound = 0;
+      function playHoverSound(){
+        const now = Date.now();
+        if(now-lastSound<110) return;
+        lastSound=now;
+        try{
+          const AudioCtx=window.AudioContext||window.webkitAudioContext;
+          if(!AudioCtx) return;
+          audio=audio||new AudioCtx();
+          if(audio.state==='suspended') audio.resume();
+          const start=audio.currentTime;
+          [660,880].forEach((hz,i)=>{
+            const osc=audio.createOscillator(),gain=audio.createGain();
+            osc.type='triangle';osc.frequency.setValueAtTime(hz,start+i*.055);
+            gain.gain.setValueAtTime(.0001,start+i*.055);
+            gain.gain.exponentialRampToValueAtTime(.045,start+i*.055+.012);
+            gain.gain.exponentialRampToValueAtTime(.0001,start+i*.055+.105);
+            osc.connect(gain);gain.connect(audio.destination);
+            osc.start(start+i*.055);osc.stop(start+i*.055+.12);
+          });
+        }catch(_){}
+      }
+      function showGame(el){
+        const name=el.textContent.trim();
+        if(!name||el.classList.contains('split')) return;
+        const pack=el.closest('.pack,.special');
+        const packName=pack?.querySelector('h2,.special-named h3,.special-dublya h3,.special h3')?.textContent.trim()||'Jackbox';
+        title.textContent=name;
+        collection.textContent=packName;
+        description.textContent=details[name]||('Мини-игра из подборки «'+packName+'». Наведите курсор на другие названия, чтобы посмотреть их карточки.');
+        panel.classList.add('visible');
+        document.querySelectorAll('.game-active').forEach(x=>x.classList.remove('game-active'));
+        el.classList.add('game-active');
+        playHoverSound();
+      }
+      document.querySelectorAll('.games span').forEach(el=>{
+        if(el.classList.contains('split')) return;
+        el.tabIndex=0;
+        el.setAttribute('role','button');
+        el.setAttribute('aria-label','Информация об игре: '+el.textContent.trim());
+        el.addEventListener('pointerenter',()=>showGame(el));
+        el.addEventListener('focus',()=>showGame(el));
+        el.addEventListener('click',()=>showGame(el));
+        el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showGame(el)}});
+      });
+      document.addEventListener('pointerdown',e=>{
+        if(!e.target.closest('.games span')) {
+          panel.classList.remove('visible');
+          document.querySelectorAll('.game-active').forEach(x=>x.classList.remove('game-active'));
+        }
+      });
+      document.addEventListener('keydown',e=>{if(e.key==='Escape'){panel.classList.remove('visible');document.querySelectorAll('.game-active').forEach(x=>x.classList.remove('game-active'));}});
+    })();
+  </script>
 </body>
 </html>

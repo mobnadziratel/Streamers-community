@@ -8,73 +8,97 @@
   <meta name="description" content="Подборка игр Jackbox: паки, отдельные игры и полезные сайты для игры с друзьями.">
   <title>Все игры Jackbox — Стримерское комьюнити</title>
   <style>
-:root{color-scheme:dark;--night:#10172d;--cream:#e8e5dc;--yellow:#e5cf79;--pink:#d9829b;--blue:#82b9ce;--green:#a8c78a;--ink:#eeeaf0;--muted:#aeb6c8;font-family:Arial,Helvetica,sans-serif}
-*{box-sizing:border-box}
-html,body{margin:0;min-width:320px;min-height:100%;background:#10172d!important;color:var(--ink)}
-body{font-size:15px;line-height:1.45;background:radial-gradient(ellipse at 50% 0%,#202b48 0,transparent 55%),#121a2d!important}
-.wrap{width:min(100% - 36px,1160px);margin:auto;padding:26px 0 58px}
-.hero{height:14px;margin:0 0 26px;border:0;background:linear-gradient(90deg,#d9829b,#e5cf79,#82b9ce,#a8c78a);border-radius:99px;box-shadow:0 0 12px #82b9ce22}
-.section-title{display:flex;align-items:center;gap:12px;margin:35px 0 18px;color:#d9c98d;font-size:13px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
-.section-title:before{content:"";width:10px;height:10px;background:var(--pink);border:2px solid var(--cream);border-radius:3px;transform:rotate(-8deg)}
-.section-title:after{content:"";height:3px;flex:1;background:repeating-linear-gradient(90deg,#65759b 0 8px,transparent 8px 14px);opacity:.55}
-.packs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 34px}
-.pack{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(145px,.78fr);align-items:center;gap:12px;min-width:0;min-height:165px;padding:8px 0 13px;border:0;border-bottom:1px dashed #4d5a75;background:transparent!important;box-shadow:none!important;border-radius:0;transition:transform .2s}
-.pack:hover{transform:translateY(-2px)}
-.pack:before{display:none!important}
-.pack-art{grid-column:2;grid-row:1/3;display:flex;align-items:center;justify-content:center;min-width:0;min-height:116px;padding:0;overflow:visible;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;cursor:help;transition:transform .2s,filter .2s}
-.pack-art img{display:block;width:100%;max-width:245px;max-height:125px;object-fit:contain;filter:drop-shadow(0 3px 0 #080d1b) drop-shadow(0 6px 8px #0005)}
-.pack-art:hover,.pack-art:focus-visible,.pack-art.game-active{background:transparent!important;border:0!important;outline:0;transform:scale(1.06);filter:drop-shadow(0 0 8px #e5cf7944)}
-/* Номер набора скрыт: его визуально заменяет оригинальный логотип справа. Текст оставлен в DOM для скрипта описаний. */\n.pack h2{display:none!important}
-.pack>div:last-child{grid-column:1;grid-row:2;min-width:0}
-.games{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0}
-.games span{display:block;align-self:flex-start;width:auto;max-width:100%;min-width:0;margin:0;padding:0;border:0!important;border-radius:0!important;overflow:visible;white-space:nowrap;text-overflow:clip;line-height:1;cursor:help;outline:none;background:transparent!important;transition:transform .16s,filter .16s}
-.games span:not(.split):hover,.games span:not(.split):focus-visible,.games span.game-active{background:transparent!important;border:0!important;transform:translateX(5px) scale(1.04);filter:drop-shadow(0 0 5px #e5cf7944)}
-.games span:not(.split):after{display:none!important}
-.games span.game-logo-item img{display:block;width:auto;max-width:min(100%,235px);height:27px;object-fit:contain;object-position:left center;filter:drop-shadow(0 2px 0 #090e1d);transition:filter .16s}
-.games span.game-logo-item:hover img,.games span.game-logo-item:focus-visible img,.games span.game-logo-item.game-active img{filter:drop-shadow(0 0 5px #e5cf7966) drop-shadow(0 2px 0 #090e1d)}
-.games .split{display:block;width:35px;height:3px;margin:7px 0;border:0;border-radius:5px;background:linear-gradient(90deg,var(--pink),transparent)}
-.additional-collections .section-title{margin-top:46px}
-.specials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 30px}
-.special{display:flex;align-items:center;gap:17px;min-width:0;min-height:100px;padding:8px 0 13px;border:0;border-bottom:2px dashed #64708c;border-radius:0;background:transparent!important;box-shadow:none!important;transition:transform .2s}
-.special:hover{transform:translateY(-2px)}
-.special-icon{display:flex;flex:0 0 116px;width:116px;min-height:74px;align-items:center;justify-content:center;padding:0;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;cursor:help}
-.special-icon img{display:block;width:100%;max-width:112px;max-height:68px;object-fit:contain;filter:drop-shadow(0 3px 0 #090e1d)}
-.special-icon:hover,.special-icon:focus-visible,.special-icon.game-active{border:0!important;background:transparent!important;outline:0;filter:drop-shadow(0 0 10px #ff6e9c);transform:scale(1.06)}
-.special h3{display:none!important}
-.special .games{font-size:13px}
-.special .games span.game-logo-item img{height:25px;max-width:235px}
-.links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:20px}
-.site-link{display:flex;align-items:center;gap:13px;min-height:70px;padding:12px 14px;border:2px solid #61708f;border-radius:13px;background:#1b2745!important;color:var(--ink);text-decoration:none;box-shadow:4px 4px 0 #080e1d;transition:transform .16s,border-color .16s,box-shadow .16s}
-.site-link:hover{transform:translate(-2px,-2px);border-color:var(--yellow);box-shadow:6px 6px 0 #080e1d}
-.site-link:focus-visible,.jump:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
-.site-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border:0;border-radius:9px;background:transparent}
-.site-icon img{width:32px;height:32px;object-fit:contain}
-.site-copy{flex:1;min-width:0}
-.site-copy strong{display:block;color:var(--yellow);font-size:13px;font-weight:1000;letter-spacing:.04em}
-.site-copy small{display:block;margin-top:3px;color:#d2daea;font-size:12px}
-.game-info{position:fixed;z-index:30;left:50%;bottom:20px;transform:translate(-50%,12px);width:min(480px,calc(100vw - 28px));padding:18px 20px;border:2px solid #c9b77a;border-radius:12px;background:#202b43!important;box-shadow:4px 4px 0 #080e1d,0 14px 38px #0008;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .16s,transform .16s,visibility .16s}
-.game-info.visible{opacity:1;visibility:visible;transform:translate(-50%,0)}
-.game-info strong{display:block;margin:0 0 6px;color:#e5cf79;font-size:19px;line-height:1.2;font-weight:1000}
-.game-info small{display:block;margin-bottom:8px;color:#91bdcc;font-size:10px;font-weight:1000;letter-spacing:.15em;text-transform:uppercase}
-.game-info p{margin:0;color:#e8e7e6;font-size:14px;line-height:1.55}
-footer{margin-top:36px;padding-top:18px;border-top:2px dashed #64708c;text-align:center;color:#b7c1d7;font-size:12px}
-footer a{color:var(--yellow);text-decoration:none}
-@media(max-width:760px){.wrap{width:min(100% - 26px,560px);padding:17px 0 40px}.hero{height:9px;margin-bottom:20px}.packs,.specials,.links{grid-template-columns:1fr}.pack{min-height:135px;grid-template-columns:minmax(0,1fr) minmax(110px,.72fr);gap:8px;padding:7px 0 11px}.pack-art{min-height:90px}.pack-art img{max-height:94px}.games{gap:8px}.games span.game-logo-item img{height:25px}.special{min-height:88px;gap:13px}.special-icon{flex-basis:96px;width:96px;min-height:65px}.special-icon img{max-height:60px}.section-title{margin:27px 0 14px}.additional-collections .section-title{margin-top:36px}.game-info{bottom:10px;padding:15px 16px}}
-@media(max-width:390px){.pack{grid-template-columns:minmax(0,1fr) 102px}.pack h2{font-size:10px}.special-icon{flex-basis:82px;width:82px}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important}}
+    :root{color-scheme:dark;--bg:#171326;--panel:#211b35;--panel2:#29213f;--accent:#a98acb;--accent2:#d2b9ef;--text:#f5f1fa;--muted:#b9afc8;--line:rgba(222,207,244,.14);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:var(--bg)}
+    body{margin:0;min-width:320px;color:var(--text);background:radial-gradient(ellipse at 50% -12%,#493565 0,transparent 43%),linear-gradient(180deg,#1d1730 0%,#171326 48%,#14111f 100%);font-size:16px;line-height:1.48}
+    a{color:inherit}
+    .wrap{width:min(100% - 32px,900px);margin:0 auto;padding:38px 0 56px}
+    .hero{text-align:center;padding:16px 12px 28px}
+    h1{font-size:clamp(25px,5vw,36px);line-height:1.15;margin:0 0 8px;font-weight:800;letter-spacing:-.035em}
+    .jump{display:inline-flex;margin-top:22px;color:var(--muted);text-decoration:none;font-size:22px;transition:transform .2s}
+    .jump:hover{transform:translateY(4px);color:#fff}
+    .section-title{display:flex;align-items:center;gap:12px;margin:24px 0 5px;color:var(--accent2);font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+    .section-title:after{content:"";height:1px;flex:1;background:var(--line)}
+    .additional-collections > .section-title{font-size:15px}
+    .packs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}
+    .pack{display:flex;flex-direction:column;gap:9px;padding:22px 10px 23px;border-bottom:1px solid var(--line);min-width:0}
+    .pack-art{width:100%;min-height:62px;display:flex;align-items:center;justify-content:flex-start;align-self:start;padding:4px;overflow:hidden}
+    .pack-art img{display:block;max-width:100%;max-height:68px;object-fit:contain;filter:drop-shadow(0 4px 7px #09071188)}
+    .pack-art .no-logo{font-size:9px;line-height:1.15;text-align:center;letter-spacing:.08em;font-weight:800;color:#cdb9e5;opacity:.8}
+    .pack h2{display:none}
+    .games{display:flex;flex-direction:column;gap:2px;color:#e8e1f0}
+    .games span{display:block}
+    .split{width:34px;height:2px;background:#c5acdF;margin:9px 0 8px;border-radius:2px}
+    .specials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:15px}
+    .special{display:flex;gap:15px;padding:19px 17px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,#29213f,#211a32);min-width:0}
+    .special-icon{flex:0 0 120px;width:120px;color:#d7c1f0;padding-top:2px;display:flex;align-items:flex-start;justify-content:center}
+    .special-icon svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.special-icon img{display:block;width:100%;max-width:116px;max-height:64px;object-fit:contain;filter:drop-shadow(0 3px 6px #09071188)}
+    .special h3{display:none}
+    .special-named h3{display:block;margin:0;color:var(--text);font-size:18px;font-weight:800;line-height:1.25}
+    .special-dublya h3{display:block;margin:0;color:var(--text);font-size:18px;font-weight:800;line-height:1.25}
+    .special .games{font-size:15px}
+    .links{display:grid;gap:12px;margin-top:18px}
+    .site-link{position:relative;display:flex;align-items:center;gap:15px;min-height:70px;padding:12px 20px;border-radius:16px 16px 26px 16px;background:linear-gradient(110deg,#8e70ad,#70558f);color:#fff;text-decoration:none;box-shadow:0 7px 22px #09071130;transition:transform .18s,filter .18s}
+    .site-link:hover{transform:translateY(-2px);filter:brightness(1.12)}
+    .site-link:focus-visible,.jump:focus-visible{outline:3px solid #e1c8ff;outline-offset:3px}
+    .site-icon{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center}
+    .site-icon img{width:32px;height:32px;object-fit:contain;border-radius:7px}
+    .site-copy{text-align:center;flex:1;min-width:0;padding-right:28px}
+    .site-copy strong{display:block;font-size:16px;font-weight:750}
+    .site-copy small{display:block;margin-top:1px;color:#f0e8f7;font-size:13px}
+    footer{text-align:center;color:#9f94ad;font-size:13px;margin-top:27px}
+    footer a{color:#c8b4df;text-decoration:none}
+    @media(max-width:650px){.wrap{width:min(100% - 24px,500px);padding-top:22px}.hero{padding-bottom:18px}.packs{grid-template-columns:1fr}.pack{padding:18px 5px 19px;gap:9px}.pack-art{width:100%;min-height:58px}.pack-art img{max-height:62px}.specials{grid-template-columns:1fr}.special-icon{flex-basis:110px;width:110px}.section-title{margin-top:20px}.site-link{min-height:66px;padding:10px 15px}}
 
-/* Original pack wordmarks replace text labels; restrained monochrome palette */
-.pack{grid-template-columns:minmax(0,1fr);min-height:160px;gap:8px;padding:12px 0 15px}
-.pack-art{display:none!important}
-.pack h2{display:flex!important;grid-column:1;grid-row:1;align-items:center;justify-content:flex-start;width:100%;min-height:60px;margin:0;padding:0;cursor:help;outline:none}
-.pack h2 img{display:block;width:auto;max-width:min(100%,270px);height:auto;max-height:72px;object-fit:contain;object-position:left center;filter:grayscale(1) brightness(1.25) drop-shadow(0 3px 0 #080d1b);transition:filter .18s,transform .18s}
-.pack h2:hover img,.pack h2:focus-visible img,.pack h2.game-active img{filter:grayscale(1) brightness(1.55) drop-shadow(0 0 7px #e5cf7955);transform:scale(1.025)}
-.pack>div:last-child{grid-column:1;grid-row:2}
-.hero{background:linear-gradient(90deg,#d4c58e,#e6dfc3,#d4c58e)!important;box-shadow:none!important}
-.games span.game-logo-item img{filter:grayscale(1) brightness(1.45) drop-shadow(0 2px 0 #090e1d)!important}
-.games span.game-logo-item:hover img,.games span.game-logo-item:focus-visible img,.games span.game-logo-item.game-active img{filter:grayscale(1) brightness(1.8) drop-shadow(0 0 6px #e5cf7977)!important}
-.section-title{color:#e5cf79!important}
-@media(max-width:760px){.pack{min-height:130px}.pack h2{min-height:52px}.pack h2 img{max-height:58px;max-width:min(100%,230px)}}
+    /* Jackbox-like interactive game cards */
+    .games span{position:relative;width:fit-content;max-width:100%;padding:3px 9px;margin:0 0 1px -9px;border:1px solid transparent;border-radius:8px;cursor:help;transition:background .16s,border-color .16s,color .16s,transform .16s;outline:none}
+    .games span:not(.split):hover,.games span:not(.split):focus-visible,.games span.game-active{color:#fff;background:linear-gradient(100deg,rgba(181,91,255,.23),rgba(74,205,255,.15));border-color:rgba(194,145,255,.42);transform:translateX(4px);text-shadow:0 0 14px rgba(196,148,255,.3)}
+    .games span:not(.split):after{content:"↗";display:inline-block;margin-left:7px;color:#c9aaff;font-size:.72em;opacity:0;transition:opacity .16s}
+    .games span:not(.split):hover:after,.games span:not(.split):focus-visible:after,.games span.game-active:after{opacity:.85}
+    .game-info{position:fixed;z-index:30;left:50%;bottom:24px;transform:translateX(-50%) translateY(12px);width:min(420px,calc(100vw - 28px));padding:17px 19px;border:1px solid rgba(195,151,255,.45);border-radius:17px;background:linear-gradient(135deg,rgba(40,25,65,.98),rgba(16,27,43,.98));box-shadow:0 18px 55px #05030c99,0 0 28px rgba(154,99,255,.18);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s,transform .18s,visibility .18s;backdrop-filter:blur(14px)}
+    .game-info.visible{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+    .game-info strong{display:block;font-size:17px;line-height:1.25;color:#fff;margin-bottom:5px}
+    .game-info small{display:block;color:#bba9d5;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px}
+    .game-info p{margin:0;color:#e1d8ed;font-size:14px;line-height:1.5}
+    .pack,.special{transition:border-color .2s,box-shadow .2s}
+    .pack:has(.games span:hover),.special:has(.games span:hover){border-color:rgba(185,135,255,.35);box-shadow:0 8px 30px rgba(113,70,175,.12)}
+    @media(max-width:650px){.game-info{bottom:12px;padding:14px 16px}.games span{padding:5px 9px}}
+    @media(prefers-reduced-motion:reduce){.games span,.game-info{transition:none!important}}
+
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
+  
+    .pack-description{margin:5px 0 12px;color:#b9aecb;font-size:12px;line-height:1.55;max-width:38ch}
+    .pack h2{margin-bottom:3px}
+    .pack-description a{color:#c6aaff;text-decoration:none}
+    .pack-description a:hover{text-decoration:underline}
+    .special-description{margin:5px 0 0;color:#b9aecb;font-size:12px;line-height:1.5;max-width:36ch}
+    @media(max-width:650px){.pack-description,.special-description{font-size:12px;max-width:none}}
+
+    .pack-hover-title{display:inline-block;cursor:help;border-radius:7px;transition:color .16s,text-shadow .16s,transform .16s;outline-offset:4px}
+    .pack-hover-title:hover,.pack-hover-title:focus-visible,.pack-hover-title.game-active{color:#d8c1ff;text-shadow:0 0 16px rgba(190,135,255,.5);transform:translateY(-1px)}
+
+    /* Pack descriptions are triggered by the visible logo, not the hidden heading. */
+    .pack .pack-art.pack-hover-title{cursor:help;min-width:0;border-radius:10px;outline-offset:3px}
+    .pack .pack-art.pack-hover-title:hover,.pack .pack-art.pack-hover-title:focus-visible,.pack .pack-art.pack-hover-title.game-active{filter:brightness(1.16);box-shadow:0 0 0 1px rgba(190,135,255,.42),0 0 18px rgba(160,105,255,.2)}
+    .games span{display:block;align-self:flex-start;width:max-content;max-width:none;min-width:0;box-sizing:border-box;white-space:nowrap;overflow:visible;text-overflow:clip;line-height:1.35}
+
+/* JACKBOX — redesigned to match the refreshed Streamers Community */
+:root{color-scheme:dark;--bg:#0b0913;--panel:#151123;--panel2:#201832;--accent:#b48aff;--accent2:#e1c9ff;--text:#f7f2ff;--muted:#aaa0bc;--line:rgba(205,177,255,.17)}
+html{background:#0b0913!important}
+body{background:radial-gradient(ellipse at 50% -12%,rgba(123,76,187,.28),transparent 43%),radial-gradient(ellipse at 100% 40%,rgba(63,82,145,.12),transparent 35%),linear-gradient(180deg,#100c1b,#0b0913 68%,#090810)!important;color:var(--text)!important}
+.wrap{width:min(100% - 32px,1080px)!important}
+.hero{padding:28px 18px 34px!important;border:1px solid var(--line)!important;border-radius:26px!important;background:linear-gradient(140deg,rgba(34,24,53,.95),rgba(15,17,31,.94))!important;box-shadow:0 24px 70px rgba(0,0,0,.34)!important}
+h1{letter-spacing:-.04em!important;background:linear-gradient(100deg,#fff,#d8bcff 62%,#a9baff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pack,.special,.game-card{border:1px solid var(--line)!important;border-radius:20px!important;background:linear-gradient(145deg,rgba(29,22,46,.96),rgba(15,15,28,.98))!important;box-shadow:0 14px 40px rgba(0,0,0,.22)!important;transition:transform .2s,border-color .2s,box-shadow .2s!important}
+.pack:hover,.special:hover,.game-card:hover{transform:translateY(-3px);border-color:rgba(190,151,255,.42)!important;box-shadow:0 20px 46px rgba(0,0,0,.32),0 0 25px rgba(141,93,211,.1)!important}
+.pack-art,.special-icon{border-radius:14px!important}
+#gameInfo,.game-info,.description-panel{border:1px solid rgba(190,151,255,.3)!important;border-radius:18px!important;background:rgba(18,13,30,.97)!important;box-shadow:0 18px 50px rgba(0,0,0,.42)!important;backdrop-filter:blur(18px)}
+.pack h2,.special h3,.games span{letter-spacing:-.02em}
+.pack-hover-title:hover,.pack-hover-title:focus-visible,.pack-hover-title.game-active{color:#e4d3ff!important;text-shadow:0 0 18px rgba(190,135,255,.42)!important}
+.games span{overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important}
+@media(max-width:650px){.wrap{width:calc(100% - 24px)!important}.hero{border-radius:20px!important}.pack,.special{border-radius:16px!important}}
+
 </style>
 </head>
 <body>
@@ -86,18 +110,18 @@ footer a{color:var(--yellow);text-decoration:none}
     <section id="catalog">
       <div class="section-title">Коллекция Jackbox</div>
       <div class="packs">
-        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/LDmCzQCj/pp1-wordmark-9f30f32da4.png" alt="The Jackbox Party Pack 1" loading="lazy"></div><div><h2 data-pack-number="1" aria-label="The Jackbox Party Pack 1"><img src="https://i.ibb.co/LDmCzQCj/pp1-wordmark-9f30f32da4.png" alt="The Jackbox Party Pack 1" loading="lazy"></h2><div class="games"><span>Рисовач</span><span>Слово Блуд</span><span>Мухи Врухи</span><span>Бредовуха XL</span><span>You Don't Know Jack 2015</span><i class="split"></i><span>Word Spud 2.0</span></div></div></article>
-        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/0j1h9n1M/The-Jackbox-Party-Pack-2-wordmark.webp" alt="Оригинальный логотип The Jackbox Party Pack 2" loading="lazy"></div><div><h2 data-pack-number="2" aria-label="The Jackbox Party Pack 2"><img src="https://i.ibb.co/0j1h9n1M/The-Jackbox-Party-Pack-2-wordmark.webp" alt="The Jackbox Party Pack 2" loading="lazy"></h2><div class="games"><span>Бредовуха 2</span><span>Звукварь</span><span>Дуракцион</span><span>СмеХлыст</span><span>Бомб Корп.</span><i class="split"></i><span>МРЗ-БРЕД</span><span>Закамский Аукцион</span></div></div></article>
-        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/m5ZWM8qG/The-Jackbox-Party-Pack-3-wordmark.webp" alt="Оригинальный логотип The Jackbox Party Pack 3" loading="lazy"></div><div><h2 data-pack-number="3" aria-label="The Jackbox Party Pack 3"><img src="https://i.ibb.co/m5ZWM8qG/The-Jackbox-Party-Pack-3-wordmark.webp" alt="The Jackbox Party Pack 3" loading="lazy"></h2><div class="games"><span>Смехлыст 2</span><span>Смертельная Вечеринка</span><span>Нашшпионаж</span><span>Обмани меня!</span><span>Футбол К.О.</span></div></div></article>
-        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/W4DVNFd9/The-Jackbox-Party-Pack-4-wordmark.webp" alt="Оригинальный логотип The Jackbox Party Pack 4" loading="lazy"></div><div><h2 data-pack-number="4" aria-label="The Jackbox Party Pack 4"><img src="https://i.ibb.co/W4DVNFd9/The-Jackbox-Party-Pack-4-wordmark.webp" alt="The Jackbox Party Pack 4" loading="lazy"></h2><div class="games"><span>Бредовуха 3</span><span>Выжить В Интернете</span><span>Монстр Ищет Монстра</span><span>Панччемпионат</span><span>Гражданский холст</span><i class="split"></i><span>Выжить В Котлете</span></div></div></article>
-        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/ns7Prrxs/The-Jackbox-Party-Pack-5-2018-logo-official-SGDB-101844.png" alt="Оригинальный логотип The Jackbox Party Pack 5" loading="lazy"></div><div><h2 data-pack-number="5" aria-label="The Jackbox Party Pack 5"><img src="https://i.ibb.co/ns7Prrxs/The-Jackbox-Party-Pack-5-2018-logo-official-SGDB-101844.png" alt="The Jackbox Party Pack 5" loading="lazy"></h2><div class="games"><span>А ГОЛОВУ ТЫ НЕ ЗАБЫЛ?</span><span>Раздели Комнату</span><span>Город Злых Рифм</span><span>Купол Зипол</span><span>Творим Патенты</span></div></div></article>
-        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/4bVXfhW/The-Jackbox-Party-Pack-6-wordmark.webp" alt="The Jackbox Party Pack 6" loading="lazy"></div><div><h2 data-pack-number="6" aria-label="The Jackbox Party Pack 6"><img src="https://i.ibb.co/4bVXfhW/The-Jackbox-Party-Pack-6-wordmark.webp" alt="The Jackbox Party Pack 6" loading="lazy"></h2><div class="games"><span>Смертельная Вечеринка 2</span><span>Анализ Роли</span><span>Корабль Смеха</span><span>Словариум</span><span>Жми На Кнопку</span><i class="split"></i><span>Корабль Кринжа 18+</span></div></div></article>
-        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/gLT3gf2S/The-Jackbox-Party-Pack-7-wordmark.webp" alt="Оригинальный логотип The Jackbox Party Pack 7" loading="lazy"></div><div><h2 data-pack-number="7" aria-label="The Jackbox Party Pack 7"><img src="https://i.ibb.co/gLT3gf2S/The-Jackbox-Party-Pack-7-wordmark.webp" alt="The Jackbox Party Pack 7" loading="lazy"></h2><div class="games"><span>Смехлыст 3</span><span>Дьяволы в Деталях</span><span>ГладиАРТоры</span><span>На Пальцах</span><span>Густой Трёп</span><i class="split"></i><span>У Дим-Димыча</span></div></div></article>
-        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/YTL01BjW/PP-8-Logo-Alt-cf4a25987a.avif" alt="The Jackbox Party Pack 8" loading="lazy"></div><div><h2 data-pack-number="8" aria-label="The Jackbox Party Pack 8"><img src="https://i.ibb.co/YTL01BjW/PP-8-Logo-Alt-cf4a25987a.avif" alt="The Jackbox Party Pack 8" loading="lazy"></h2><div class="games"><span>Рисовач: Анимач</span><span>Колесо невероятных масштабов</span><span>За работой</span><span>Подземнения</span><span>Преступление и рисование</span><i class="split"></i><span>Импостерс Дравун</span><span>Колесо Ненормального Троллинга</span></div></div></article>
-        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/xycGPXW/The-Jackbox-Party-Pack-9-wordmark.webp" alt="The Jackbox Party Pack 9" loading="lazy"></div><div><h2 data-pack-number="9" aria-label="The Jackbox Party Pack 9"><img src="https://i.ibb.co/xycGPXW/The-Jackbox-Party-Pack-9-wordmark.webp" alt="The Jackbox Party Pack 9" loading="lazy"></h2><div class="games"><span>Бредовуха 4</span><span>Квартиранг</span><span>Хламотопия</span><span>Несуразум</span><span>Скоросорт</span><i class="split"></i><span>Свинотопия</span></div></div></article>
-        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/39NnTqVh/Jackbox-Party-Pack-10-logo-filled.png" alt="Оригинальный логотип The Jackbox Party Pack 10" loading="lazy"></div><div><h2 data-pack-number="10" aria-label="The Jackbox Party Pack 10"><img src="https://i.ibb.co/39NnTqVh/Jackbox-Party-Pack-10-logo-filled.png" alt="The Jackbox Party Pack 10" loading="lazy"></h2><div class="games"><span>Футбол К.О. 2</span><span>Хроноворот</span><span>ТекстоПрав</span><span>Додо Ре Ми</span><span>Гипнозарение</span></div></div></article>
-        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/ym9JsxJ9/The-Jackbox-Party-Pack-11-wordmark.webp" alt="Оригинальный логотип The Jackbox Party Pack 11" loading="lazy"></div><div><h2 data-pack-number="11" aria-label="The Jackbox Party Pack 11"><img src="https://i.ibb.co/ym9JsxJ9/The-Jackbox-Party-Pack-11-wordmark.webp" alt="The Jackbox Party Pack 11" loading="lazy"></h2><div class="games"><span>Громинант</span><span>Звук Вслух</span><span>Дом Печений</span><span>Подозрективы</span><span>Legends Of Trivia</span></div></div></article>
-        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/fVX5LqMn/The-Jackbox-Party-Pack-12-wordmark.webp" alt="The Jackbox Party Pack 12" loading="lazy"></div><div><h2 data-pack-number="12" aria-label="The Jackbox Party Pack 12"><img src="https://i.ibb.co/fVX5LqMn/The-Jackbox-Party-Pack-12-wordmark.webp" alt="The Jackbox Party Pack 12" loading="lazy"></h2><div class="games"><span>Вы забыли открытку</span><span>Мегадруг</span><span>Дебаты Навыворот</span><span>Фейсконтроль</span><span>Культовый Бой (Демо)</span></div></div></article>
+        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/LDmCzQCj/pp1-wordmark-9f30f32da4.png" alt="The Jackbox Party Pack 1" loading="lazy"></div><div><h2>1 пак</h2><div class="games"><span>Рисовач</span><span>Слово Блуд</span><span>Мухи Врухи</span><span>Бредовуха XL</span><span>You Don't Know Jack 2015</span><i class="split"></i><span>Word Spud 2.0</span></div></div></article>
+        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/0j1h9n1M/The-Jackbox-Party-Pack-2-wordmark.webp" alt="Оригинальный логотип The Jackbox Party Pack 2" loading="lazy"></div><div><h2>2 пак</h2><div class="games"><span>Бредовуха 2</span><span>Звукварь</span><span>Дуракцион</span><span>СмеХлыст</span><span>Бомб Корп.</span><i class="split"></i><span>МРЗ-БРЕД</span><span>Закамский Аукцион</span></div></div></article>
+        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/m5ZWM8qG/The-Jackbox-Party-Pack-3-wordmark.webp" alt="Оригинальный логотип The Jackbox Party Pack 3" loading="lazy"></div><div><h2>3 пак</h2><div class="games"><span>Смехлыст 2</span><span>Смертельная Вечеринка</span><span>Нашшпионаж</span><span>Обмани меня!</span><span>Футбол К.О.</span></div></div></article>
+        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/W4DVNFd9/The-Jackbox-Party-Pack-4-wordmark.webp" alt="Оригинальный логотип The Jackbox Party Pack 4" loading="lazy"></div><div><h2>4 пак</h2><div class="games"><span>Бредовуха 3</span><span>Выжить В Интернете</span><span>Монстр Ищет Монстра</span><span>Панччемпионат</span><span>Гражданский холст</span><i class="split"></i><span>Выжить В Котлете</span></div></div></article>
+        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/ns7Prrxs/The-Jackbox-Party-Pack-5-2018-logo-official-SGDB-101844.png" alt="Оригинальный логотип The Jackbox Party Pack 5" loading="lazy"></div><div><h2>5 пак</h2><div class="games"><span>А ГОЛОВУ ТЫ НЕ ЗАБЫЛ?</span><span>Раздели Комнату</span><span>Город Злых Рифм</span><span>Купол Зипол</span><span>Творим Патенты</span></div></div></article>
+        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/4bVXfhW/The-Jackbox-Party-Pack-6-wordmark.webp" alt="The Jackbox Party Pack 6" loading="lazy"></div><div><h2>6 пак</h2><div class="games"><span>Смертельная Вечеринка 2</span><span>Анализ Роли</span><span>Корабль Смеха</span><span>Словариум</span><span>Жми На Кнопку</span><i class="split"></i><span>Корабль Кринжа 18+</span></div></div></article>
+        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/gLT3gf2S/The-Jackbox-Party-Pack-7-wordmark.webp" alt="Оригинальный логотип The Jackbox Party Pack 7" loading="lazy"></div><div><h2>7 пак</h2><div class="games"><span>Смехлыст 3</span><span>Дьяволы в Деталях</span><span>ГладиАРТоры</span><span>На Пальцах</span><span>Густой Трёп</span><i class="split"></i><span>У Дим-Димыча</span></div></div></article>
+        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/YTL01BjW/PP-8-Logo-Alt-cf4a25987a.avif" alt="The Jackbox Party Pack 8" loading="lazy"></div><div><h2>8 пак</h2><div class="games"><span>Рисовач: Анимач</span><span>Колесо невероятных масштабов</span><span>За работой</span><span>Подземнения</span><span>Преступление и рисование</span><i class="split"></i><span>Импостерс Дравун</span><span>Колесо Ненормального Троллинга</span></div></div></article>
+        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/xycGPXW/The-Jackbox-Party-Pack-9-wordmark.webp" alt="The Jackbox Party Pack 9" loading="lazy"></div><div><h2>9 пак</h2><div class="games"><span>Бредовуха 4</span><span>Квартиранг</span><span>Хламотопия</span><span>Несуразум</span><span>Скоросорт</span><i class="split"></i><span>Свинотопия</span></div></div></article>
+        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/39NnTqVh/Jackbox-Party-Pack-10-logo-filled.png" alt="Оригинальный логотип The Jackbox Party Pack 10" loading="lazy"></div><div><h2>10 пак</h2><div class="games"><span>Футбол К.О. 2</span><span>Хроноворот</span><span>ТекстоПрав</span><span>Додо Ре Ми</span><span>Гипнозарение</span></div></div></article>
+        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/ym9JsxJ9/The-Jackbox-Party-Pack-11-wordmark.webp" alt="Оригинальный логотип The Jackbox Party Pack 11" loading="lazy"></div><div><h2>11 пак</h2><div class="games"><span>Громинант</span><span>Звук Вслух</span><span>Дом Печений</span><span>Подозрективы</span><span>Legends Of Trivia</span></div></div></article>
+        <article class="pack"><div class="pack-art"><img src="https://i.ibb.co/fVX5LqMn/The-Jackbox-Party-Pack-12-wordmark.webp" alt="The Jackbox Party Pack 12" loading="lazy"></div><div><h2>12 пак</h2><div class="games"><span>Вы забыли открытку</span><span>Мегадруг</span><span>Дебаты Навыворот</span><span>Фейсконтроль</span><span>Культовый Бой (Демо)</span></div></div></article>
       </div>
     </section>
 
@@ -137,18 +161,18 @@ footer a{color:var(--yellow);text-decoration:none}
       const collection = document.getElementById('gameCollection');
       const description = document.getElementById('gameDescription');
       const packDescriptions = {
-        '1 пак':'Пять классических игр: «А голову ты не забыл? 2015» — музыкальная поп-культура и каверзная викторина; «Рисовач» — рисуйте и угадывайте; «Мухи-врухи» — отвечайте на необычные факты; «Бредовуха XL» — обманывайте друзей выдуманными ответами; Word Spud — продолжайте фразы словами.',
-        '2 пак':'Пять игр: «Бредовуха 2» — придумывайте ложные ответы и находите правду; «Звукварь» — создавайте звуки голосом; «Дуракцион» — торгуйтесь за абсурдные рисунки; «СмеХлыст» — соревнуйтесь в шутках; «Бомб Корп.» — вместе обезвреживайте бомбы в офисе.',
-        '3 пак':'Пять игр: «Смехлыст 2» — отвечайте на смешные задания; «Смертельная вечеринка» — выживайте в викторине серийного убийцы; «Нашшпионаж» — угадывайте результаты опросов; «Обмани меня!» — раскройте, кто скрывает вопрос; «Футбол К.О.» — создавайте необычные футболки.',
-        '4 пак':'Пять игр: «Бредовуха 3» — блефуйте и угадывайте правду; «Выжить в Интернете» — превращайте фразы в вирусные посты; «Монстр ищет монстра» — ищите пару среди монстров; «Панччемпионат» — пишите шутки для комедийного турнира; «Гражданский холст» — вместе меняйте облик города рисунками.',
-        '5 пак':'Пять игр: «А голову ты не забыл? Full Stream» — викторина в вымышленном стриминговом сервисе; «Раздели комнату» — спорьте о безумных гипотезах; «Город злых рифм» — устраивайте рэп-баттлы; «Купол Зипол» — соревнуйтесь в космическом шоу; «Творим патенты» — рисуйте изобретения для странных проблем.',
-        '6 пак':'Пять игр: «Смертельная вечеринка 2» — переживите викторину в отеле смерти; «Анализ роли» — вычисляйте характеры и скрытые роли; «Корабль смеха» — создавайте комедийное шоу; «Словариум» — придумывайте определения; «Жми на кнопку» — ищите инопланетян среди команды.',
-        '7 пак':'Пять игр: «Смехлыст 3» — придумывайте смешные ответы; «Дьяволы в деталях» — помогайте семье демонов справляться с человеческой жизнью; «ГладиАРТоры» — создавайте бойцов и их титулы; «На пальцах» — выступайте с неожиданными презентациями; «Густой трёп» — угадывайте поп-культурные понятия по подсказкам.',
-        '8 пак':'Пять игр: «Рисовач: Анимач» — создавайте короткие анимации; «Колесо невероятных масштабов» — отвечайте на вопросы ради главного приза; «За работой» — собирайте смешные ответы из слов коллег; «Подземнения» — командой выбирайтесь из логова ведьмы; «Преступление и рисование» — рисуйте улики и расследуйте убийства.',
-        '9 пак':'Пять игр: «Бредовуха 4» — обманывайте друзей новыми способами; «Квартиранг» — участвуйте в комедийном реалити-шоу; «Хламотопия» — придумывайте истории для странных предметов; «Несуразум» — передавайте идеи рисунками и словами; «Скоросорт» — быстро сортируйте ответы по категориям.',
-        '10 пак':'Пять игр: «Футбол К.О. 2» — создавайте футболки, которые сразятся друг с другом; «Хроноворот» — отвечайте на вопросы о событиях во времени; «ТекстоПрав» — редактируйте общий текст; «Додо Ре Ми» — сочиняйте музыку из звуков; «Гипнозарение» — вычисляйте скрытые роли по ответам.',
-        '11 пак':'Пять игр: «Подозрективы» (Suspectives) — раскройте преступление по ответам участников опроса; «Думинейт» (Doominate) — превращайте милое в разрушительное в юмористическом баттле; «Legends of Trivia» — проходите фэнтезийную RPG-викторину; «Звук Вслух» (Hear Say) — создавайте комичные звуковые сцены с микрофоном телефона; «Дом Печений» (Cookie Haus) — украшайте печенье по заказам необычных клиентов.',
-        '12 пак':'Пять новых игр: «Вы забыли открытку» — создавайте нелепые поздравительные открытки; «Гиперфейс» (Hyperface) — искажайте селфи и фотографии под забавные задания; «Дебаты навыворот» (Debate and Switch) — убеждайте компанию в своей позиции; «Айдол Фэкшнс» (Idol Factions) — командами сортируйте факты по категориям; «Мегадруг» (MegaPals) — проверяйте, насколько хорошо вы понимаете ход мыслей друзей.'
+        '1 пак':'Первая коллекция серии: пять игр — викторина «А голову ты не забыл? 2015», рисовальная «Рисовач», словесная «Словоблуд», викторина-факты «Мухи-врухи» и блеф-викторина «Бредовуха XL». В наборе есть как быстрые вопросы, так и творческие задания для компании.',
+        '2 пак':'Пять игр для компании: «Бредовуха 2» — придумывайте ложные ответы и находите правду; «Звукварь» — изображайте звуки; «Дуракцион» — торгуйтесь за рисунки; «СмеXLыст» — соревнуйтесь в шутках; «Бомб Корп.» — вместе обезвреживайте бомбы.',
+        '3 пак':'Пять игр: «Смехлыст 2» с пользовательскими заданиями, «Смертельная вечеринка» — викторина с испытаниями убийцы, «Нашшпионаж» — угадывайте результаты опросов, «Обмани меня!» — ищите игрока, скрывающего вопрос, и «Футбол К.О.» — создавайте смешные футболки.',
+        '4 пак':'Пять игр с разными форматами: «Бредовуха 3» и режим «Мы всё про вас знаем», «Выжить в Интернете» — превращайте сообщения в вирусные посты, «Монстр ищет монстра» — свидания с тайными личностями, «Панччемпионат» — турнир смешных ответов и «Гражданский холст» — совместное украшение города рисунками.',
+        '5 пак':'Пять игр: «А голову ты не забыл? Full Stream» — викторина в вымышленном стриминговом сервисе, «Раздели комнату» — спорные ситуации «что, если», «Город злых рифм» — рэп-баттлы роботов, «Купол Зипол» — космическое состязание и «Творим патенты» — рисуйте изобретения для странных проблем.',
+        '6 пак':'Пять игр: «Смертельная вечеринка 2» — викторина на выживание, «Анализ роли» — определяйте характеры и роли, «Корабль смеха» — комедийное шоу на круизном лайнере, «Словариум» — придумывайте определения и «Жми на кнопку» — вычисляйте инопланетян среди людей.',
+        '7 пак':'Пять игр: «Смехлыст 3» — отвечайте на смешные задания, «Дьяволы в деталях» — семья демонов осваивает человеческую жизнь, «ГладиАРТоры» — создавайте бойцов с необычными титулами, «На пальцах» — импровизируйте с презентацией. Пятая игра набора — Blather ’Round; по прежней просьбе она не добавляется в список сайта.',
+        '8 пак':'Пять игр: «За работой» — составляйте ответы из слов коллег, «Подземнения» — командой проходите опросное подземелье, «Рисовач: Анимач» — создавайте анимации, «Колесо невероятных масштабов» — отвечайте на вопросы ради колеса фортуны и «Преступление и рисование» — расследуйте дело по рисункам.',
+        '9 пак':'Пять игр: Roomerang («Квартиранг») — реалити-шоу с ролями, Fibbage 4 — блефуйте и находите правду, Nonsensory — угадывайте значения по творческим подсказкам, Junktopia — превращайте странные предметы в ценные товары, Quixort — сортируйте ответы в правильном порядке.',
+        '10 пак':'Юбилейный десятый набор объединяет пять игр: «Футбол К.О. 2» — создавайте футболки и отправляйте их в бой; «Хроноворот» — викторина о событиях во времени; «ТекстоПрав» — совместно редактируйте текст; «Додо Ре Ми» — музыкальная игра; «Гипнозарение» — командная игра со скрытыми личностями.',
+        '11 пак':'В русской Jackbox Games Wiki отдельная статья с подтверждённым описанием этого набора пока не найдена.',
+        '12 пак':'В русской Jackbox Games Wiki отдельная статья с подтверждённым описанием этого набора пока не найдена.'
       };
       const details = {
         'Рисовач':'Рисуйте по заданию, а остальные пытаются угадать, что изображено.',
@@ -217,18 +241,18 @@ footer a{color:var(--yellow);text-decoration:none}
         heading.classList.add('game-active');
         playHoverSound();
       }
-      document.querySelectorAll('.pack').forEach((card,index)=>{
+      document.querySelectorAll('.pack').forEach(card=>{
         const heading=card.querySelector('h2');
-        const trigger=heading;
+        const trigger=card.querySelector('.pack-art');
         if(!heading||!trigger) return;
-        const number=heading.dataset.packNumber||String(index+1);
-        const copy=packDescriptions[number+' пак'];
+        const name=heading.textContent.trim();
+        const copy=packDescriptions[name];
         if(!copy) return;
         trigger.classList.add('pack-hover-title');
         trigger.tabIndex=0;
         trigger.setAttribute('role','button');
-        trigger.setAttribute('aria-label','Показать описание: The Jackbox Party Pack '+number);
-        const open=()=>showPack(trigger,'The Jackbox Party Pack '+number,copy);
+        trigger.setAttribute('aria-label','Описание набора '+name);
+        const open=()=>showPack(trigger,name,copy);
         trigger.addEventListener('pointerenter',open);
         trigger.addEventListener('pointerleave',()=>hideDescription(trigger));
         trigger.addEventListener('focus',open);
@@ -267,7 +291,7 @@ footer a{color:var(--yellow);text-decoration:none}
       });
 
       const gameDescriptionFixes = {
-       'Рисовач':'Нарисуйте заданное слово так, чтобы остальные игроки смогли его угадать. Чем точнее рисунок и быстрее ответ, тем больше очков.',
+        'Рисовач':'Нарисуйте заданное слово так, чтобы остальные игроки смогли его угадать. Чем точнее рисунок и быстрее ответ, тем больше очков.',
         'Слово Блуд':'Придумывайте смешные и неожиданные окончания фраз, а затем выбирайте самые остроумные ответы.',
         'Мухи Врухи':'Придумайте правдоподобное объяснение выдуманному факту и попробуйте вычислить, кто говорит правду.',
         'You Don\'t Know Jack 2015':'Викторина с каверзными вопросами, неожиданными ответами и фирменным абсурдным юмором.',
@@ -362,29 +386,23 @@ footer a{color:var(--yellow);text-decoration:none}
       }
       document.querySelectorAll('.games span').forEach(el=>{
         if(el.classList.contains('split')) return;
-        const gameName=el.textContent.trim();
-        el.dataset.gameName=gameName;
-        el.classList.add('game-logo-item');
         el.tabIndex=0;
         el.setAttribute('role','button');
-        el.setAttribute('aria-label','Информация об игре: '+gameName);
-        const logo=document.createElement('img');
-        logo.alt=gameName;
-        logo.loading='lazy';
-        const safe=gameName.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        const hue=[48,330,190,95][Array.from(gameName).reduce((n,c)=>n+c.charCodeAt(0),0)%4];
-        const svg='<svg xmlns="http://www.w3.org/2000/svg" width="520" height="76" viewBox="0 0 520 76"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="hsl('+hue+',100%,78%)"/><stop offset="1" stop-color="hsl('+(hue+48)+',100%,64%)"/></linearGradient></defs><text x="8" y="53" font-family="Arial Black,Arial,sans-serif" font-size="43" font-weight="1000" letter-spacing="-1.5" fill="#111a31" stroke="#111a31" stroke-width="8" stroke-linejoin="round" paint-order="stroke">'+safe+'</text><text x="8" y="51" font-family="Arial Black,Arial,sans-serif" font-size="43" font-weight="1000" letter-spacing="-1.5" fill="url(#g)" stroke="#fff4d9" stroke-width="1.6" stroke-linejoin="round" paint-order="stroke">'+safe+'</text></svg>';
-        logo.src='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
-        el.replaceChildren(logo);
-        const open=()=>showGame(el);
-        el.addEventListener('pointerenter',open);
+        el.setAttribute('aria-label','Информация об игре: '+el.textContent.trim());
+        el.addEventListener('pointerenter',()=>showGame(el));
         el.addEventListener('pointerleave',()=>{
-          if(document.activeElement!==el){panel.classList.remove('visible');el.classList.remove('game-active')}
+          if(document.activeElement!==el){
+            panel.classList.remove('visible');
+            el.classList.remove('game-active');
+          }
         });
-        el.addEventListener('blur',()=>{panel.classList.remove('visible');el.classList.remove('game-active')});
-        el.addEventListener('focus',open);
-        el.addEventListener('click',open);
-        el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
+        el.addEventListener('blur',()=>{
+          panel.classList.remove('visible');
+          el.classList.remove('game-active');
+        });
+        el.addEventListener('focus',()=>showGame(el));
+        el.addEventListener('click',()=>showGame(el));
+        el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showGame(el)}});
       });
       document.addEventListener('pointerdown',e=>{
         if(!e.target.closest('.games span')) {

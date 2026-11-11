@@ -77,6 +77,11 @@
 
     .pack-hover-title{display:inline-block;cursor:help;border-radius:7px;transition:color .16s,text-shadow .16s,transform .16s;outline-offset:4px}
     .pack-hover-title:hover,.pack-hover-title:focus-visible,.pack-hover-title.game-active{color:#d8c1ff;text-shadow:0 0 16px rgba(190,135,255,.5);transform:translateY(-1px)}
+
+    /* Pack descriptions are triggered by the visible logo, not the hidden heading. */
+    .pack .pack-art.pack-hover-title{cursor:help;min-width:0;border-radius:10px;outline-offset:3px}
+    .pack .pack-art.pack-hover-title:hover,.pack .pack-art.pack-hover-title:focus-visible,.pack .pack-art.pack-hover-title.game-active{filter:brightness(1.16);box-shadow:0 0 0 1px rgba(190,135,255,.42),0 0 18px rgba(160,105,255,.2)}
+    .games span{display:block;align-self:flex-start;width:max-content;max-width:100%;min-width:0;box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
 </style>
 </head>
 <body>
@@ -220,23 +225,24 @@
         heading.classList.add('game-active');
         playHoverSound();
       }
-      document.querySelectorAll('.pack h2').forEach(heading=>{
+      document.querySelectorAll('.pack').forEach(card=>{
+        const heading=card.querySelector('h2');
+        const trigger=card.querySelector('.pack-art');
+        if(!heading||!trigger) return;
         const name=heading.textContent.trim();
         const copy=packDescriptions[name];
         if(!copy) return;
-        heading.classList.add('pack-hover-title');
-        heading.tabIndex=0;
-        heading.setAttribute('role','button');
-        heading.setAttribute('aria-label','Описание набора '+name);
-        const open=()=>showPack(heading,name,copy);
-        heading.addEventListener('pointerenter',open);
-        heading.addEventListener('pointerleave',()=>hideDescription(heading));
-        heading.addEventListener('blur',()=>hideDescription(heading));
-        heading.addEventListener('pointerenter',open);
-        heading.addEventListener('pointerleave',()=>hideDescription(heading));
-        heading.addEventListener('focus',open);
-        heading.addEventListener('click',open);
-        heading.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
+        trigger.classList.add('pack-hover-title');
+        trigger.tabIndex=0;
+        trigger.setAttribute('role','button');
+        trigger.setAttribute('aria-label','Описание набора '+name);
+        const open=()=>showPack(trigger,name,copy);
+        trigger.addEventListener('pointerenter',open);
+        trigger.addEventListener('pointerleave',()=>hideDescription(trigger));
+        trigger.addEventListener('focus',open);
+        trigger.addEventListener('blur',()=>hideDescription(trigger));
+        trigger.addEventListener('click',open);
+        trigger.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
       });
       const specialDescriptions = {
         'Борьба опросов':'Угадывайте самые популярные ответы реальных людей и набирайте очки за совпадения.',

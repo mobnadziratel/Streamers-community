@@ -74,6 +74,9 @@
     .pack-description a:hover{text-decoration:underline}
     .special-description{margin:5px 0 0;color:#b9aecb;font-size:12px;line-height:1.5;max-width:36ch}
     @media(max-width:650px){.pack-description,.special-description{font-size:12px;max-width:none}}
+
+    .pack-hover-title{display:inline-block;cursor:help;border-radius:7px;transition:color .16s,text-shadow .16s,transform .16s;outline-offset:4px}
+    .pack-hover-title:hover,.pack-hover-title:focus-visible,.pack-hover-title.game-active{color:#d8c1ff;text-shadow:0 0 16px rgba(190,135,255,.5);transform:translateY(-1px)}
 </style>
 </head>
 <body>
@@ -149,46 +152,6 @@
         '11 пак':'Пять новых игр: записывайте голосовые реплики, портите добрые шутки, создавайте необычную выпечку, расследуйте социальные подсказки и проходите викторину командой.',
         '12 пак':'Пять новых игр: создавайте странные открытки, проверяйте насколько хорошо понимаете друзей, спорьте на смешные темы, сортируйте факты командами и искажайте фотографии.'
       };
-      const officialPackLinks = {
-        '1 пак':'https://www.jackboxgames.com/games/packs/the-jackbox-party-pack-1',
-        '2 пак':'https://www.jackboxgames.com/games/packs/the-jackbox-party-pack-2',
-        '12 пак':'https://www.jackboxgames.com/games/packs/the-jackbox-party-pack-12'
-      };
-      document.querySelectorAll('.pack').forEach(pack=>{
-        const heading=pack.querySelector('h2');
-        if(!heading) return;
-        const name=heading.textContent.trim();
-        const copy=packDescriptions[name];
-        if(!copy) return;
-        const p=document.createElement('p');
-        p.className='pack-description';
-        p.textContent=copy;
-        const url=officialPackLinks[name];
-        if(url){
-          const link=document.createElement('a');
-          link.href=url;link.target='_blank';link.rel='noopener noreferrer';
-          link.textContent='Официальное описание';
-          p.append(' ',link);
-        }else{
-          p.append(' ',document.createTextNode('Описание составлено по официальному составу и концепциям игр.'));
-        }
-        heading.insertAdjacentElement('afterend',p);
-      });
-      const specialDescriptions = {
-        'Борьба опросов':'Угадывайте самые популярные ответы реальных людей и набирайте очки за совпадения.',
-        'Naughty пак':'Взрослая подборка с провокационными заданиями, рисованием и импровизацией. Содержит материалы 18+.',
-        'Starter пак':'Три проверенные игры для быстрого старта: рисунки на футболках, словесные баттлы и викторина с испытаниями.',
-        'Отдельные игры':'Дополнительные самостоятельные игры, которые не входят в основные подборки.'
-      };
-      document.querySelectorAll('.special').forEach(card=>{
-        const heading=card.querySelector('h3');
-        if(!heading) return;
-        const copy=specialDescriptions[heading.textContent.trim()];
-        if(!copy) return;
-        const p=document.createElement('p');p.className='special-description';p.textContent=copy;
-        heading.insertAdjacentElement('afterend',p);
-      });
-
       const details = {
         'Рисовач':'Рисуйте по заданию, а остальные пытаются угадать, что изображено.',
         'Рисовач 2':'Продолжение весёлой игры на рисование и угадывание.',
@@ -243,6 +206,54 @@
           });
         }catch(_){}
       }
+      function showPack(heading, name, copy){
+        title.textContent=name;
+        collection.textContent='THE JACKBOX PARTY PACK';
+        description.textContent=copy;
+        panel.classList.add('visible');
+        document.querySelectorAll('.game-active').forEach(x=>x.classList.remove('game-active'));
+        heading.classList.add('game-active');
+        playHoverSound();
+      }
+      document.querySelectorAll('.pack h2').forEach(heading=>{
+        const name=heading.textContent.trim();
+        const copy=packDescriptions[name];
+        if(!copy) return;
+        heading.classList.add('pack-hover-title');
+        heading.tabIndex=0;
+        heading.setAttribute('role','button');
+        heading.setAttribute('aria-label','Описание набора '+name);
+        const open=()=>showPack(heading,name,copy);
+        heading.addEventListener('pointerenter',open);
+        heading.addEventListener('focus',open);
+        heading.addEventListener('click',open);
+        heading.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
+      });
+      const specialDescriptions = {
+        'Борьба опросов':'Угадывайте самые популярные ответы реальных людей и набирайте очки за совпадения.',
+        'Naughty пак':'Взрослая подборка с провокационными заданиями, рисованием и импровизацией. Содержит материалы 18+.',
+        'Starter пак':'Три проверенные игры для быстрого старта: рисунки на футболках, словесные баттлы и викторина с испытаниями.',
+        'Отдельные игры':'Дополнительные самостоятельные игры, которые не входят в основные подборки.',
+        'Какого Дубля?!':'Подборка игр, в которых участники придумывают ответы, соревнуются в остроумии и выбирают самые смешные варианты.',
+        'Party Box':'Дополнительная коллекция игр для совместных вечеринок.'
+      };
+      document.querySelectorAll('.special').forEach(card=>{
+        const heading=card.querySelector('h3');
+        if(!heading) return;
+        const name=heading.textContent.trim();
+        const copy=specialDescriptions[name];
+        if(!copy) return;
+        heading.classList.add('pack-hover-title');
+        heading.tabIndex=0;
+        heading.setAttribute('role','button');
+        heading.setAttribute('aria-label','Описание подборки '+name);
+        const open=()=>showPack(heading,name,copy);
+        heading.addEventListener('pointerenter',open);
+        heading.addEventListener('focus',open);
+        heading.addEventListener('click',open);
+        heading.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
+      });
+
       function showGame(el){
         const name=el.textContent.trim();
         if(!name||el.classList.contains('split')) return;

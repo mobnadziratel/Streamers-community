@@ -2520,6 +2520,18 @@ html[data-theme="light"] .city-placeholder{background:linear-gradient(135deg,#ff
 html[data-theme="light"] .random-streamer-button,html[data-theme="light"] .refresh-clips{color:#fff!important}
 html[data-theme="light"] footer b{color:#258eae!important}
 
+
+/* === Festive winter atmosphere: snowfall, snowdrifts and snowmen === */
+#winter-snow-layer{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:9998;contain:strict}
+.winter-flake{position:absolute;top:-24px;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;background:rgba(238,250,255,var(--o));box-shadow:0 0 7px rgba(196,235,255,.5);animation:winter-fall var(--d) linear var(--delay) infinite;will-change:transform}
+@keyframes winter-fall{0%{transform:translate3d(0,-5vh,0)}50%{transform:translate3d(var(--drift),50vh,0)}100%{transform:translate3d(calc(var(--drift)*-.55),110vh,0)}}
+.winter-mascot{position:fixed;z-index:9997;bottom:8px;font-size:clamp(38px,5vw,66px);line-height:1;filter:drop-shadow(0 5px 8px rgba(0,0,0,.22));pointer-events:none;user-select:none;animation:winter-bob 4s ease-in-out infinite}
+.winter-mascot.left{left:12px}.winter-mascot.right{right:12px;animation-delay:-2s}
+@keyframes winter-bob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-7px) rotate(3deg)}}
+#winter-snowdrift{position:fixed;z-index:9996;bottom:-28px;left:-4vw;width:108vw;height:54px;pointer-events:none;opacity:.78;background:radial-gradient(ellipse at 12% 0%,rgba(239,250,255,.95),transparent 66%),radial-gradient(ellipse at 78% 0%,rgba(220,243,255,.9),transparent 65%);filter:drop-shadow(0 -4px 12px rgba(180,224,245,.12))}
+@media(max-width:600px){.winter-mascot{font-size:38px;bottom:5px}.winter-mascot.left{left:5px}.winter-mascot.right{right:5px}#winter-snowdrift{height:38px}}
+@media(prefers-reduced-motion:reduce){.winter-flake,.winter-mascot{animation:none!important}.winter-flake{top:var(--static-y)}}
+
 </style>
 </head>
 <body>
@@ -4587,6 +4599,32 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
   loadPending();loadApproved();
 })();
 
+</script>
+
+
+<script>
+(()=> {
+ if(document.getElementById("winter-snow-layer")) return;
+ const layer=document.createElement("div");layer.id="winter-snow-layer";layer.setAttribute("aria-hidden","true");
+ const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+ const count=reduce?22:64;
+ for(let i=0;i<count;i++){
+  const f=document.createElement("i");f.className="winter-flake";
+  const size=(Math.random()*4+2).toFixed(1)+"px";
+  f.style.setProperty("--x",(Math.random()*100).toFixed(2)+"%");
+  f.style.setProperty("--s",size);
+  f.style.setProperty("--o",(Math.random()*.55+.35).toFixed(2));
+  f.style.setProperty("--d",(Math.random()*13+9).toFixed(1)+"s");
+  f.style.setProperty("--delay",(-Math.random()*22).toFixed(1)+"s");
+  f.style.setProperty("--drift",(Math.random()*100-50).toFixed(0)+"px");
+  f.style.setProperty("--static-y",(Math.random()*100).toFixed(1)+"vh");
+  layer.appendChild(f);
+ }
+ document.body.appendChild(layer);
+ const drift=document.createElement("div");drift.id="winter-snowdrift";drift.setAttribute("aria-hidden","true");document.body.appendChild(drift);
+ const left=document.createElement("div");left.className="winter-mascot left";left.textContent="☃️";left.setAttribute("aria-hidden","true");document.body.appendChild(left);
+ const right=document.createElement("div");right.className="winter-mascot right";right.textContent="⛄";right.setAttribute("aria-hidden","true");document.body.appendChild(right);
+})();
 </script>
 
 </body>

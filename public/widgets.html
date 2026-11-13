@@ -671,6 +671,46 @@ h1 span {
 }
 .streamer:hover { transform: translateY(-4px); border-color: rgba(157,143,255,.48); background: linear-gradient(130deg, #191b34, #111629); box-shadow: 0 15px 32px rgba(0,0,0,.23), 0 0 0 1px rgba(157,143,255,.045); }
 .streamer:hover::before { opacity: 1; }
+/* Winter polish for streamer cards */
+.streamer::after {
+  content: "✦";
+  position: absolute;
+  top: 9px;
+  right: 13px;
+  z-index: 0;
+  color: rgba(191,181,255,.28);
+  font-size: 15px;
+  line-height: 1;
+  pointer-events: none;
+  text-shadow: 0 0 12px rgba(169,155,255,.35);
+  transition: color .2s, transform .25s, text-shadow .2s;
+}
+.streamer:hover::after {
+  color: rgba(205,226,255,.9);
+  transform: rotate(35deg) scale(1.25);
+  text-shadow: 0 0 13px rgba(151,207,255,.8);
+}
+.streamer {
+  overflow: hidden;
+}
+.streamer .avatar {
+  position: relative;
+  box-shadow: 0 0 0 1px rgba(220,213,255,.2), 0 0 0 4px rgba(169,155,255,.055), 0 7px 20px rgba(100,95,200,.22);
+  transition: box-shadow .22s, transform .22s;
+}
+.streamer:hover .avatar {
+  transform: scale(1.035);
+  box-shadow: 0 0 0 1px rgba(220,213,255,.55), 0 0 0 5px rgba(169,155,255,.11), 0 0 22px rgba(143,125,255,.28);
+}
+.streamer .name {
+  text-shadow: 0 1px 14px rgba(169,155,255,.12);
+}
+.streamer .live-status.is-live {
+  text-shadow: 0 0 12px rgba(255,107,145,.2);
+}
+html[data-theme="light"] .streamer::after { color: rgba(111,91,195,.28); }
+html[data-theme="light"] .streamer:hover::after { color: #7965d8; }
+
 .avatar {
   width: 67px; height: 67px; flex-basis: 67px; border-radius: 19px; padding: 2px;
   background: linear-gradient(145deg,#b5a7ff,#5fc9e5 65%,#a58aff); box-shadow: 0 5px 17px rgba(100,95,200,.19);

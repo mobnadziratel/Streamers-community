@@ -1967,6 +1967,133 @@ footer{border-color:var(--line);color:#968aa9}
  *,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important}
 }
 
+
+/* === WINTER SEASON THEME === */
+:root{
+ --winter-bg:#0b1726;--winter-panel:#122438;--winter-panel2:#193149;
+ --winter-text:#edf7ff;--winter-muted:#a9bfd0;--winter-accent:#79d8ee;
+ --winter-accent2:#a9e9f7;--winter-line:rgba(164,218,239,.18);
+ --winter-glow:rgba(87,190,224,.16);
+}
+html,body{scrollbar-color:#3b718a var(--winter-bg)}
+body{
+ background:
+  radial-gradient(ellipse at 12% 0%,rgba(73,155,196,.18),transparent 38%),
+  radial-gradient(ellipse at 92% 14%,rgba(155,190,231,.12),transparent 34%),
+  linear-gradient(180deg,#0b1726 0%,#0d1c2d 52%,#101c2b 100%)!important;
+ color:var(--winter-text)!important;
+}
+body:before{
+ content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.22;
+ background-image:radial-gradient(2px 2px at 12% 18%,#e8faff 98%,transparent),
+ radial-gradient(1.5px 1.5px at 72% 36%,#e8faff 98%,transparent),
+ radial-gradient(2px 2px at 42% 78%,#d4f4ff 98%,transparent),
+ radial-gradient(1px 1px at 88% 84%,#fff 98%,transparent);
+ background-size:230px 260px,310px 340px,270px 290px,190px 220px;
+}
+body>*{position:relative;z-index:1}
+header,.site-header{
+ background:rgba(10,24,39,.82)!important;border-color:var(--winter-line)!important;
+ backdrop-filter:blur(18px);
+}
+.brand,.logo-text{color:#f1faff!important}
+.logo{background:linear-gradient(145deg,#b6f1fa,#55b9d5)!important;color:#0b2030!important;box-shadow:0 7px 24px rgba(91,199,225,.22)!important}
+.navtag,.site-switch,.theme-toggle{
+ background:rgba(17,42,62,.82)!important;color:#c8e3ef!important;border-color:var(--winter-line)!important;
+}
+.site-switch a.current{background:linear-gradient(135deg,#75d7eb,#3b9dbb)!important;color:#082032!important}
+.hero{
+ border-color:rgba(130,211,234,.24)!important;
+ background:
+  radial-gradient(ellipse at 0 0,rgba(90,185,218,.19),transparent 62%),
+  linear-gradient(120deg,rgba(17,43,64,.96),rgba(17,31,52,.96))!important;
+ box-shadow:0 18px 50px rgba(0,0,0,.18),inset 0 1px rgba(226,249,255,.05)!important;
+}
+.eyebrow,.category-title span,.clip-author{color:#8ce2f2!important}
+h1{color:#f1fbff!important}
+h1 span{color:#8ce2f2!important}
+.lead,.count,.handle,.card-description,.stream-meta,.moderates{color:#b1c7d6!important}
+.tab-button{
+ background:rgba(21,47,68,.86)!important;color:#c3d9e6!important;
+ border:1px solid var(--winter-line)!important;
+}
+.tab-button:hover{border-color:rgba(127,222,242,.58)!important;color:#fff!important}
+.tab-button.active,.tab-button[aria-selected="true"]{
+ background:linear-gradient(135deg,#83e0f0,#4daac8)!important;
+ color:#082032!important;border-color:transparent!important;
+ box-shadow:0 7px 20px rgba(71,174,207,.2)!important;
+}
+.search input,input,textarea,select,.clip-streamer-picker,.clip-filter select{
+ background:#10263a!important;color:#effaff!important;border-color:var(--winter-line)!important;
+}
+input::placeholder,textarea::placeholder{color:#829eaf!important}
+input:focus,textarea:focus,select:focus,.search input:focus{
+ border-color:#7bd9ed!important;box-shadow:0 0 0 3px rgba(123,217,237,.13)!important;
+}
+.streamer,.clip-card,.profile-card,.pack,.special,.game-card,.clip-modal-dialog{
+ background:linear-gradient(145deg,rgba(20,46,67,.98),rgba(13,29,46,.98))!important;
+ color:#edf8ff!important;border:1px solid var(--winter-line)!important;
+ box-shadow:0 10px 30px rgba(0,0,0,.18)!important;
+}
+.streamer:hover,.clip-card:hover,.pack:hover,.special:hover,.game-card:hover{
+ background:linear-gradient(145deg,rgba(27,62,84,.98),rgba(16,37,57,.98))!important;
+ border-color:rgba(126,222,242,.58)!important;
+ box-shadow:0 16px 36px rgba(0,0,0,.24),0 0 24px rgba(82,183,213,.08)!important;
+}
+.name,.category-title,.profile-name,.pack h2,.special h3{color:#f0faff!important}
+.arrow{color:#83dced!important}
+.live-status.is-live{color:#ff8d9a!important}
+.collab-badge-wrap{background:rgba(91,191,216,.12)!important;border-color:rgba(125,220,239,.3)!important}
+.collab-badge{background:#55b9d5!important;color:#092032!important;border-color:#55b9d5!important}
+.random-streamer-button,.refresh-clips{
+ background:linear-gradient(135deg,#8ce5f3,#4daac8)!important;color:#082032!important;
+ border:1px solid rgba(191,244,255,.35)!important;
+ box-shadow:0 8px 22px rgba(71,174,207,.2)!important;
+}
+.profile-social-link{background:rgba(77,170,200,.13)!important;color:#c9f2fb!important;border-color:rgba(126,222,242,.25)!important}
+.profile-social-link:hover{background:rgba(77,170,200,.23)!important}
+#gameInfo,.game-info,.description-panel{
+ background:rgba(10,27,43,.98)!important;color:#edf8ff!important;border-color:var(--winter-line)!important;
+}
+.pack-hover-title:hover,.pack-hover-title:focus-visible,.pack-hover-title.game-active{color:#a8effa!important;text-shadow:0 0 18px rgba(119,218,239,.35)!important}
+footer{color:#9bb6c7!important;border-color:var(--winter-line)!important}
+footer b{color:#8ce2f2!important}
+.city-placeholder{background:linear-gradient(135deg,#173c56,#14263e)!important;color:#9be9f6!important;border-color:var(--winter-line)!important}
+button:focus-visible,a:focus-visible{outline-color:#83dced!important}
+@media(prefers-reduced-motion:no-preference){
+ .streamer,.clip-card,.pack,.special,.game-card,.tab-button{transition:background .22s,border-color .22s,box-shadow .22s,transform .22s}
+}
+/* Snowy daylight mode: keep the same winter identity when light mode is selected. */
+html[data-theme="light"]{
+ color-scheme:light;--bg:#edf5f8;--panel:#fff;--panel2:#e2eff4;
+ --text:#183044;--muted:#587083;--accent:#258eae;--line:rgba(32,91,117,.18);
+}
+html[data-theme="light"] body{
+ background:
+  radial-gradient(ellipse at 8% 0%,rgba(125,206,230,.28),transparent 40%),
+  radial-gradient(ellipse at 94% 12%,rgba(192,216,242,.36),transparent 36%),
+  linear-gradient(180deg,#f5fbfd,#eaf3f7 100%)!important;color:#183044!important;
+}
+html[data-theme="light"] header,html[data-theme="light"] .site-header{background:rgba(247,252,254,.88)!important}
+html[data-theme="light"] .brand,html[data-theme="light"] .logo-text{color:#183044!important}
+html[data-theme="light"] .navtag,html[data-theme="light"] .site-switch,html[data-theme="light"] .theme-toggle{background:#fff!important;color:#34576d!important;border-color:rgba(32,91,117,.18)!important}
+html[data-theme="light"] .hero{background:linear-gradient(120deg,#fff,#e7f4f8 65%,#e8eff9)!important;border-color:rgba(37,142,174,.2)!important}
+html[data-theme="light"] h1,html[data-theme="light"] .category-title,html[data-theme="light"] .name,html[data-theme="light"] .profile-name{color:#183044!important}
+html[data-theme="light"] h1 span,html[data-theme="light"] .eyebrow,html[data-theme="light"] .category-title span{color:#258eae!important}
+html[data-theme="light"] .lead,html[data-theme="light"] .count,html[data-theme="light"] .handle,html[data-theme="light"] footer{color:#587083!important}
+html[data-theme="light"] .tab-button{background:#fff!important;color:#34576d!important;border-color:rgba(32,91,117,.18)!important}
+html[data-theme="light"] .tab-button.active,html[data-theme="light"] .tab-button[aria-selected="true"]{background:linear-gradient(135deg,#61c4dc,#258eae)!important;color:#fff!important}
+html[data-theme="light"] .search input,html[data-theme="light"] input,html[data-theme="light"] textarea,html[data-theme="light"] select,html[data-theme="light"] .clip-streamer-picker,html[data-theme="light"] .clip-filter select{background:#fff!important;color:#183044!important;border-color:rgba(32,91,117,.18)!important}
+html[data-theme="light"] .streamer,html[data-theme="light"] .clip-card,html[data-theme="light"] .profile-card,html[data-theme="light"] .pack,html[data-theme="light"] .special,html[data-theme="light"] .game-card,html[data-theme="light"] .clip-modal-dialog{background:linear-gradient(145deg,#fff,#f1f8fa)!important;color:#183044!important;border-color:rgba(32,91,117,.16)!important;box-shadow:0 8px 24px rgba(35,78,99,.08)!important}
+html[data-theme="light"] .streamer:hover,html[data-theme="light"] .clip-card:hover,html[data-theme="light"] .pack:hover,html[data-theme="light"] .special:hover,html[data-theme="light"] .game-card:hover{background:linear-gradient(145deg,#fff,#e7f5f8)!important;border-color:rgba(37,142,174,.38)!important}
+html[data-theme="light"] .name,html[data-theme="light"] .category-title,html[data-theme="light"] .pack h2,html[data-theme="light"] .special h3{color:#183044!important}
+html[data-theme="light"] .card-description,html[data-theme="light"] .stream-meta,html[data-theme="light"] .moderates{color:#587083!important}
+html[data-theme="light"] .profile-social-link{background:#e8f4f7!important;color:#24566d!important;border-color:rgba(37,142,174,.2)!important}
+html[data-theme="light"] #gameInfo,html[data-theme="light"] .game-info,html[data-theme="light"] .description-panel{background:#fff!important;color:#183044!important}
+html[data-theme="light"] .city-placeholder{background:linear-gradient(135deg,#fff,#e5f3f7)!important;color:#258eae!important}
+html[data-theme="light"] .random-streamer-button,html[data-theme="light"] .refresh-clips{color:#fff!important}
+html[data-theme="light"] footer b{color:#258eae!important}
+
 </style>
 </head><body>
 <header><div class="wrap nav">

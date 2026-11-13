@@ -2156,6 +2156,17 @@ html[data-theme="light"] footer b{color:#258eae!important}
 @media(max-width:600px){.winter-mascot{font-size:38px;bottom:5px}.winter-mascot.left{left:5px}.winter-mascot.right{right:5px}#winter-snowdrift{height:38px}}
 @media(prefers-reduced-motion:reduce){.winter-flake,.winter-mascot{animation:none!important}.winter-flake{top:var(--static-y)}}
 
+
+/* Keep the fixed winter ticker clear of page content on every section */
+body{padding-bottom:54px!important}
+#winter-snowdrift{height:30px!important;z-index:9990!important;pointer-events:none!important}
+#winter-live-ticker{pointer-events:none}
+#winter-live-ticker a{pointer-events:auto}
+@media(max-width:600px){
+ body{padding-bottom:48px!important}
+ #winter-snowdrift{height:28px!important}
+}
+
 </style>
 </head><body>
 <header><div class="wrap nav">

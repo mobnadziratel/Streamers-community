@@ -322,6 +322,17 @@ html[data-theme="light"] .pack{
 html[data-theme="light"] .pack h2{color:#258eae!important}
 html[data-theme="light"] .pack-art{border-color:rgba(37,142,174,.16)}
 
+
+/* Keep the fixed winter ticker clear of page content on every section */
+body{padding-bottom:54px!important}
+#winter-snowdrift{height:30px!important;z-index:9990!important;pointer-events:none!important}
+#winter-live-ticker{pointer-events:none}
+#winter-live-ticker a{pointer-events:auto}
+@media(max-width:600px){
+ body{padding-bottom:48px!important}
+ #winter-snowdrift{height:28px!important}
+}
+
 </style>
 </head>
 <body>

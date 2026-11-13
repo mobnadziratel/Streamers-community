@@ -1077,8 +1077,6 @@ html[data-theme="light"] .tabs .tab-button + .tab-button::before {
  /* Mobile wall: place every major element in the flow instead of using desktop canvas coordinates. */
  #wallPanel{margin:0 0 22px;overflow:hidden}
  .wall-mural{box-sizing:border-box;gap:16px;padding:14px 10px 22px}
- #plovecmolodecCountdown{position:relative!important;top:auto!important;left:auto!important;transform:none!important;width:100%!important;max-width:100%!important;margin:0 auto 2px;padding:11px 10px!important}
- #plovecmolodecCountdown>div:first-child{line-height:1.25}
  .vysluga-graffiti-photo{position:relative;top:auto!important;left:auto!important;width:min(100%,520px);max-width:100%;margin:0 auto;transform:none}
  .vysluga-graffiti-art{width:100%;height:auto;display:block}
  .wall-uploaded-character{position:relative;top:auto!important;left:auto!important;right:auto!important;width:84px;height:84px;align-self:flex-end;margin:-8px 4px 0 0}
@@ -2600,10 +2598,6 @@ html[data-theme="light"] footer b{color:#258eae!important}
   </section>
   <section id="wallPanel" aria-label="Стена сообщества" hidden>
     <div class="wall-mural" role="region" aria-label="Стена сообщества">
-      <div id="plovecmolodecCountdown" role="timer" aria-live="off" style="position:absolute;z-index:8;top:12px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 24px);box-sizing:border-box;padding:12px 18px;border:1px solid rgba(255,255,255,.28);border-radius:16px;background:rgba(10,10,16,.78);backdrop-filter:blur(8px);color:#fff;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.35);font-family:inherit">
-        <div style="font-weight:800;font-size:clamp(13px,2.4vw,18px);margin-bottom:7px">До дня возвращения plovecmolodec</div>
-        <div id="plovecmolodecCountdownValue" style="font-variant-numeric:tabular-nums;font-size:clamp(18px,3vw,27px);font-weight:900;letter-spacing:.04em">Загрузка…</div>
-      </div>
       <article class="vysluga-graffiti-photo" aria-label="Граффити с надписью !выслуга">
         <svg class="vysluga-graffiti-art" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Фотография граффити: !выслуга">
           <defs>
@@ -4595,25 +4589,5 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
 
 </script>
 
-<script>
-(function(){
-  const output=document.getElementById("plovecmolodecCountdownValue");
-  if(!output)return;
-  // Moscow is UTC+3; target is midnight at the start of November 12, 2026.
-  const target=Date.UTC(2026,10,12,21,0,0);
-  const pad=n=>String(n).padStart(2,"0");
-  function update(){
-    const diff=target-Date.now();
-    if(diff<=0){output.textContent="00:00:00:00";return;}
-    const total=Math.floor(diff/1000);
-    const days=Math.floor(total/86400);
-    const hours=Math.floor(total%86400/3600);
-    const minutes=Math.floor(total%3600/60);
-    const seconds=total%60;
-    output.textContent=days+" д. "+pad(hours)+":"+pad(minutes)+":"+pad(seconds);
-  }
-  update();setInterval(update,1000);
-})();
-</script>
 </body>
 </html>

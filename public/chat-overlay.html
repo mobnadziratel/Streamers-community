@@ -154,6 +154,7 @@ async function loadOfficialBadges(){
     const url=badgeImages.get(old.dataset.setId+"/"+old.dataset.version)||badgeImages.get(old.dataset.setId+"/1");if(!url)return;
     const img=document.createElement("img");img.className="role-badge";img.src=url;img.alt=old.dataset.label;img.title=old.dataset.label;img.loading="eager";img.decoding="async";
     img.onerror=()=>{img.replaceWith(old)};old.replaceWith(img);
+   });
   }catch(e){console.warn("Could not load Twitch badges from server API",e);officialBadgesPromise=null}
  })();
  return officialBadgesPromise;

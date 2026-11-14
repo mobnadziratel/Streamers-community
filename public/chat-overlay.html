@@ -154,7 +154,6 @@ async function loadOfficialBadges(){
     const url=badgeImages.get(old.dataset.setId+"/"+old.dataset.version)||badgeImages.get(old.dataset.setId+"/1");if(!url)return;
     const img=document.createElement("img");img.className="role-badge";img.src=url;img.alt=old.dataset.label;img.title=old.dataset.label;img.loading="eager";img.decoding="async";
     img.onerror=()=>{img.replaceWith(old)};old.replaceWith(img);
-  window.addEventListener("pageshow",()=>{if(!params.get("preview")&&(!socket||socket.readyState===WebSocket.CLOSED||socket.readyState===WebSocket.CLOSING))connect()});document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!params.get("preview")&&(!socket||socket.readyState===WebSocket.CLOSED||socket.readyState===WebSocket.CLOSING))connect()});window.addEventListener("beforeunload",()=>{closed=true;clearTimeout(reconnectTimer);clearInterval(socketWatchdog);try{socket?.close()}catch{}});
   }catch(e){console.warn("Could not load Twitch badges from server API",e);officialBadgesPromise=null}
  })();
  return officialBadgesPromise;
@@ -200,8 +199,8 @@ if(params.get("preview")==="1"){
     samples.forEach((m,i)=>setTimeout(()=>addMessage(m.user,m.text,m.tags,"preview-"+i,m.user), (i+1)*1250));
     setTimeout(refreshPreviewColors,samples.length*1250+250);
   });
-}else (previewEmotesReady||Promise.resolve()).finally(connect);
+}else connect();
 // Font credit is intentionally shown only in the settings preview, never in live chat.
 if(selectedFont&&params.get("preview")==="1"){setTimeout(()=>addMessage("mob_nadziratel","Любишь играть шрифтами - люби и автора кормить.","","font-credit-"+Date.now()),7200)}
-window.addEventListener("pageshow",()=>{if(!params.get("preview")&&(!socket||socket.readyState===WebSocket.CLOSED||socket.readyState===WebSocket.CLOSING))connect()});document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!params.get("preview")&&(!socket||socket.readyState===WebSocket.CLOSED||socket.readyState===WebSocket.CLOSING))connect()});window.addEventListener("beforeunload",()=>{closed=true;clearTimeout(reconnectTimer);try{socket?.close()}catch{}});
+window.addEventListener("pageshow",()=>{if(!params.get("preview")&&(!socket||socket.readyState===WebSocket.CLOSED||socket.readyState===WebSocket.CLOSING))connect()});document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!params.get("preview")&&(!socket||socket.readyState===WebSocket.CLOSED||socket.readyState===WebSocket.CLOSING))connect()});window.addEventListener("beforeunload",()=>{closed=true;clearTimeout(reconnectTimer);clearInterval(socketWatchdog);try{socket?.close()}catch{}});
 </script></body></html>

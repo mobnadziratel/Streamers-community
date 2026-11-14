@@ -77,7 +77,7 @@ function nativeEmotesFromTag(tag,text){
 const badgeLabels={broadcaster:"Владелец",moderator:"Модератор",vip:"VIP",subscriber:"Подписчик",founder:"Основатель",staff:"Twitch Staff",admin:"Администратор",global_mod:"Глобальный модератор",bits:"Bits"};
 async function loadTwitchBadges(){try{const response=await fetch("/api/chat-badges?channel="+encodeURIComponent(channel||"rueumur"),{cache:"no-store"});if(!response.ok)return;const data=await response.json();for(const [setId,set] of Object.entries(data.badges||{})){for(const version of (set.versions||[])){if(!version.url)continue;const img=new Image();img.src=version.url;badgeImages.set(setId+"/"+String(version.id),img);}}}catch(_){}}
 const pendingColorLogins=new Set();
-let colorTimer=null,width=0,height=0,lastFrame=0,lastPing=0,socket=null,retryTimer=null;
+let colorTimer=null,width=0,height=0,lastFrame=0,socket=null,retryTimer=null,watchdogTimer=null,connectTimer=null,retryDelay=1000,stopped=false,lastSocketActivity=0;
 const palettes=[
 {skin:"#f0c49a",hair:"#53352c",shirt:"#4b8bd8",pants:"#25395d",accent:"#f3d56a"},
 {skin:"#dba47b",hair:"#2d2928",shirt:"#5dbb77",pants:"#303a40",accent:"#f3f3f3"},
@@ -253,21 +253,54 @@ function frame(t){
  ctx.clearRect(0,0,width,height);const now=Date.now();
  for(const [key,p] of people){if(now-p.last>idleMinutes*60000){people.delete(key);continue}
  p.x+=p.vx*dt*.06;if(p.x>width-18){p.x=width-18;p.vx=-Math.abs(p.vx)}if(p.x<18){p.x=18;p.vx=Math.abs(p.vx)}drawPerson(p,t);}
- if(socket&&socket.readyState===WebSocket.OPEN&&now-lastPing>240000){socket.send("PING :city-widget");lastPing=now}
  requestAnimationFrame(frame);
 }
 function showStatus(message){if(preview){status.textContent=message;status.hidden=false;setTimeout(()=>status.hidden=true,4500)}}
+function scheduleReconnect(){
+ if(preview||stopped)return;
+ clearTimeout(retryTimer);
+ if(socket){const old=socket;socket=null;try{old.onclose=null;old.onerror=null;old.close()}catch(_){}}
+ retryTimer=setTimeout(connect,retryDelay);
+ retryDelay=Math.min(retryDelay*2,20000);
+}
 function connect(){
  if(preview){["rueumur","homka20_","d1unizi","medverina","Зритель_42"].forEach((name,i)=>setTimeout(()=>addPerson(name),i*350));return}
- if(!/^[a-z0-9_]{1,25}$/.test(channel)){showStatus("Укажи канал Twitch в настройках виджета");return}
- try{socket=new WebSocket("wss://irc-ws.chat.twitch.tv:443");}catch(_){showStatus("Не удалось подключиться к чату");return}
- socket.onopen=()=>{socket.send("CAP REQ :twitch.tv/tags twitch.tv/commands");socket.send("PASS SCHMOOPIIE");socket.send("NICK justinfan"+Math.floor(Math.random()*900000+100000));socket.send("JOIN #"+channel);showStatus("Подключаемся к чату "+channel)};
- socket.onmessage=e=>{for(const line of String(e.data||"").split("\r\n")){if(!line)continue;if(line.startsWith("PING")){socket.send("PONG :"+line.slice(5));continue}const tagPart=line.startsWith("@")?line.slice(1,line.indexOf(" ")).split(";"):[];const tags=Object.fromEntries(tagPart.map(x=>{const i=x.indexOf("=");return i<0?[x,""]:[x.slice(0,i),x.slice(i+1)]}));const match=line.match(/:([a-zA-Z0-9_]{1,25})![^ ]+ PRIVMSG #\S+ :(.*)$/);if(match){const text=match[2].replace(/[\r\n\t]/g," ");nativeEmotesFromTag(tags.emotes||"",text);addPerson(match[1],(tags.badges||"").split(",").filter(Boolean),tags["user-type"]||"",text);}}};
- socket.onerror=()=>showStatus("Чат Twitch временно недоступен");
- socket.onclose=()=>{if(!preview)retryTimer=setTimeout(connect,5000)};
+ if(stopped||!(/^[a-z0-9_]{1,25}$/.test(channel)))return;
+ if(socket&&(socket.readyState===WebSocket.OPEN||socket.readyState===WebSocket.CONNECTING))return;
+ clearTimeout(retryTimer);
+ let ws;
+ try{ws=new WebSocket("wss://irc-ws.chat.twitch.tv:443");socket=ws;connectTimer=Date.now()}catch(_){scheduleReconnect();return}
+ ws.onopen=()=>{
+  if(socket!==ws)return;
+  retryDelay=1000;lastSocketActivity=Date.now();
+  try{ws.send("CAP REQ :twitch.tv/tags twitch.tv/commands");ws.send("PASS SCHMOOPIIE");ws.send("NICK justinfan"+Math.floor(Math.random()*900000+100000));ws.send("JOIN #"+channel)}
+  catch(_){scheduleReconnect()}
+ };
+ ws.onmessage=e=>{
+  if(socket!==ws)return;
+  lastSocketActivity=Date.now();
+  for(const line of String(e.data||"").split(/\r\n/)){
+   if(!line)continue;
+   if(line.startsWith("PING")){try{ws.send("PONG :"+line.slice(5).trim())}catch(_){scheduleReconnect()}continue}
+   const tagPart=line.startsWith("@")?line.slice(1,line.indexOf(" ")).split(";"):[];
+   const tags=Object.fromEntries(tagPart.map(x=>{const i=x.indexOf("=");return i<0?[x,""]:[x.slice(0,i),x.slice(i+1)]}));
+   const match=line.match(/:([a-zA-Z0-9_]{1,25})![^ ]+ PRIVMSG #\S+ :(.*)$/);
+   if(match){const text=match[2].replace(/[\r\n\t]/g," ");nativeEmotesFromTag(tags.emotes||"",text);addPerson(match[1],(tags.badges||"").split(",").filter(Boolean),tags["user-type"]||"",text)}
+  }
+ };
+ ws.onerror=()=>{if(socket===ws)scheduleReconnect()};
+ ws.onclose=()=>{if(socket===ws){socket=null;scheduleReconnect()}};
 }
+watchdogTimer=setInterval(()=>{
+ if(stopped||preview)return;
+ const now=Date.now();
+ if(socket?.readyState===WebSocket.OPEN&&lastSocketActivity&&now-lastSocketActivity>8*60*1000)scheduleReconnect();
+ else if(socket?.readyState===WebSocket.CONNECTING&&connectTimer&&now-connectTimer>30000)scheduleReconnect();
+ else if(!socket&&!retryTimer)connect();
+},30000);
+
 window.addEventListener("resize",resize);resize();loadTwitchBadges();loadChatEmotes();connect();requestAnimationFrame(frame);
-window.addEventListener("beforeunload",()=>{clearTimeout(retryTimer);if(socket)socket.close()});
+window.addEventListener("beforeunload",()=>{stopped=true;clearTimeout(retryTimer);clearInterval(watchdogTimer);if(socket)socket.close()});
 })();
 </script>
 </body>

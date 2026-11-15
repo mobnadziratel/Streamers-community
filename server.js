@@ -13,6 +13,7 @@ const jackboxTickets = new Map();
 const jackboxRoomChecks = new Map();
 
 const LOGINS = [
+  "knaz_52",
   "mob_nadziratel",
   "d1unizi",
   "plovecmolodec",

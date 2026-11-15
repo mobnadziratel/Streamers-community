@@ -2167,6 +2167,46 @@ body{padding-bottom:54px!important}
  #winter-snowdrift{height:28px!important}
 }
 
+/* MOBILE REBUILD — OBS widgets configuration */
+@media(max-width:760px){
+ html,body{max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+ .wrap{width:calc(100% - 28px)!important;max-width:680px}
+ header{padding:10px 0!important}
+ header .nav{display:grid!important;grid-template-columns:minmax(0,1fr) auto;gap:9px 7px;align-items:center}
+ .brand{min-width:0;gap:8px;font-size:14px}
+ .logo{width:38px;height:38px;flex:0 0 38px}
+ .brand-wordmark{max-width:none;min-width:0}
+ .brand-wordmark .brand-main{font-size:clamp(12px,3.5vw,16px)!important;white-space:normal}
+ .brand-wordmark .brand-top,.brand-wordmark .brand-bottom{font-size:9px!important}
+ .site-switch{grid-column:1;grid-row:2;width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ .site-switch a{min-height:40px;display:flex;align-items:center;justify-content:center;padding:7px 5px;font-size:12px}
+ .theme-toggle{grid-column:2;grid-row:2;min-height:40px;margin:0!important;padding:7px 8px!important;font-size:10px!important;white-space:nowrap}
+ .chat-builder{padding-top:20px}
+ .chat-intro h1,.chat-builder h1{font-size:clamp(27px,7vw,38px)!important;line-height:1.08}
+ .chat-intro p,.city-lead{font-size:14px;line-height:1.55}
+ .widget-tabs,.tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:6px;padding:5px}
+ .widget-tabs .tab-button,.tabs .tab-button{min-width:0;min-height:43px;padding:9px 4px!important;font-size:11px!important;white-space:normal}
+ .chat-layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:14px!important}
+ .chat-panel,.chat-controls,.chat-preview,.city-widget-panel,.city-settings,.city-preview-wrap,.music-card{width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:14px!important}
+ .chat-controls{display:grid;grid-template-columns:minmax(0,1fr)!important;gap:12px}
+ .chat-field,.chat-style-setting,.chat-bubble-setting,.chat-outline-setting{min-width:0;width:100%}
+ .chat-field input,.chat-field select,.chat-field textarea,.chat-style-setting select,.chat-bubble-setting select,.chat-outline-setting select{width:100%;min-width:0;max-width:100%;min-height:43px;font-size:16px!important;box-sizing:border-box}
+ .chat-checks{display:grid;grid-template-columns:minmax(0,1fr)!important;gap:10px}
+ .chat-check{min-width:0;line-height:1.4}
+ .chat-actions,.music-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .chat-action,.chat-secondary,.music-button{min-width:0;min-height:44px;padding:10px 8px!important;font-size:12px}
+ .chat-preview{overflow:hidden}
+ .chat-preview>*{max-width:100%}
+ .city-settings{display:grid;grid-template-columns:minmax(0,1fr)!important;gap:12px}
+ .city-name-options{display:flex;flex-wrap:wrap;gap:7px}
+ .city-color-inline{display:flex;flex-wrap:wrap;gap:8px}
+ .city-preview-wrap{overflow:hidden}
+ .city-link-field input,.music-field input,.music-field select{width:100%;min-width:0;min-height:44px;font-size:16px!important;box-sizing:border-box}
+ .music-grid{display:grid;grid-template-columns:minmax(0,1fr)!important;gap:12px}
+ .music-field{min-width:0}
+}
+@media(max-width:390px){.wrap{width:calc(100% - 22px)!important}.brand-wordmark .brand-main{font-size:12px!important}.chat-actions,.music-actions{grid-template-columns:minmax(0,1fr)}}
+
 </style>
 </head><body>
 <header><div class="wrap nav">

@@ -27,9 +27,14 @@ const twitchColorCache={};
 const badgeImages=new Map();
 const emoteImages=new Map();
 const emoteCache=new Map();
-function addEmote(name,url,fallbackUrl=""){
+const emoteLazy=new Map();
+function addEmote(name,url,fallbackUrl="",lazy=false){
  if(!name||!url||emoteCache.has(name))return;
  emoteCache.set(name,url);
+ if(lazy){emoteLazy.set(name,[url,fallbackUrl]);return}
+ loadEmoteImage(name,url,fallbackUrl);
+}
+function loadEmoteImage(name,url,fallbackUrl){
  const img=new Image();
  img.crossOrigin="anonymous";
  img.onload=()=>emoteImages.set(name,img);
@@ -42,18 +47,18 @@ function addEmote(name,url,fallbackUrl=""){
 async function loadChatEmotes(){
  const login=channel||"rueumur";
  try{
-  const userResponse=await fetch("https://api.ivr.fi/v2/twitch/user?login="+encodeURIComponent(login));
+  const userResponse=await fetch("https://api.ivr.fi/v2/twitch/user?login="+encodeURIComponent(login),{signal:AbortSignal.timeout(8000)});
   if(!userResponse.ok)return;
   const users=await userResponse.json(),user=Array.isArray(users)?users[0]:users;
   const id=user&&user.id;if(!id)return;
   const jobs=[
-   fetch("https://api.betterttv.net/3/cached/users/twitch/"+encodeURIComponent(id)).then(r=>r.ok?r.json():null),
-   fetch("https://7tv.io/v3/users/twitch/"+encodeURIComponent(id)).then(r=>r.ok?r.json():null),
-   fetch("https://api.frankerfacez.com/v1/room/"+encodeURIComponent(login)).then(r=>r.ok?r.json():null),
-   fetch("https://api.frankerfacez.com/v1/set/global").then(r=>r.ok?r.json():null)
+   fetch("https://api.betterttv.net/3/cached/users/twitch/"+encodeURIComponent(id),{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).catch(()=>null),
+   fetch("https://7tv.io/v3/users/twitch/"+encodeURIComponent(id),{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).catch(()=>null),
+   fetch("https://api.frankerfacez.com/v1/room/"+encodeURIComponent(login),{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).catch(()=>null),
+   fetch("https://api.frankerfacez.com/v1/set/global",{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).catch(()=>null)
   ];
-  const [bttv,seventv,ffz,ffzGlobal]=await Promise.all(jobs);
-  for(const e of [...(bttv?.channelEmotes||[]),...(bttv?.sharedEmotes||[])])addEmote(e.code,"https://cdn.betterttv.net/emote/"+e.id+"/2x");
+  const [bttv,seventv,ffz,ffzGlobal]=(await Promise.allSettled(jobs)).map(r=>r.status==="fulfilled"?r.value:null);
+  for(const e of [...(bttv?.channelEmotes||[]),...(bttv?.sharedEmotes||[])])addEmote(e.code,"https://cdn.betterttv.net/emote/"+e.id+"/2x","",true);
   const seven=[...(seventv?.emote_set?.emotes||[]),...(seventv?.user?.emote_set?.emotes||[]),...(seventv?.user?.emote_sets||[]).flatMap(s=>s.emotes||[]),...(seventv?.emote_sets||[]).flatMap(s=>s.emotes||[])];
   for(const e of seven){
    const data=e.data||{};
@@ -61,16 +66,16 @@ async function loadChatEmotes(){
    const name=e.name||data.name;
    if(id&&name){
     // Stable 7TV CDN URL; host metadata can be protocol-relative or incomplete.
-    addEmote(name,"https://cdn.7tv.app/emote/"+id+"/2x.webp","https://cdn.7tv.app/emote/"+id+"/1x.webp");
+    addEmote(name,"https://cdn.7tv.app/emote/"+id+"/2x.webp","https://cdn.7tv.app/emote/"+id+"/1x.webp",true);
    }
   }
-  for(const set of Object.values(ffz?.sets||{}))for(const e of (set.emoticons||[]))addEmote(e.name,"https://cdn.frankerfacez.com/emote/"+e.id+"/2");
-  for(const set of Object.values(ffzGlobal?.sets||{}))for(const e of (set.emoticons||[]))addEmote(e.name,"https://cdn.frankerfacez.com/emote/"+e.id+"/2");
+  for(const set of Object.values(ffz?.sets||{}))for(const e of (set.emoticons||[]))addEmote(e.name,"https://cdn.frankerfacez.com/emote/"+e.id+"/2","",true);
+  for(const set of Object.values(ffzGlobal?.sets||{}))for(const e of (set.emoticons||[]))addEmote(e.name,"https://cdn.frankerfacez.com/emote/"+e.id+"/2","",true);
  }catch(_){}
 }
 function nativeEmotesFromTag(tag,text){
- const result={};if(!tag)return result;
- for(const group of tag.split("/")){const parts=group.split(":");const id=parts[0];for(const range of (parts[1]||"").split(",")){const [a,b]=range.split("-").map(Number);if(Number.isInteger(a)&&Number.isInteger(b)&&a>=0&&b<text.length){const word=text.slice(a,b+1);if(word)addEmote(word,"https://static-cdn.jtvnw.net/emoticons/v2/"+id+"/default/dark/2.0");result[word]=true;}}}
+ const result={};if(!tag)return result;const cps=Array.from(text);
+ for(const group of tag.split("/")){const parts=group.split(":");const id=parts[0];for(const range of (parts[1]||"").split(",")){const [a,b]=range.split("-").map(Number);if(Number.isInteger(a)&&Number.isInteger(b)&&a>=0&&b<cps.length){const word=cps.slice(a,b+1).join("");if(word)addEmote(word,"https://static-cdn.jtvnw.net/emoticons/v2/"+id+"/default/dark/2.0");result[word]=true;}}}
  return result;
 }
 
@@ -112,6 +117,7 @@ function addPerson(login,badges=[],userType="",messageText=""){
  const x=people.size%2===0?Math.random()*Math.max(1,width*.35):width*.65+Math.random()*Math.max(1,width*.3);
  people.set(key,{key,display:login,badges:visibleBadges,last:now,message:messageText.trim().slice(0,220),messageAt:messageText.trim()?now:0,x,y:height-2,vx:(Math.random()>.5?1:-1)*(.3+Math.random()*.45),phase:Math.random()*6.28,palette,kind:style==="mixed"?Math.floor(Math.random()*4):({minecraft:0,terraria:1,rpg:2,scifi:3}[style]??0),variant:Math.floor(Math.random()*6),scale:.85+Math.random()*.7,nameColor:twitchColorCache[key]||nameColor});
  queueTwitchColor(key);
+ if(people.size>150){let oldestKey=null,oldest=Infinity;for(const [k,v] of people)if(v.last<oldest){oldest=v.last;oldestKey=k}if(oldestKey&&oldestKey!==key)people.delete(oldestKey)}
 }
 function drawPerson(p,t){
  const gait=t*.012+p.phase,stride=Math.sin(gait),bob=Math.abs(Math.cos(gait))*1.5;
@@ -223,13 +229,11 @@ function drawPerson(p,t){
     if(/^\s+$/.test(token)){ctx.fillText(token,cursorX,by+padY+i*lineHeight);cursorX+=ctx.measureText(token).width;continue;}
     let matchEmote=null,matchAt=-1;
     if(showEmotes){
-     for(const name of emoteImages.keys()){
-      let at=token.indexOf(name);
-      while(at>=0){
-       const before=at?token[at-1]:"",after=at+name.length<token.length?token[at+name.length]:"";
-       if((!before||!/[a-zA-Z0-9_]/.test(before))&&(!after||!/[a-zA-Z0-9_]/.test(after))&&(!matchEmote||name.length>matchEmote.length)){matchEmote=name;matchAt=at;}
-       at=token.indexOf(name,at+1);
-      }
+     const lead=(token.match(/^[([{¿¡"'“‘]+/)||[""])[0],tail=(token.slice(lead.length).match(/[.,!?;:)}\]”’"'…]+$/)||[""])[0],core=token.slice(lead.length,token.length-tail.length);
+     for(const [cand,at] of [[core,lead.length],[token,0]]){
+      if(!cand)continue;
+      if(!emoteImages.has(cand)&&emoteLazy.has(cand)){const [u,f]=emoteLazy.get(cand);emoteLazy.delete(cand);loadEmoteImage(cand,u,f)}
+      if(emoteImages.has(cand)){matchEmote=cand;matchAt=at;break}
      }
     }
     const img=matchEmote?emoteImages.get(matchEmote):null;
@@ -260,14 +264,14 @@ function scheduleReconnect(){
  if(preview||stopped)return;
  clearTimeout(retryTimer);
  if(socket){const old=socket;socket=null;try{old.onclose=null;old.onerror=null;old.close()}catch(_){}}
- retryTimer=setTimeout(connect,retryDelay);
+ retryTimer=setTimeout(()=>{retryTimer=0;connect()},retryDelay+Math.floor(Math.random()*400));
  retryDelay=Math.min(retryDelay*2,20000);
 }
 function connect(){
  if(preview){["rueumur","homka20_","d1unizi","medverina","Зритель_42"].forEach((name,i)=>setTimeout(()=>addPerson(name),i*350));return}
  if(stopped||!(/^[a-z0-9_]{1,25}$/.test(channel)))return;
  if(socket&&(socket.readyState===WebSocket.OPEN||socket.readyState===WebSocket.CONNECTING))return;
- clearTimeout(retryTimer);
+ clearTimeout(retryTimer);retryTimer=0;
  let ws;
  try{ws=new WebSocket("wss://irc-ws.chat.twitch.tv:443");socket=ws;connectTimer=Date.now()}catch(_){scheduleReconnect();return}
  ws.onopen=()=>{
@@ -282,6 +286,7 @@ function connect(){
   for(const line of String(e.data||"").split(/\r\n/)){
    if(!line)continue;
    if(line.startsWith("PING")){try{ws.send("PONG :"+line.slice(5).trim())}catch(_){scheduleReconnect()}continue}
+   if(/ RECONNECT\s*$/.test(line)){scheduleReconnect();break}
    const tagPart=line.startsWith("@")?line.slice(1,line.indexOf(" ")).split(";"):[];
    const tags=Object.fromEntries(tagPart.map(x=>{const i=x.indexOf("=");return i<0?[x,""]:[x.slice(0,i),x.slice(i+1)]}));
    const match=line.match(/:([a-zA-Z0-9_]{1,25})![^ ]+ PRIVMSG #\S+ :(.*)$/);
@@ -291,13 +296,18 @@ function connect(){
  ws.onerror=()=>{if(socket===ws)scheduleReconnect()};
  ws.onclose=()=>{if(socket===ws){socket=null;scheduleReconnect()}};
 }
+let lastPingAt=0;
 watchdogTimer=setInterval(()=>{
  if(stopped||preview)return;
  const now=Date.now();
- if(socket?.readyState===WebSocket.OPEN&&lastSocketActivity&&now-lastSocketActivity>8*60*1000)scheduleReconnect();
- else if(socket?.readyState===WebSocket.CONNECTING&&connectTimer&&now-connectTimer>30000)scheduleReconnect();
+ if(socket?.readyState===WebSocket.OPEN){
+  if(now-lastPingAt>60000){lastPingAt=now;try{socket.send("PING :tmi.twitch.tv")}catch(_){}}
+  if(lastSocketActivity&&now-lastSocketActivity>150000)scheduleReconnect();
+ }
+ else if(socket?.readyState===WebSocket.CONNECTING&&connectTimer&&now-connectTimer>20000)scheduleReconnect();
  else if(!socket&&!retryTimer)connect();
-},30000);
+},15000);
+window.addEventListener("online",()=>{if(!stopped&&!preview&&(!socket||socket.readyState>1))connect()});
 
 window.addEventListener("resize",resize);resize();loadTwitchBadges();loadChatEmotes();connect();requestAnimationFrame(frame);
 window.addEventListener("beforeunload",()=>{stopped=true;clearTimeout(retryTimer);clearInterval(watchdogTimer);if(socket)socket.close()});

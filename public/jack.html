@@ -358,6 +358,14 @@ body{padding-bottom:54px!important}
 }
 @media(max-width:390px){.wrap{width:calc(100% - 20px)!important}.pack-art img{max-height:105px!important}.special{padding:11px!important}}
 
+
+/* ── Mobile hardening: nothing may widen the page beyond the screen ── */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;max-width:100%}
+@supports (overflow:clip){html,body{overflow-x:clip}}
+@supports not (overflow:clip){body{overflow-x:hidden}}
+img,video,iframe{max-width:100%}
+#winter-snowdrift{left:0!important;width:100%!important}
+@media(max-width:650px){.hero{overflow:hidden}.winter-mascot.right{right:6px}}
 </style>
 </head>
 <body>
@@ -678,7 +686,7 @@ body{padding-bottom:54px!important}
  if(document.getElementById("winter-snow-layer")) return;
  const layer=document.createElement("div");layer.id="winter-snow-layer";layer.setAttribute("aria-hidden","true");
  const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
- const count=reduce?22:64;
+ const count=reduce?22:(window.innerWidth<650?24:64);
  for(let i=0;i<count;i++){
   const f=document.createElement("i");f.className="winter-flake";
   const size=(Math.random()*4+2).toFixed(1)+"px";

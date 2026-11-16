@@ -2207,6 +2207,14 @@ body{padding-bottom:54px!important}
 }
 @media(max-width:390px){.wrap{width:calc(100% - 22px)!important}.brand-wordmark .brand-main{font-size:12px!important}.chat-actions,.music-actions{grid-template-columns:minmax(0,1fr)}}
 
+
+/* ── Mobile hardening: nothing may widen the page beyond the screen ── */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;max-width:100%}
+@supports (overflow:clip){html,body{overflow-x:clip}}
+@supports not (overflow:clip){body{overflow-x:hidden}}
+img,video,iframe{max-width:100%}
+#winter-snowdrift{left:0!important;width:100%!important}
+@media(max-width:650px){.hero{overflow:hidden}.winter-mascot.right{right:6px}}
 </style>
 </head><body>
 <header><div class="wrap nav">
@@ -2221,7 +2229,7 @@ body{padding-bottom:54px!important}
   <button class="theme-toggle" id="themeToggle" type="button" aria-label="Переключить тему"><span class="theme-icon" id="themeIcon">☀️</span><span id="themeLabel">Светлая тема</span></button>
 </div></header>
 <main class="wrap chat-builder">
-  <section class="chat-intro" id="chatIntro"><h1>Виджет чата для OBS</h1><p>Настрой оформление, цвета ников и Twitch-значки. Справа — живой пример того, как будет выглядеть чат.</p></section>
+  <section class="chat-intro" id="chatIntro"><h1>Виджет чата для OBS</h1><p>Настрой оформление, цвета ников и Twitch-значки. Рядом (на телефоне — ниже) живой пример того, как будет выглядеть чат.</p></section>
   <nav class="widget-tabs tabs" role="tablist" aria-label="Разделы"><button class="tab-button active" id="chatWidgetTab" type="button" role="tab" aria-selected="true" aria-controls="chatWidgetPanel">Чат</button><button class="tab-button" id="cityWidgetTab" type="button" role="tab" aria-selected="false" aria-controls="cityWidgetPanel">Город</button><button class="tab-button" id="musicWidgetTab" type="button" role="tab" aria-selected="false" aria-controls="musicWidgetPanel">Музыка</button></nav>
   <div class="chat-layout" id="chatWidgetPanel" role="tabpanel" aria-labelledby="chatWidgetTab">
     <section class="chat-panel">
@@ -2292,13 +2300,13 @@ body{padding-bottom:54px!important}
 <h2>Заказать музыку</h2>
 <form id="musicRequestForm" class="music-grid">
 <div class="music-field"><label for="musicChannel">Канал Twitch</label><input id="musicChannel" type="text" maxlength="25" placeholder="например, d1unizi" autocomplete="off" required></div>
-<div class="music-field"><label for="musicNickname">Твой ник</label><input id="musicNickname" type="text" maxlength="40" placeholder="Как тебя подписать?" autocomplete="nickname"></div>
+<div class="music-field"><label for="musicNickname">Твой ник</label><input id="musicNickname" type="text" minlength="2" maxlength="32" placeholder="Как тебя подписать?" autocomplete="nickname"></div>
 <div class="music-field" style="grid-column:1/-1"><label for="musicUrl">Ссылка на YouTube</label><input id="musicUrl" type="url" placeholder="https://www.youtube.com/watch?v=..." required></div>
 <div class="music-actions" style="grid-column:1/-1"><button id="musicSubmit" class="music-button primary" type="submit">Отправить заказ</button></div>
 <p id="musicRequestStatus" class="music-status" aria-live="polite" style="grid-column:1/-1;margin:0"></p>
 </form>
 <p class="chat-note" style="margin-top:14px">Указывай ссылку на музыкальный ролик YouTube. Заказ отправится в очередь выбранного канала.</p>
-<a class="music-button" href="https://small-streamers.de1.netrun.io/music-dock" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;margin-top:8px">Очередь, управление и OBS ↗</a>
+<a class="music-button" href="/music-dock" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;margin-top:8px">Очередь, управление и OBS ↗</a>
 </section>
 </section>
 
@@ -2587,7 +2595,7 @@ body{padding-bottom:54px!important}
  if(document.getElementById("winter-snow-layer")) return;
  const layer=document.createElement("div");layer.id="winter-snow-layer";layer.setAttribute("aria-hidden","true");
  const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
- const count=reduce?22:64;
+ const count=reduce?22:(window.innerWidth<650?24:64);
  for(let i=0;i<count;i++){
   const f=document.createElement("i");f.className="winter-flake";
   const size=(Math.random()*4+2).toFixed(1)+"px";

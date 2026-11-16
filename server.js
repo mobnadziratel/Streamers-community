@@ -2,6 +2,7 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 const zlib = require("node:zlib");
+const { handleParty } = require("./party");
 const WebSocket = require("ws");
 
 const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
@@ -1027,6 +1028,7 @@ async function handleRequest(req, res) {
 
 
   if (url.pathname.startsWith("/api/music/")) return handleMusicApi(req, res, url);
+  if (url.pathname.startsWith("/api/party/")) return handleParty(req, res, url);
 
   // Community suggestion box: submissions remain private until moderator approval.
   if (url.pathname === "/api/jackbox/room-check") {
@@ -1313,7 +1315,7 @@ async function handleRequest(req, res) {
     return serveStatic(req, res, fontPath, { fonts: true });
   }
 
-  const pageRoutes = { "": "index.html", "music-dock": "music-dock.html", "jack": "jack.html", "widgets": "widgets.html" };
+  const pageRoutes = { "": "index.html", "music-dock": "music-dock.html", "jack": "jack.html", "widgets": "widgets.html", "party": "party.html", "party/host": "party-host.html" };
   const trimmedPath = decodedPath.replace(/\/+$/, "");
   const requested = Object.prototype.hasOwnProperty.call(pageRoutes, trimmedPath) ? pageRoutes[trimmedPath] : decodedPath;
   const filePath = path.resolve(PUBLIC_DIR, requested);
@@ -1339,7 +1341,7 @@ async function serveStatic(req, res, filePath, options) {
   }
   const headers = { "Content-Type": MIME_TYPES[ext] || "application/octet-stream", "ETag": entry.etag, "Vary": "Accept-Encoding" };
   if (options.fonts) { headers["Cache-Control"] = "public, max-age=31536000, immutable"; headers["Access-Control-Allow-Origin"] = "*"; }
-  else if (ext === ".html" || path.basename(filePath) === "jackbox-controller.js") headers["Cache-Control"] = "no-cache"; // всегда сверяем ETag: после деплоя отдаётся свежая версия
+  else if (ext === ".html" || ext === ".js") headers["Cache-Control"] = "no-cache"; // всегда сверяем ETag: после деплоя отдаётся свежая версия
   else headers["Cache-Control"] = "public, max-age=86400, stale-while-revalidate=86400";
   if (req.headers["if-none-match"] === entry.etag) { res.writeHead(304, headers); res.end(); return; }
   let body = entry.buf;

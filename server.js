@@ -1,6 +1,7 @@
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
+const zlib = require("node:zlib");
 const WebSocket = require("ws");
 
 const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
@@ -10,6 +11,11 @@ const CLIENT_ID = process.env.TWITCH_CLIENT_ID;
 const CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
 const PUBLIC_DIR = path.join(__dirname, "public");
 const jackboxTickets = new Map();
+function createMutex() {
+  let tail = Promise.resolve();
+  return { acquire() { let release; const next = new Promise(resolve => { release = resolve; }); const previous = tail; tail = tail.then(() => next); return previous.then(() => release); } };
+}
+const communityMutex = createMutex();
 const jackboxRoomChecks = new Map();
 
 const LOGINS = [
@@ -277,13 +283,13 @@ async function getCollaborations() {
   const byLogin = new Map(users.map(user => [String(user.login).toLowerCase(), user]));
   const byId = new Map(users.map(user => [String(user.id), user]));
   const result = {};
-  for (const login of logins) {
+  await Promise.all(logins.map(async login => {
     const user = byLogin.get(login);
-    if (!user) continue;
+    if (!user) return;
     try {
       const data = await helix("shared_chat/session", new URLSearchParams({ broadcaster_id: String(user.id) }));
       const session = (data.data || [])[0];
-      if (!session || !Array.isArray(session.participants) || session.participants.length < 2) continue;
+      if (!session || !Array.isArray(session.participants) || session.participants.length < 2) return;
       const ids = session.participants.map(p => String(p.broadcaster_id));
       const missing = ids.filter(id => !byId.has(id));
       if (missing.length) {
@@ -297,16 +303,25 @@ async function getCollaborations() {
     } catch (error) {
       console.warn("Twitch shared-chat lookup failed for " + login + ": " + error.message);
     }
-  }
+  }));
   collabCache = result;
   collabCacheAt = Date.now();
   return result;
 }
 
+let streamsFetchedAt = 0, streamsFailUntil = 0, streamsLastError = null;
 async function getStreams() {
   if (Date.now() < cacheExpiresAt) return cachedStreams;
+  if (Date.now() < streamsFailUntil && !streamsFetchedAt) throw streamsLastError;
   if (!refreshInFlight) {
-    refreshInFlight = fetchStreams().finally(() => { refreshInFlight = null; });
+    refreshInFlight = fetchStreams().then(result => { streamsFetchedAt = Date.now(); streamsFailUntil = 0; return result; }).catch(error => {
+      // Сбой Twitch: отдаём последние известные данные и повторяем попытку не чаще раза в 15 секунд.
+      console.error("Twitch streams refresh failed:", error.message);
+      cacheExpiresAt = Date.now() + 15_000;
+      if (streamsFetchedAt) return cachedStreams;
+      streamsFailUntil = Date.now() + 10_000; streamsLastError = error;
+      throw error;
+    }).finally(() => { refreshInFlight = null; });
   }
   return refreshInFlight;
 }
@@ -424,7 +439,343 @@ async function fetchClips(period) {
 
 
 
-const server = http.createServer(async (req, res) => {
+// ───────────────────────────── Music queue API ─────────────────────────────
+// Все операции с очередью выполняются строго по одной (mutex): раньше два одновременных запроса
+// (например, «трек закончился» из OBS и «пропустить» из дока) читали одно и то же состояние и
+// затирали изменения друг друга.
+const MUSIC_DATA_DIR = process.env.WALL_DATA_DIR || path.join(__dirname, "data");
+const MUSIC_FILE = path.join(MUSIC_DATA_DIR, "music-queue.json");
+const MUSIC_R2_KEY = process.env.MUSIC_R2_OBJECT_KEY || "music-queue.json";
+const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID;
+const R2_BUCKET = process.env.R2_BUCKET_NAME;
+const R2_ENABLED = Boolean(R2_ACCOUNT_ID && R2_BUCKET && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY);
+const musicR2 = R2_ENABLED ? new S3Client({
+  region: "auto",
+  endpoint: process.env.R2_ENDPOINT || ("https://" + R2_ACCOUNT_ID + ".r2.cloudflarestorage.com"),
+  credentials: { accessKeyId: process.env.R2_ACCESS_KEY_ID, secretAccessKey: process.env.R2_SECRET_ACCESS_KEY }
+}) : null;
+
+const MUSIC_ACTIVE = ["pending", "playing"];
+const MUSIC_QUEUE_LIMIT = 50;
+const musicSessions = new Map();     // sessionId -> { channel, expiresAt }
+const musicRequestRate = new Map();  // ip -> [timestamps]
+const musicLoginRate = new Map();    // ip -> [timestamps]
+const communityLoginRate = new Map();
+const musicMetaCache = new Map();    // videoId -> { meta, at }
+let musicChain = Promise.resolve();
+let musicDbCache = null, musicDbCacheAt = 0, musicMigrated = false;
+
+function withMusicLock(task) {
+  const run = musicChain.then(task);
+  musicChain = run.then(() => {}, () => {});
+  return run;
+}
+const musicClean = (value, max) => String(value || "").replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, max);
+const musicChannel = value => {
+  const s = musicClean(value, 25).replace(/^@/, "").toLowerCase();
+  return /^[a-z0-9_]{1,25}$/.test(s) ? s : "";
+};
+const byCreatedAt = (a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || ""));
+const isHttps = req => Boolean(req.socket.encrypted) || String(req.headers["x-forwarded-proto"] || "").split(",")[0].trim() === "https";
+const clientIp = req => String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown").split(",")[0].trim();
+function takeRateSlot(store, ip, limit, windowMs) {
+  const now = Date.now();
+  const recent = (store.get(ip) || []).filter(t => now - t < windowMs);
+  if (recent.length >= limit) { store.set(ip, recent); return false; }
+  recent.push(now); store.set(ip, recent);
+  return true;
+}
+function safeEqual(a, b) {
+  const ba = Buffer.from(String(a)), bb = Buffer.from(String(b));
+  return ba.length === bb.length && require("node:crypto").timingSafeEqual(ba, bb);
+}
+
+async function readJsonBody(req, limit = 20480) {
+  const chunks = []; let size = 0;
+  for await (const chunk of req) {
+    size += chunk.length;
+    if (size > limit) throw Object.assign(new Error("Запрос слишком большой."), { statusCode: 413 });
+    chunks.push(chunk);
+  }
+  try { return chunks.length ? JSON.parse(Buffer.concat(chunks).toString("utf8")) : {}; }
+  catch { throw Object.assign(new Error("Некорректный JSON."), { statusCode: 400 }); }
+}
+async function streamToString(body) {
+  const chunks = [];
+  for await (const chunk of body) chunks.push(Buffer.from(chunk));
+  return Buffer.concat(chunks).toString("utf8");
+}
+const normalizeMusicDb = d => ({
+  ...(d && typeof d === "object" ? d : {}),
+  items: Array.isArray(d && d.items) ? d.items.filter(x => x && typeof x === "object") : [],
+  playback: d && d.playback && typeof d.playback === "object" ? d.playback : {}
+});
+async function musicReadLocal() {
+  await fs.promises.mkdir(MUSIC_DATA_DIR, { recursive: true });
+  try { return normalizeMusicDb(JSON.parse(await fs.promises.readFile(MUSIC_FILE, "utf8"))); }
+  catch (e) { if (e.code === "ENOENT") return normalizeMusicDb({}); throw e; }
+}
+async function musicSaveStorage(db) {
+  const data = JSON.stringify(db, null, 2);
+  if (R2_ENABLED) { await musicR2.send(new PutObjectCommand({ Bucket: R2_BUCKET, Key: MUSIC_R2_KEY, Body: data, ContentType: "application/json" })); return; }
+  await fs.promises.mkdir(MUSIC_DATA_DIR, { recursive: true });
+  const tmp = MUSIC_FILE + ".tmp";
+  await fs.promises.writeFile(tmp, data, { mode: 0o600 });
+  await fs.promises.rename(tmp, MUSIC_FILE);
+}
+async function musicReadStorage() {
+  if (!R2_ENABLED) return musicReadLocal();
+  let shared;
+  try {
+    const object = await musicR2.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: MUSIC_R2_KEY }));
+    shared = normalizeMusicDb(JSON.parse(await streamToString(object.Body)));
+  } catch (e) {
+    if (e.name === "NoSuchKey" || e.Code === "NoSuchKey" || (e.$metadata && e.$metadata.httpStatusCode === 404)) shared = normalizeMusicDb({});
+    else throw new Error("Не удалось прочитать очередь музыки.");
+  }
+  // Одноразовая миграция старого локального файла в R2 (раньше выполнялась при КАЖДОМ чтении).
+  if (!musicMigrated) {
+    const local = await musicReadLocal();
+    const known = new Set(shared.items.filter(x => x.id).map(x => String(x.id)));
+    const missing = local.items.filter(x => x.id && !known.has(String(x.id)));
+    if (missing.length) { shared.items.push(...missing); await musicSaveStorage(shared); }
+    musicMigrated = true;
+  }
+  return shared;
+}
+async function musicLoad() {
+  if (musicDbCache && Date.now() - musicDbCacheAt < 1500) return musicDbCache;
+  musicDbCache = await musicReadStorage();
+  musicDbCacheAt = Date.now();
+  return musicDbCache;
+}
+async function musicSave(db) {
+  musicDbCache = null;            // при ошибке записи кэш не должен хранить несохранённое состояние
+  await musicSaveStorage(db);
+  musicDbCache = db; musicDbCacheAt = Date.now();
+}
+const musicActiveItems = (db, ch) => db.items.filter(x => x.channel === ch && MUSIC_ACTIVE.includes(x.status)).sort(byCreatedAt);
+function musicSetPlayback(db, ch, patch) {
+  db.playback = db.playback && typeof db.playback === "object" ? db.playback : {};
+  db.playback[ch] = { ...(db.playback[ch] || {}), ...patch, updatedAt: new Date().toISOString() };
+  return db.playback[ch];
+}
+// Гарантирует: «играет» максимум один трек; при promote — запускает следующий, если ничего не играет.
+function musicNormalize(db, ch, promoteIfEmpty = false) {
+  let changed = false;
+  const active = musicActiveItems(db, ch), playing = active.filter(x => x.status === "playing");
+  for (const duplicate of playing.slice(1)) { duplicate.status = "pending"; changed = true; }
+  if (promoteIfEmpty && playing.length === 0) {
+    const next = active.find(x => x.status === "pending");
+    if (next) { next.status = "playing"; changed = true; musicSetPlayback(db, ch, { trackId: next.id, paused: false, visible: true }); }
+  }
+  return changed;
+}
+// Состояние плеера привязано к конкретному треку; при смене трека пауза сбрасывается.
+function musicPlaybackFor(db, ch, current) {
+  db.playback = db.playback && typeof db.playback === "object" ? db.playback : {};
+  const state = db.playback[ch], id = current ? current.id : null;
+  if (!state || state.trackId !== id) return { state: musicSetPlayback(db, ch, { trackId: id, paused: false, visible: true }), changed: true };
+  return { state, changed: false };
+}
+const musicPublicItem = ({ id, channel, nickname, videoId, url, title, status, createdAt }) => ({ id, channel, nickname, videoId, url, title, status, createdAt });
+
+function parseYouTubeId(raw) {
+  try {
+    const u = new URL(musicClean(raw, 500));
+    const host = u.hostname.toLowerCase().replace(/^www\./, "").replace(/^m\./, "");
+    let vid = "";
+    if (["youtube.com", "music.youtube.com"].includes(host) && u.pathname === "/watch") vid = u.searchParams.get("v") || "";
+    else if (host === "youtu.be") vid = u.pathname.split("/").filter(Boolean)[0] || "";
+    else if (["youtube.com", "music.youtube.com"].includes(host) && /^\/(?:shorts|embed|live)\/[^/]+/.test(u.pathname)) vid = u.pathname.split("/")[2] || "";
+    return /^[A-Za-z0-9_-]{11}$/.test(vid) ? vid : "";
+  } catch (_) { return ""; }
+}
+// Проверка ролика через oEmbed: отсекает удалённые, приватные и запрещённые для встраивания видео
+// ещё при заказе — иначе такой трек «зависал» бы в очереди эфира.
+async function youtubeLookup(videoId) {
+  const cached = musicMetaCache.get(videoId);
+  if (cached && Date.now() - cached.at < 3600000) return cached.result;
+  let result;
+  try {
+    const response = await fetch("https://www.youtube.com/oembed?url=" + encodeURIComponent("https://www.youtube.com/watch?v=" + videoId) + "&format=json", { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(5000) });
+    if (response.status === 404) result = { status: "missing" };
+    else if (response.status === 401 || response.status === 403) result = { status: "blocked" };
+    else if (!response.ok) result = { status: "unknown" };
+    else {
+      const meta = await response.json();
+      result = { status: "ok", title: musicClean(meta.title, 200), author: musicClean(meta.author_name, 120), thumbnail: meta.thumbnail_url || ("https://i.ytimg.com/vi/" + videoId + "/mqdefault.jpg") };
+    }
+  } catch (_) { result = { status: "unknown" }; }
+  if (result.status !== "unknown") {
+    musicMetaCache.set(videoId, { result, at: Date.now() });
+    if (musicMetaCache.size > 500) musicMetaCache.delete(musicMetaCache.keys().next().value);
+  }
+  return result;
+}
+
+async function handleMusicApi(req, res, url) {
+  const method = req.method || "GET";
+  const json = (status, payload, headers = {}) => {
+    res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...headers });
+    res.end(JSON.stringify(payload));
+  };
+  const cookieHeader = String(req.headers.cookie || "").split(";").map(v => v.trim()).find(v => v.startsWith("music_admin_session="));
+  const sessionId = cookieHeader ? cookieHeader.slice("music_admin_session=".length) : "";
+  const session = musicSessions.get(sessionId);
+  const isAdmin = Boolean(session && session.expiresAt > Date.now());
+  const cookieFlags = "; HttpOnly; SameSite=Strict; Path=/api/music" + (isHttps(req) ? "; Secure" : "");
+  const route = url.pathname;
+
+  try {
+    // ── запросы без работы с очередью ──
+    if (route === "/api/music/admin/session" && method === "GET") {
+      if (!isAdmin) { if (sessionId) musicSessions.delete(sessionId); return json(200, { authenticated: false }); }
+      return json(200, { authenticated: true, channel: session.channel });
+    }
+    if (route === "/api/music/metadata" && method === "GET") {
+      const vid = String(url.searchParams.get("videoId") || "");
+      if (!/^[A-Za-z0-9_-]{11}$/.test(vid)) return json(400, { error: "Некорректный ID видео." });
+      const info = await youtubeLookup(vid);
+      if (info.status !== "ok") return json(info.status === "unknown" ? 502 : 404, { error: "Не удалось получить данные ролика." });
+      return json(200, { videoId: vid, title: info.title, author: info.author, thumbnail: info.thumbnail }, { "Cache-Control": "public, max-age=3600" });
+    }
+    if (route === "/api/music/admin/login" && method === "POST") {
+      if (!takeRateSlot(musicLoginRate, clientIp(req), 10, 10 * 60000)) return json(429, { error: "Слишком много попыток входа. Подожди 10 минут." });
+      const body = await readJsonBody(req), ch = musicChannel(body.channel), password = String(body.password || "");
+      if (!ch) return json(400, { error: "Укажи Twitch-канал для входа." });
+      let credentials = {};
+      try { credentials = JSON.parse(process.env.MUSIC_ADMIN_CREDENTIALS || "{}"); } catch (_) {}
+      if (!credentials || typeof credentials !== "object" || Array.isArray(credentials)) credentials = {};
+      const pair = Object.entries(credentials).find(([login]) => String(login).trim().replace(/^@/, "").toLowerCase() === ch);
+      const expected = pair && typeof pair[1] === "string" ? pair[1] : "";
+      if (!expected) return json(503, { error: "Для этого канала не настроен отдельный пароль в MUSIC_ADMIN_CREDENTIALS." });
+      if (!safeEqual(password, expected)) return json(401, { error: "Неверный пароль для этого канала." });
+      const id = require("node:crypto").randomBytes(32).toString("hex");
+      musicSessions.set(id, { channel: ch, expiresAt: Date.now() + 43200000 });
+      return json(200, { ok: true, channel: ch }, { "Set-Cookie": "music_admin_session=" + id + cookieFlags + "; Max-Age=43200" });
+    }
+    if (route === "/api/music/admin/logout" && method === "POST") {
+      if (sessionId) musicSessions.delete(sessionId);
+      return json(200, { ok: true }, { "Set-Cookie": "music_admin_session=" + cookieFlags + "; Max-Age=0" });
+    }
+
+    // Тело запроса читаем ДО блокировки, чтобы медленный клиент не держал очередь.
+    const body = method === "POST" ? await readJsonBody(req) : {};
+
+    return await withMusicLock(async () => {
+      try {
+        if (route === "/api/music/overlay/current" && method === "GET") {
+          const ch = musicChannel(url.searchParams.get("channel"));
+          if (!ch) return json(400, { error: "Укажи корректный логин канала." });
+          const db = await musicLoad();
+          let changed = musicNormalize(db, ch, true);
+          const item = musicActiveItems(db, ch).find(x => x.status === "playing") || null;
+          const sync = musicPlaybackFor(db, ch, item);
+          if (changed || sync.changed) await musicSave(db);
+          return json(200, { item: item ? musicPublicItem(item) : null, paused: Boolean(sync.state.paused), visible: item ? sync.state.visible !== false : false });
+        }
+        if (route === "/api/music/queue" && method === "GET") {
+          const ch = musicChannel(url.searchParams.get("channel"));
+          if (!ch) return json(400, { error: "Укажи корректный логин канала." });
+          if (!isAdmin) return json(401, { error: "Войди с паролем, чтобы просматривать очередь." });
+          if (session.channel !== ch) return json(403, { error: "Эта очередь доступна только после входа в канал " + session.channel + "." });
+          const db = await musicLoad();
+          let changed = musicNormalize(db, ch, false);
+          const items = musicActiveItems(db, ch);
+          const history = db.items.filter(x => x.channel === ch && !MUSIC_ACTIVE.includes(x.status)).sort((a, b) => byCreatedAt(b, a)).slice(0, 100);
+          const current = items.find(x => x.status === "playing") || null;
+          const sync = musicPlaybackFor(db, ch, current);
+          if (changed || sync.changed) await musicSave(db);
+          return json(200, { items: items.map(musicPublicItem), history: history.map(musicPublicItem), paused: Boolean(sync.state.paused), visible: current ? sync.state.visible !== false : false });
+        }
+        if (route === "/api/music/request" && method === "POST") {
+          if (!takeRateSlot(musicRequestRate, clientIp(req), 8, 3600000)) return json(429, { error: "Слишком много заявок. Попробуй позже." });
+          const ch = musicChannel(body.channel), nick = musicClean(body.nickname, 32) || "Аноним";
+          if (!ch) return json(400, { error: "Укажи корректный Twitch-канал." });
+          if (!/^[\p{L}\p{N}_ .-]{2,32}$/u.test(nick)) return json(400, { error: "Ник должен содержать от 2 до 32 символов." });
+          const vid = parseYouTubeId(body.url);
+          if (!vid) return json(400, { error: "Вставь корректную ссылку на видео YouTube." });
+          const info = await youtubeLookup(vid);
+          if (info.status === "missing") return json(404, { error: "Это видео не найдено, удалено или закрыто." });
+          if (info.status === "blocked") return json(422, { error: "Автор запретил воспроизведение этого видео на других сайтах. Выбери другой ролик." });
+          const db = await musicLoad();
+          musicNormalize(db, ch, false);
+          const active = musicActiveItems(db, ch);
+          if (active.length >= MUSIC_QUEUE_LIMIT) return json(429, { error: "Очередь канала заполнена (максимум " + MUSIC_QUEUE_LIMIT + " треков)." });
+          if (active.some(x => x.videoId === vid)) return json(409, { error: "Этот трек уже есть в очереди." });
+          const first = active.length === 0;
+          const item = { id: require("node:crypto").randomUUID(), channel: ch, nickname: nick, videoId: vid, url: "https://www.youtube.com/watch?v=" + vid, title: musicClean(body.title, 100) || (info.status === "ok" ? musicClean(info.title, 100) : ""), status: first ? "playing" : "pending", createdAt: new Date().toISOString() };
+          db.items.push(item);
+          if (first) musicSetPlayback(db, ch, { trackId: item.id, paused: false, visible: true });
+          await musicSave(db);
+          return json(201, { ok: true, message: first ? "Трек добавлен и уже играет." : "Трек добавлен в очередь (позиция " + (active.length + 1) + ")." });
+        }
+        if (route === "/api/music/overlay/ended" && method === "POST") {
+          const ch = musicChannel(body.channel), id = musicClean(body.id, 80), resultStatus = body.status === "skipped" ? "skipped" : "done";
+          if (!ch || !id) return json(400, { error: "Некорректный запрос." });
+          const db = await musicLoad();
+          musicNormalize(db, ch, false);
+          const item = db.items.find(x => x.id === id && x.channel === ch && x.status === "playing");
+          if (item) { item.status = resultStatus; musicNormalize(db, ch, true); await musicSave(db); }
+          return json(200, { ok: true });
+        }
+        if (route.startsWith("/api/music/admin/") && method === "POST") {
+          if (!isAdmin) return json(401, { error: "Войди как стример, чтобы управлять очередью." });
+          const ch = musicChannel(body.channel), id = musicClean(body.id, 80), action = route.split("/").pop();
+          if (!ch) return json(400, { error: "Укажи корректный Twitch-канал." });
+          if (session.channel !== ch) return json(403, { error: "Этот вход разрешён только для канала " + session.channel + "." });
+          const db = await musicLoad();
+          musicNormalize(db, ch, false);
+          const active = musicActiveItems(db, ch), current = active.find(x => x.status === "playing") || null;
+          const item = db.items.find(x => x.id === id && x.channel === ch);
+          if (action === "next") {
+            if (current) current.status = "done";
+            musicNormalize(db, ch, true);
+            const upNext = musicActiveItems(db, ch).find(x => x.status === "playing") || null;
+            musicSetPlayback(db, ch, { trackId: upNext ? upNext.id : null, paused: false, visible: true });
+            await musicSave(db);
+            return json(200, { ok: true });
+          }
+          if (action === "pause" || action === "resume") {
+            if (!current) return json(404, { error: "Сейчас нечего воспроизводить." });
+            musicSetPlayback(db, ch, { trackId: current.id, paused: action === "pause" });
+            await musicSave(db);
+            return json(200, { ok: true, paused: action === "pause" });
+          }
+          if (action === "show" || action === "hide") {
+            if (!current) return json(404, { error: "Сейчас нечего воспроизводить." });
+            musicSetPlayback(db, ch, { trackId: current.id, visible: action === "show" });
+            await musicSave(db);
+            return json(200, { ok: true, visible: action === "show" });
+          }
+          if (!item) return json(404, { error: "Заявка не найдена." });
+          if (action === "play") {
+            for (const other of active) if (other.status === "playing") other.status = "pending";
+            item.status = "playing";
+            musicSetPlayback(db, ch, { trackId: item.id, paused: false, visible: true });
+          } else if (action === "skip" || action === "remove") {
+            const wasCurrent = item.status === "playing";
+            item.status = action === "skip" ? "skipped" : "removed";
+            musicNormalize(db, ch, true);
+            if (wasCurrent) { const upNext = musicActiveItems(db, ch).find(x => x.status === "playing") || null; musicSetPlayback(db, ch, { trackId: upNext ? upNext.id : null, paused: false, visible: true }); }
+          } else return json(400, { error: "Неизвестное действие." });
+          musicNormalize(db, ch, false);
+          await musicSave(db);
+          return json(200, { ok: true });
+        }
+        return json(404, { error: "Неизвестный маршрут." });
+      } catch (error) { musicDbCache = null; throw error; }
+    });
+  } catch (error) {
+    console.error("Music queue API error:", error.message);
+    if (!res.headersSent) return json(error.statusCode || 500, { error: error.statusCode ? error.message : "Не удалось обработать музыкальную очередь." });
+  }
+}
+
+async function handleRequest(req, res) {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   let url;
   try {
     url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
@@ -436,7 +787,7 @@ const server = http.createServer(async (req, res) => {
 
   if (url.pathname.startsWith("/api/twitch-widget/")) {
     const json=(status,data)=>{res.writeHead(status,{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"});res.end(JSON.stringify(data))};
-    const redirectUri=String(process.env.TWITCH_WIDGET_REDIRECT_URI||"https://small-streamers.de1.netrun.io/api/twitch-widget/callback").trim();
+    const proto=String(req.headers["x-forwarded-proto"]||(req.socket.encrypted?"https":"http")).split(",")[0].trim(),redirectUri=String(process.env.TWITCH_WIDGET_REDIRECT_URI||(proto+"://"+(req.headers.host||"localhost")+"/api/twitch-widget/callback")).trim();
     const authDir=process.env.WALL_DATA_DIR||path.join(__dirname,"data");
     const authFile=path.join(authDir,"twitch-widget-auth.json");
     const states=globalThis.__twitchWidgetOAuthStates||(globalThis.__twitchWidgetOAuthStates=new Map());
@@ -539,7 +890,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200); res.end(JSON.stringify({ colors }));
     } catch (error) {
       console.error("Could not load Twitch chat colors: " + error.message);
-      res.writeHead(503); res.end(JSON.stringify({ error: "Twitch chat colors temporarily unavailable", colors: {} }));
+      res.setHeader("Cache-Control", "no-store"); res.writeHead(503); res.end(JSON.stringify({ error: "Twitch chat colors temporarily unavailable", colors: {} }));
     }
     return;
   }
@@ -585,9 +936,10 @@ const server = http.createServer(async (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=300");
     const login = String(url.searchParams.get("login") || "").trim().toLowerCase();
     if (!/^[a-z0-9_]{1,25}$/.test(login)) {
-      res.writeHead(400); res.end(JSON.stringify({ error: "Invalid Twitch login", avatarUrl: null })); return;
+      res.setHeader("Cache-Control", "no-store"); res.writeHead(400); res.end(JSON.stringify({ error: "Invalid Twitch login", avatarUrl: null })); return;
     }
-    const forceRefresh = url.searchParams.get("refresh") === "1" || login === "ilyuhalakee";
+    const cachedForRefresh = avatarCache.get(login);
+    const forceRefresh = url.searchParams.get("refresh") === "1" && (!cachedForRefresh || Date.now() - cachedForRefresh.time > 60_000);
     const cached = avatarCache.get(login);
     if (!forceRefresh && cached && Date.now() - cached.time < 30 * 60_000) {
       res.writeHead(200); res.end(JSON.stringify({ login, avatarUrl: cached.avatarUrl })); return;
@@ -596,12 +948,12 @@ const server = http.createServer(async (req, res) => {
       const params = new URLSearchParams(); params.append("login", login);
       const payload = await helix("users", params);
       const avatarUrl = payload.data && payload.data[0] && payload.data[0].profile_image_url;
-      if (!avatarUrl) { res.writeHead(404); res.end(JSON.stringify({ error: "Twitch user not found", avatarUrl: null })); return; }
+      if (!avatarUrl) { res.setHeader("Cache-Control", "no-store"); res.writeHead(404); res.end(JSON.stringify({ error: "Twitch user not found", avatarUrl: null })); return; }
       avatarCache.set(login, { time: Date.now(), avatarUrl });
       res.writeHead(200); res.end(JSON.stringify({ login, avatarUrl }));
     } catch (error) {
       console.error(`Could not load avatar for ${login}: ${error.message}`);
-      res.writeHead(503); res.end(JSON.stringify({ error: "Avatar temporarily unavailable", avatarUrl: null }));
+      res.setHeader("Cache-Control", "no-store"); res.writeHead(503); res.end(JSON.stringify({ error: "Avatar temporarily unavailable", avatarUrl: null }));
     }
     return;
   }
@@ -643,6 +995,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200);
       res.end(JSON.stringify({ collaborations: await getCollaborations() }));
     } catch (error) {
+      collabCacheAt = Date.now() - 45_000; // повтор через 15 секунд, а не при каждом запросе
       console.error("Twitch collaborations unavailable: " + error.message);
       res.writeHead(503);
       res.end(JSON.stringify({ collaborations: {}, error: "unavailable" }));
@@ -653,11 +1006,10 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/api/streams") {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.setHeader("Cache-Control", "no-store");
-    res.setHeader("Access-Control-Allow-Origin", "same-origin");
     try {
       const streams = await getStreams();
       res.writeHead(200);
-      res.end(JSON.stringify({ updatedAt: new Date().toISOString(), streams }));
+      res.end(JSON.stringify({ updatedAt: new Date(streamsFetchedAt || Date.now()).toISOString(), streams }));
     } catch (error) {
       console.error(error.message);
       res.writeHead(503);
@@ -670,30 +1022,7 @@ const server = http.createServer(async (req, res) => {
 
 
 
-  if (url.pathname.startsWith("/api/music/")) {
-    const json=(status,payload,headers={})=>{res.writeHead(status,{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store",...headers});res.end(JSON.stringify(payload))};
-    const clean=(v,n)=>String(v||"").replace(/[\u0000-\u001f\u007f]/g,"").trim().slice(0,n),channelName=v=>{const s=clean(v,25).replace(/^@/,"").toLowerCase();return /^[a-z0-9_]{1,25}$/.test(s)?s:""};
-    async function bodyJson(limit=20480){const a=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>limit)throw Object.assign(Error("Запрос слишком большой."),{statusCode:413});a.push(chunk)}try{return a.length?JSON.parse(Buffer.concat(a).toString("utf8")):{}}catch{throw Object.assign(Error("Некорректный JSON."),{statusCode:400})}}
-    async function bodyText(body){const a=[];for await(const chunk of body)a.push(Buffer.from(chunk));return Buffer.concat(a).toString("utf8")}
-    const dir=process.env.WALL_DATA_DIR||path.join(__dirname,"data"),file=path.join(dir,"music-queue.json"),aid=process.env.R2_ACCOUNT_ID,bucket=process.env.R2_BUCKET_NAME,enabled=Boolean(aid&&bucket&&process.env.R2_ACCESS_KEY_ID&&process.env.R2_SECRET_ACCESS_KEY),r2=enabled?new S3Client({region:"auto",endpoint:process.env.R2_ENDPOINT||("https://"+aid+".r2.cloudflarestorage.com"),credentials:{accessKeyId:process.env.R2_ACCESS_KEY_ID,secretAccessKey:process.env.R2_SECRET_ACCESS_KEY}}):null,key=process.env.MUSIC_R2_OBJECT_KEY||"music-queue.json";
-    async function localRead(){await fs.promises.mkdir(dir,{recursive:true});try{const d=JSON.parse(await fs.promises.readFile(file,"utf8"));return{...d,items:Array.isArray(d.items)?d.items:[],playback:d.playback&&typeof d.playback==="object"?d.playback:{}}}catch(e){if(e.code==="ENOENT")return{items:[],playback:{}};throw e}}
-    async function load(){if(!enabled)return localRead();let shared;try{const o=await r2.send(new GetObjectCommand({Bucket:bucket,Key:key})),d=JSON.parse(await bodyText(o.Body));shared={...d,items:Array.isArray(d.items)?d.items:[]}}catch(e){if(e.name==="NoSuchKey"||e.Code==="NoSuchKey"||e.$metadata?.httpStatusCode===404)shared={items:[],playback:{}};else throw Error("Не удалось прочитать очередь музыки.")}const local=await localRead(),known=new Set(shared.items.filter(x=>x&&x.id).map(x=>String(x.id))),missing=local.items.filter(x=>x&&typeof x==="object"&&x.id&&!known.has(String(x.id)));if(missing.length){shared.items.push(...missing);await save(shared)}return shared}
-    async function save(db){const data=JSON.stringify(db,null,2);if(enabled){await r2.send(new PutObjectCommand({Bucket:bucket,Key:key,Body:data,ContentType:"application/json"}));return}await fs.promises.mkdir(dir,{recursive:true});const tmp=file+".tmp";await fs.promises.writeFile(tmp,data,{mode:0o600});await fs.promises.rename(tmp,file)}
-    function normalizeMusicQueue(db,ch,promoteIfEmpty=false){let changed=false;const active=db.items.filter(x=>x&&x.channel===ch&&["pending","playing"].includes(x.status)).sort((a,b)=>String(a.createdAt||"").localeCompare(String(b.createdAt||""))),playing=active.filter(x=>x.status==="playing");for(const duplicate of playing.slice(1)){duplicate.status="pending";changed=true}if(promoteIfEmpty&&playing.length===0){const next=active.find(x=>x.status==="pending");if(next){next.status="playing";changed=true;db.playback=db.playback&&typeof db.playback==="object"?db.playback:{};db.playback[ch]={trackId:next.id,paused:false,visible:true,updatedAt:new Date().toISOString()}}}return changed}
-    const sessions=globalThis.__musicSessions||(globalThis.__musicSessions=new Map()),cookie=String(req.headers.cookie||"").split(";").map(v=>v.trim()).find(v=>v.startsWith("music_admin_session=")),sessionId=cookie?cookie.slice("music_admin_session=".length):"",session=sessions.get(sessionId),isAdmin=Boolean(session&&session.expiresAt>Date.now()),method=req.method||"GET";
-    try{
-      if(url.pathname==="/api/music/admin/session"&&method==="GET"){if(!isAdmin){if(sessionId)sessions.delete(sessionId);return json(200,{authenticated:false})}return json(200,{authenticated:true,channel:session.channel})}
-      if(url.pathname==="/api/music/metadata"&&method==="GET"){const vid=String(url.searchParams.get("videoId")||"");if(!/^[A-Za-z0-9_-]{11}$/.test(vid))return json(400,{error:"Некорректный ID видео."});try{const response=await fetch("https://www.youtube.com/oembed?url="+encodeURIComponent("https://www.youtube.com/watch?v="+vid)+"&format=json",{headers:{"Accept":"application/json"},signal:AbortSignal.timeout(5000)});if(!response.ok)return json(404,{error:"Не удалось получить данные ролика."});const meta=await response.json();return json(200,{videoId:vid,title:clean(meta.title,200),author:clean(meta.author_name,120),thumbnail:meta.thumbnail_url||("https://i.ytimg.com/vi/"+vid+"/mqdefault.jpg")},{ "Cache-Control":"public, max-age=3600"})}catch(e){return json(502,{error:"Не удалось получить данные ролика."})}}
-      if(url.pathname==="/api/music/overlay/current"&&method==="GET"){const ch=channelName(url.searchParams.get("channel"));if(!ch)return json(400,{error:"Укажи корректный логин канала."});const db=await load();let changed=normalizeMusicQueue(db,ch,true);const item=db.items.filter(x=>x.channel===ch&&x.status==="playing").sort((a,b)=>String(a.createdAt||"").localeCompare(String(b.createdAt||"")))[0]||null;db.playback=db.playback&&typeof db.playback==="object"?db.playback:{};let state=db.playback[ch];if(!state||state.trackId!==(item&&item.id)){state=db.playback[ch]={trackId:item?item.id:null,paused:false,updatedAt:new Date().toISOString()};changed=true}if(changed)await save(db);return json(200,{item:item?{id:item.id,channel:item.channel,nickname:item.nickname,videoId:item.videoId,url:item.url,title:item.title,status:item.status,createdAt:item.createdAt}:null,paused:Boolean(state.paused),visible:item?state.visible!==false:false})}
-      if(url.pathname==="/api/music/queue"&&method==="GET"){const ch=channelName(url.searchParams.get("channel"));if(!ch)return json(400,{error:"Укажи корректный логин канала."});if(!isAdmin)return json(401,{error:"Войди с паролем, чтобы просматривать очередь."});if(session.channel!==ch)return json(403,{error:"Эта очередь доступна только после входа в канал "+session.channel+"."});const db=await load();let changed=normalizeMusicQueue(db,ch,false);const sort=(a,b)=>String(a.createdAt||"").localeCompare(String(b.createdAt||"")),publicFields=({id,channel,nickname,videoId,url,title,status,createdAt})=>({id,channel,nickname,videoId,url,title,status,createdAt}),items=db.items.filter(x=>x.channel===ch&&["pending","playing"].includes(x.status)).sort(sort),history=db.items.filter(x=>x.channel===ch&& !["pending","playing"].includes(x.status)).sort((a,b)=>sort(b,a)),current=items.find(x=>x.status==="playing")||null;db.playback=db.playback&&typeof db.playback==="object"?db.playback:{};let state=db.playback[ch];if(!state||state.trackId!==(current&&current.id)){state=db.playback[ch]={trackId:current?current.id:null,paused:false,updatedAt:new Date().toISOString()};changed=true}if(changed)await save(db);return json(200,{items:items.map(publicFields),history:history.map(publicFields),paused:Boolean(state.paused),visible:current?state.visible!==false:false})}
-      if(url.pathname==="/api/music/request"&&method==="POST"){const now=Date.now(),ip=String(req.headers["x-forwarded-for"]||req.socket.remoteAddress||"unknown").split(",")[0].trim(),rates=globalThis.__musicRate||(globalThis.__musicRate=new Map()),recent=(rates.get(ip)||[]).filter(t=>now-t<3600000);if(recent.length>=8)return json(429,{error:"Слишком много заявок. Попробуй позже."});const b=await bodyJson(),ch=channelName(b.channel),nick=clean(b.nickname,32)||"Аноним";if(!ch)return json(400,{error:"Укажи корректный Twitch-канал."});if(!/^[\p{L}\p{N}_ .-]{2,32}$/u.test(nick))return json(400,{error:"Ник должен содержать от 2 до 32 символов."});let vid="";try{const u=new URL(clean(b.url,500)),host=u.hostname.toLowerCase().replace(/^www\./,"").replace(/^m\./,"");if(["youtube.com","music.youtube.com"].includes(host)&&u.pathname==="/watch")vid=u.searchParams.get("v")||"";else if(host==="youtu.be")vid=u.pathname.split("/").filter(Boolean)[0]||"";else if(["youtube.com","music.youtube.com"].includes(host)&&/^\/(?:shorts|embed)\/[^/]+/.test(u.pathname))vid=u.pathname.split("/")[2]||""}catch(_){}if(!/^[A-Za-z0-9_-]{11}$/.test(vid))return json(400,{error:"Вставь корректную ссылку на видео YouTube."});const db=await load();normalizeMusicQueue(db,ch,false);const active=db.items.filter(x=>x.channel===ch&&["pending","playing"].includes(x.status));if(active.length>=50)return json(429,{error:"Очередь канала заполнена (максимум 50 треков)."});if(active.some(x=>x.videoId===vid))return json(409,{error:"Этот трек уже есть в очереди."});const first=active.length===0,item={id:require("node:crypto").randomUUID(),channel:ch,nickname:nick,videoId:vid,url:"https://www.youtube.com/watch?v="+vid,title:clean(b.title,100),status:first?"playing":"pending",createdAt:new Date().toISOString()};db.items.push(item);if(first){db.playback=db.playback&&typeof db.playback==="object"?db.playback:{};db.playback[ch]={trackId:item.id,paused:false,visible:true,updatedAt:new Date().toISOString()}}await save(db);recent.push(now);rates.set(ip,recent);return json(201,{ok:true,message:"Трек добавлен в очередь."})}
-      if(url.pathname==="/api/music/admin/login"&&method==="POST"){const b=await bodyJson(),ch=channelName(b.channel),password=String(b.password||"");if(!ch)return json(400,{error:"Укажи Twitch-канал для входа."});let credentials={};try{credentials=JSON.parse(process.env.MUSIC_ADMIN_CREDENTIALS||"{}")}catch(_){}if(!credentials||typeof credentials!=="object"||Array.isArray(credentials))credentials={};const pair=Object.entries(credentials).find(([login])=>String(login).trim().replace(/^@/,"").toLowerCase()===ch),expected=pair&&typeof pair[1]==="string"?pair[1]:"";if(!expected)return json(503,{error:"Для этого канала не настроен отдельный пароль в MUSIC_ADMIN_CREDENTIALS."});if(password!==expected)return json(401,{error:"Неверный пароль для этого канала."});const id=require("node:crypto").randomBytes(32).toString("hex");sessions.set(id,{channel:ch,expiresAt:Date.now()+43200000});return json(200,{ok:true,channel:ch},{"Set-Cookie":"music_admin_session="+id+"; HttpOnly; Secure; SameSite=Strict; Path=/api/music; Max-Age=43200"})}
-      if(url.pathname==="/api/music/admin/logout"&&method==="POST"){if(sessionId)sessions.delete(sessionId);return json(200,{ok:true},{"Set-Cookie":"music_admin_session=; HttpOnly; Secure; SameSite=Strict; Path=/api/music; Max-Age=0"})}
-      if(url.pathname.startsWith("/api/music/admin/")&&method==="POST"){if(!isAdmin)return json(401,{error:"Войди как стример, чтобы управлять очередью."});const b=await bodyJson(),ch=channelName(b.channel),id=clean(b.id,80),action=url.pathname.split("/").pop();if(!ch)return json(400,{error:"Укажи корректный Twitch-канал."});if(session.channel!==ch)return json(403,{error:"Этот вход разрешён только для канала "+session.channel+"."});const db=await load();normalizeMusicQueue(db,ch,false);const active=db.items.filter(x=>x.channel===ch&&["pending","playing"].includes(x.status)).sort((a,b)=>String(a.createdAt||"").localeCompare(String(b.createdAt||""))),item=db.items.find(x=>x.id===id&&x.channel===ch);if(action==="next"){const cur=active.find(x=>x.status==="playing");if(cur)cur.status="done";normalizeMusicQueue(db,ch,true);db.playback=db.playback&&typeof db.playback==="object"?db.playback:{};db.playback[ch]={trackId:null,paused:false,visible:true,updatedAt:new Date().toISOString()};await save(db);return json(200,{ok:true})}if(action==="pause"||action==="resume"){const cur=active.find(x=>x.status==="playing");if(!cur)return json(404,{error:"Сейчас нечего воспроизводить."});db.playback=db.playback&&typeof db.playback==="object"?db.playback:{};const previous=db.playback[ch]||{};db.playback[ch]={...previous,trackId:cur.id,paused:action==="pause",visible:previous.visible!==false,updatedAt:new Date().toISOString()};await save(db);return json(200,{ok:true,paused:action==="pause"})}if(action==="show"||action==="hide"){const cur=active.find(x=>x.status==="playing");if(!cur)return json(404,{error:"Сейчас нечего воспроизводить."});db.playback=db.playback&&typeof db.playback==="object"?db.playback:{};const previous=db.playback[ch]||{};db.playback[ch]={...previous,trackId:cur.id,paused:Boolean(previous.paused),visible:action==="show",updatedAt:new Date().toISOString()};await save(db);return json(200,{ok:true,visible:action==="show"})}if(!item)return json(404,{error:"Заявка не найдена."});if(action==="play"){for(const other of active)if(other.status==="playing")other.status="pending";item.status="playing"}else if(action==="skip"||action==="remove"){item.status=action==="skip"?"skipped":"removed";normalizeMusicQueue(db,ch,true)}else return json(400,{error:"Неизвестное действие."});normalizeMusicQueue(db,ch,false);await save(db);return json(200,{ok:true})}
-      if(url.pathname==="/api/music/overlay/ended"&&method==="POST"){const b=await bodyJson(),ch=channelName(b.channel),id=clean(b.id,80),resultStatus=b.status==="skipped"?"skipped":"done";if(!ch||!id)return json(400,{error:"Некорректный запрос."});const db=await load();normalizeMusicQueue(db,ch,false);const item=db.items.find(x=>x.id===id&&x.channel===ch&&x.status==="playing");if(item){item.status=resultStatus;normalizeMusicQueue(db,ch,true);await save(db)}return json(200,{ok:true})}
-      return json(404,{error:"Неизвестный маршрут."})
-    }catch(e){console.error("Music queue API error:",e.message);return json(e.statusCode||500,{error:e.statusCode?e.message:"Не удалось обработать музыкальную очередь."})}
-  }
+  if (url.pathname.startsWith("/api/music/")) return handleMusicApi(req, res, url);
 
   // Community suggestion box: submissions remain private until moderator approval.
   if (url.pathname === "/api/jackbox/room-check") {
@@ -843,6 +1172,11 @@ const server = http.createServer(async (req, res) => {
       return found ? { username: found[0], role: "moderator" } : null;
     }
     const method = req.method || "GET";
+    // Один запрос за раз: иначе две одновременные заявки затирали друг друга (read-modify-write без блокировки).
+    const releaseLock = await communityMutex.acquire();
+    let lockReleased = false;
+    const release = () => { if (!lockReleased) { lockReleased = true; releaseLock(); } };
+    res.once("finish", release); res.once("close", release);
     try {
       if (url.pathname === "/api/community/submissions" && method === "POST") {
         const now = Date.now(), bucket = rateStore.get(ip) || [], recent = bucket.filter(time => now - time < 60 * 60_000);
@@ -914,18 +1248,19 @@ const server = http.createServer(async (req, res) => {
       }
       if (url.pathname === "/api/community/login" && method === "POST") {
         if (!process.env.WALL_ADMIN_PASSWORD && !Object.keys(moderatorsConfig()).length) return sendJson(503, { error: "Модерация ещё не настроена владельцем сайта." });
+        if (!takeRateSlot(communityLoginRate, ip, 10, 10 * 60_000)) return sendJson(429, { error: "Слишком много попыток входа. Подождите 10 минут." });
         const body = await readBody(20 * 1024);
         const identity = verifyCredentials(body.username, String(body.password || ""));
         if (!identity) return sendJson(401, { error: "Неверный логин или пароль." });
         const sessionId = require("node:crypto").randomBytes(32).toString("hex");
         sessions.set(sessionId, { ...identity, expiresAt: Date.now() + 12 * 60 * 60_000 });
         return sendJson(200, { ok: true, username: identity.username, role: identity.role }, {
-          "Set-Cookie": "community_session=" + sessionId + "; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=43200"
+          "Set-Cookie": "community_session=" + sessionId + "; HttpOnly" + (isHttps(req) ? "; Secure" : "") + "; SameSite=Strict; Path=/; Max-Age=43200"
         });
       }
       if (url.pathname === "/api/community/logout" && method === "POST") {
         const session = getSession(); if (session) sessions.delete(session.sessionId);
-        return sendJson(200, { ok: true }, { "Set-Cookie": "community_session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0" });
+        return sendJson(200, { ok: true }, { "Set-Cookie": "community_session=; HttpOnly" + (isHttps(req) ? "; Secure" : "") + "; SameSite=Strict; Path=/; Max-Age=0" });
       }
       if (url.pathname === "/api/community/moderation" && method === "GET") {
         const session = getSession(); if (!session) return sendJson(401, { error: "Нужен вход модератора." });
@@ -956,42 +1291,73 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  if (url.pathname.startsWith("/fonts/")) {
-    const fontPath = path.resolve(__dirname, decodeURIComponent(url.pathname.slice(1)));
-    const fontsDir = path.join(__dirname, "fonts");
-    if (!fontPath.startsWith(fontsDir + path.sep)) { res.writeHead(403); res.end("Forbidden"); return; }
-    fs.readFile(fontPath, (err, data) => {
-      if (err) { res.writeHead(404); res.end("Not found"); return; }
-      const ext = path.extname(fontPath).toLowerCase();
-      const types = { ".otf": "font/otf", ".ttf": "font/ttf", ".woff": "font/woff", ".woff2": "font/woff2" };
-      res.writeHead(200, { "Content-Type": types[ext] || "application/octet-stream", "Cache-Control": "public, max-age=31536000, immutable", "Access-Control-Allow-Origin": "*" });
-      res.end(data);
-    });
-    return;
+  if (url.pathname === "/healthz") { res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" }); res.end("ok"); return; }
+
+  let decodedPath;
+  try { decodedPath = decodeURIComponent(url.pathname.slice(1)); } catch (_) { decodedPath = null; }
+  if (decodedPath === null || decodedPath.includes("\0")) {
+    res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" }); res.end("Bad Request"); return;
+  }
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    res.writeHead(405, { "Content-Type": "text/plain; charset=utf-8", "Allow": "GET, HEAD" }); res.end("Method Not Allowed"); return;
   }
 
-  const requested = url.pathname === "/music-dock" || url.pathname === "/music-dock/" ? "music-dock.html" : (url.pathname === "/jack" || url.pathname === "/jack/") ? "jack.html" : url.pathname === "/" ? "index.html" : (url.pathname === "/widgets" || url.pathname === "/widgets/") ? "widgets.html" : decodeURIComponent(url.pathname.slice(1));
-  const filePath = path.resolve(PUBLIC_DIR, requested);
-  if (!filePath.startsWith(PUBLIC_DIR + path.sep) && filePath !== path.join(PUBLIC_DIR, "index.html")) {
-    res.writeHead(403); res.end("Forbidden"); return;
+  if (url.pathname.startsWith("/fonts/")) {
+    const fontsDir = path.join(__dirname, "fonts");
+    const fontPath = path.resolve(__dirname, decodedPath);
+    if (!fontPath.startsWith(fontsDir + path.sep)) { res.writeHead(403); res.end("Forbidden"); return; }
+    return serveStatic(req, res, fontPath, { fonts: true });
   }
-  fs.readFile(filePath, (err, data) => {
-    if (err) { res.writeHead(404); res.end("Not found"); return; }
-    const ext = path.extname(filePath);
-    const types = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".svg": "image/svg+xml", ".otf": "font/otf", ".ttf": "font/ttf", ".woff": "font/woff", ".woff2": "font/woff2" };
-    const headers = { "Content-Type": types[ext] || "application/octet-stream" };
-    // Cache versioned/static assets aggressively; keep HTML fresh after deployments.
-    if (ext !== ".html") headers["Cache-Control"] = filePath === path.join(PUBLIC_DIR, "jackbox-controller.js") ? "no-store, no-cache, must-revalidate" : "public, max-age=2592000, stale-while-revalidate=86400";
-    // HTML must not be served from a stale browser/proxy cache after deployments (e.g. old music-login instructions).
-    if (ext === ".html") {
-      headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate";
-      headers["Pragma"] = "no-cache";
-      headers["Expires"] = "0";
-    }
-    res.writeHead(200, headers);
-    res.end(data);
+
+  const pageRoutes = { "": "index.html", "music-dock": "music-dock.html", "jack": "jack.html", "widgets": "widgets.html" };
+  const trimmedPath = decodedPath.replace(/\/+$/, "");
+  const requested = Object.prototype.hasOwnProperty.call(pageRoutes, trimmedPath) ? pageRoutes[trimmedPath] : decodedPath;
+  const filePath = path.resolve(PUBLIC_DIR, requested);
+  if (!filePath.startsWith(PUBLIC_DIR + path.sep)) { res.writeHead(403); res.end("Forbidden"); return; }
+  return serveStatic(req, res, filePath, {});
+}
+
+// ── Static files: in-memory cache, ETag/304, gzip for text assets ──
+const staticCache = new Map();
+const COMPRESSIBLE = new Set([".html", ".css", ".js", ".svg", ".json", ".xml", ".txt"]);
+const MIME_TYPES = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".svg": "image/svg+xml", ".xml": "application/xml; charset=utf-8", ".txt": "text/plain; charset=utf-8", ".json": "application/json; charset=utf-8", ".otf": "font/otf", ".ttf": "font/ttf", ".woff": "font/woff", ".woff2": "font/woff2" };
+async function serveStatic(req, res, filePath, options) {
+  let stat;
+  try { stat = await fs.promises.stat(filePath); } catch (_) { stat = null; }
+  if (!stat || !stat.isFile()) { res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" }); res.end("Not found"); return; }
+  const ext = path.extname(filePath).toLowerCase();
+  let entry = staticCache.get(filePath);
+  if (!entry || entry.mtimeMs !== stat.mtimeMs || entry.size !== stat.size) {
+    const buf = await fs.promises.readFile(filePath);
+    entry = { mtimeMs: stat.mtimeMs, size: stat.size, buf, gzip: null, etag: 'W/"' + stat.size.toString(16) + "-" + Math.floor(stat.mtimeMs).toString(16) + '"' };
+    if (COMPRESSIBLE.has(ext) && buf.length > 1024) entry.gzip = zlib.gzipSync(buf, { level: 9 });
+    if (buf.length < 2 * 1024 * 1024) staticCache.set(filePath, entry); else staticCache.delete(filePath);
+  }
+  const headers = { "Content-Type": MIME_TYPES[ext] || "application/octet-stream", "ETag": entry.etag, "Vary": "Accept-Encoding" };
+  if (options.fonts) { headers["Cache-Control"] = "public, max-age=31536000, immutable"; headers["Access-Control-Allow-Origin"] = "*"; }
+  else if (ext === ".html" || path.basename(filePath) === "jackbox-controller.js") headers["Cache-Control"] = "no-cache"; // всегда сверяем ETag: после деплоя отдаётся свежая версия
+  else headers["Cache-Control"] = "public, max-age=86400, stale-while-revalidate=86400";
+  if (req.headers["if-none-match"] === entry.etag) { res.writeHead(304, headers); res.end(); return; }
+  let body = entry.buf;
+  if (entry.gzip && /\bgzip\b/.test(String(req.headers["accept-encoding"] || ""))) { body = entry.gzip; headers["Content-Encoding"] = "gzip"; }
+  headers["Content-Length"] = body.length;
+  res.writeHead(200, headers);
+  res.end(req.method === "HEAD" ? undefined : body);
+}
+
+const server = http.createServer((req, res) => {
+  handleRequest(req, res).catch(error => {
+    console.error("Unhandled request error:", req.method, req.url, error && error.stack || error);
+    try {
+      if (!res.headersSent) { res.writeHead(500, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }); res.end(JSON.stringify({ error: "Внутренняя ошибка сервера." })); }
+      else res.end();
+    } catch (_) {}
   });
 });
+// За прокси (Render/Cloudflare) keep-alive сервера должен быть длиннее, чем у прокси — иначе редкие 502.
+server.keepAliveTimeout = 65_000;
+server.headersTimeout = 66_000;
+server.requestTimeout = 120_000;
 
 const jackboxWebSocketServer = new WebSocket.Server({ noServer: true });
 server.on("upgrade", (req, socket, head) => {
@@ -1018,6 +1384,27 @@ server.on("upgrade", (req, socket, head) => {
     upstream.on("error", () => { if (client.readyState === WebSocket.OPEN) { client.send(JSON.stringify({ pc: 0, opcode: "error", result: { msg: "Не удалось установить соединение с сервером игры." } })); client.close(1011, "Upstream connection failed"); } });
   });
 });
+
+process.on("unhandledRejection", reason => console.error("Unhandled rejection:", reason && reason.stack || reason));
+process.on("uncaughtException", error => console.error("Uncaught exception:", error && error.stack || error));
+for (const signal of ["SIGTERM", "SIGINT"]) process.on(signal, () => {
+  console.log(signal + " received, shutting down");
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(0), 8000).unref();
+});
+// Чистим просроченные сессии, билеты и счётчики лимитов — раньше эти Map росли бесконечно.
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, item] of musicSessions) if (item.expiresAt <= now) musicSessions.delete(id);
+  const communitySessionStore = globalThis.__communitySessions;
+  if (communitySessionStore) for (const [id, item] of communitySessionStore) if (item.expiresAt < now) communitySessionStore.delete(id);
+  for (const [key, item] of jackboxTickets) if (item.expiresAt < now) jackboxTickets.delete(key);
+  const windows = [[musicRequestRate, 3600000], [musicLoginRate, 600000], [communityLoginRate, 600000], [jackboxRoomChecks, 60000], [globalThis.__communityRateStore, 3600000]];
+  for (const [store, windowMs] of windows) {
+    if (!store) continue;
+    for (const [key, list] of store) { const fresh = list.filter(t => now - t < windowMs); if (fresh.length) store.set(key, fresh); else store.delete(key); }
+  }
+}, 5 * 60_000).unref();
 
 server.listen(PORT, () => {
   console.log(`1°6 Community running at http://localhost:${PORT}`);

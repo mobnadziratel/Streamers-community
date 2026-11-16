@@ -4,7 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow, noarchive">
-  <meta name="theme-color" content="#171326">
+  <meta name="theme-color" content="#0b1726">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
+  <link rel="apple-touch-icon" href="/favicon.svg?v=5">
+  <script>try{var t=localStorage.getItem("small-streamers-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
   <meta name="description" content="Подборка игр Jackbox: паки, отдельные игры и полезные сайты для игры с друзьями.">
   <title>Все игры Jackbox — Стримерское комьюнити</title>
   <style>
@@ -366,13 +369,120 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;max-width:100%}
 img,video,iframe{max-width:100%}
 #winter-snowdrift{left:0!important;width:100%!important}
 @media(max-width:650px){.hero{overflow:hidden}.winter-mascot.right{right:6px}}
+
+/* ───────── /jack polish ───────── */
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:4px 0 14px}
+.topbar-back,.topbar-link{color:#a9bfd0;text-decoration:none;font-size:13px;font-weight:800;padding:9px 12px;border-radius:11px;border:1px solid transparent;transition:color .18s,background .18s,border-color .18s}
+.topbar-back:hover,.topbar-link:hover{color:#fff;background:rgba(121,216,238,.1);border-color:rgba(164,218,239,.18)}
+.topbar-tools{display:flex;align-items:center;gap:8px}
+.tool-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:38px;min-width:38px;padding:0 12px;border-radius:11px;border:1px solid rgba(164,218,239,.18);background:rgba(17,42,62,.82);color:#c8e3ef;font:inherit;font-size:12px;font-weight:800;cursor:pointer;transition:border-color .18s,color .18s,opacity .18s,transform .18s}
+.tool-btn:hover{border-color:rgba(127,222,242,.58);color:#fff}
+.tool-btn:active{transform:scale(.97)}
+.tool-btn[aria-pressed="false"]{opacity:.55}
+.hero{text-align:center;padding:36px 20px 30px!important}
+.hero .eyebrow{margin:0 0 10px;font-size:12px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#8ce2f2}
+.hero h1{margin:0 0 12px;font-size:clamp(30px,6.4vw,50px);line-height:1.08}
+.hero h1 span{color:#8ce2f2!important}
+.hero .lead{max-width:58ch;margin:0 auto;font-size:15px;line-height:1.55;color:#b1c7d6}
+.hero-stats{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin:20px 0 4px}
+.hero-stats span{padding:6px 13px;border-radius:999px;border:1px solid rgba(164,218,239,.2);background:rgba(121,216,238,.08);font-size:12px;font-weight:800;color:#cfeaf4}
+.hero-stats b{color:#fff;font-weight:900}
+.jack-search{display:block;max-width:440px;margin:16px auto 0}
+.jack-search input{width:100%;height:48px;padding:0 16px 0 46px;border-radius:14px;border:1px solid rgba(164,218,239,.22);font:inherit;font-size:15px;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238ce2f2' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E")!important;
+ background-repeat:no-repeat!important;background-position:16px 50%!important;background-size:18px!important;-webkit-appearance:none;appearance:none}
+.hero-jumps{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:16px}
+.hero-jumps a{padding:9px 15px;border-radius:999px;font-size:13px;font-weight:800;text-decoration:none;color:#c3d9e6;border:1px solid rgba(164,218,239,.2);background:rgba(21,47,68,.7);transition:color .18s,background .18s,border-color .18s,transform .18s}
+.hero-jumps a:hover{color:#082032;background:linear-gradient(135deg,#83e0f0,#4daac8);border-color:transparent;transform:translateY(-1px)}
+.search-empty{margin:26px 0;text-align:center;color:#a9bfd0;font-weight:700}
+#catalog,#extra,#sites{scroll-margin-top:14px}
+.section-title{margin:36px 0 10px!important}
+.pack[hidden],.special[hidden]{display:none!important}
+.games span.search-hit{background:rgba(121,216,238,.18)!important;border-color:rgba(127,222,242,.45)!important;color:#fff}
+.games s{display:block;width:max-content;max-width:100%;padding:5px 8px;opacity:.5;text-decoration-thickness:1px;cursor:not-allowed}
+/* broken / slow external images never show raw alt text */
+.pack-art img,.special-icon img,.site-icon img{color:transparent;font-size:0}
+.no-logo{display:block;font-size:13px!important;font-weight:850;letter-spacing:.07em;text-transform:uppercase;line-height:1.25;text-align:center;color:#a8eafa;opacity:.92!important;padding:8px 6px}
+.site-fallback{font-weight:900;font-size:17px;color:#a8eafa;text-transform:uppercase}
+/* site links: same card language as the rest of the page */
+.links{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+.site-link{border-radius:16px!important;border:1px solid rgba(164,218,239,.2);background:linear-gradient(145deg,rgba(20,46,67,.98),rgba(13,29,46,.98))!important;box-shadow:0 10px 30px rgba(0,0,0,.18)!important;min-height:68px!important}
+.site-link:hover{filter:none!important;border-color:rgba(126,222,242,.58);box-shadow:0 16px 36px rgba(0,0,0,.24),0 0 24px rgba(82,183,213,.1)!important}
+.site-link:after{content:"↗";margin-left:auto;color:#83dced;font-weight:900;font-size:17px;transition:transform .18s}
+.site-link:hover:after{transform:translate(2px,-2px)}
+.site-icon{width:42px!important;height:42px!important;flex:0 0 42px!important;border-radius:11px;background:rgba(255,255,255,.07)}
+.site-copy{text-align:left!important;padding-right:0!important}
+.site-copy strong{font-size:15px!important;color:#f0faff}
+.site-copy small{color:#a9bfd0!important}
+/* gentle reveal on scroll */
+@media(prefers-reduced-motion:no-preference){
+ html.reveal-ready .pack,html.reveal-ready .special,html.reveal-ready .site-link{opacity:0;transform:translateY(14px)}
+ html.reveal-ready .pack.is-in,html.reveal-ready .special.is-in,html.reveal-ready .site-link.is-in{opacity:1;transform:none;transition:opacity .5s ease,transform .5s ease,border-color .2s,box-shadow .2s}
+}
+@media(max-width:650px){
+ .topbar{padding-bottom:10px}
+ .topbar-back{padding:9px 8px;font-size:12px}
+ .topbar-link{display:none}
+ #themeLabel{display:none}
+ .hero{padding:26px 14px 22px!important}
+ .hero .lead{font-size:14px}
+ .links{grid-template-columns:1fr!important}
+}
+/* light theme */
+html[data-theme="light"] .topbar-back,html[data-theme="light"] .topbar-link{color:#587083}
+html[data-theme="light"] .topbar-back:hover,html[data-theme="light"] .topbar-link:hover{color:#183044;background:rgba(37,142,174,.09)}
+html[data-theme="light"] .tool-btn{background:#fff;color:#34576d;border-color:rgba(32,91,117,.18)}
+html[data-theme="light"] .hero .eyebrow,html[data-theme="light"] .hero h1 span{color:#258eae!important}
+html[data-theme="light"] .hero .lead,html[data-theme="light"] .search-empty{color:#587083}
+html[data-theme="light"] .hero-stats span{background:#e8f4f7;color:#24566d;border-color:rgba(37,142,174,.2)}
+html[data-theme="light"] .hero-stats b{color:#0f2c3f}
+html[data-theme="light"] .jack-search input{background-color:#fff!important;color:#183044!important;border-color:rgba(32,91,117,.2)}
+html[data-theme="light"] .hero-jumps a{background:#fff;color:#34576d;border-color:rgba(32,91,117,.18)}
+html[data-theme="light"] .hero-jumps a:hover{color:#fff;background:linear-gradient(135deg,#61c4dc,#258eae)}
+html[data-theme="light"] .games span.search-hit{background:rgba(37,142,174,.14)!important;color:#0f2c3f}
+html[data-theme="light"] .no-logo,html[data-theme="light"] .site-fallback{color:#258eae}
+html[data-theme="light"] .site-link{background:linear-gradient(145deg,#fff,#f1f8fa)!important;border-color:rgba(37,142,174,.2);box-shadow:0 8px 24px rgba(35,78,99,.08)!important}
+html[data-theme="light"] .site-link:hover{border-color:rgba(37,142,174,.45);box-shadow:0 14px 32px rgba(35,78,99,.14)!important}
+html[data-theme="light"] .site-copy strong{color:#183044}
+html[data-theme="light"] .site-copy small{color:#587083!important}
+html[data-theme="light"] .site-link:after{color:#258eae}
+html[data-theme="light"] .site-icon{background:#e8f4f7}
+/* light theme: readable game lists, section titles and search icon */
+html[data-theme="light"] .games,html[data-theme="light"] .games span{color:#1f3a4d}
+html[data-theme="light"] .games span:not(.split):hover,html[data-theme="light"] .games span:not(.split):focus-visible,html[data-theme="light"] .games span.game-active{color:#0b2536;background:linear-gradient(100deg,rgba(37,142,174,.16),rgba(97,196,220,.12));border-color:rgba(37,142,174,.35);text-shadow:none}
+html[data-theme="light"] .games s{color:#587083}
+html[data-theme="light"] .split{background:#7fc4d6}
+html[data-theme="light"] .section-title{color:#258eae}
+html[data-theme="light"] .section-title:after{background:rgba(37,142,174,.25)}
+html[data-theme="light"] .special-named h3,html[data-theme="light"] .special-dublya h3{color:#183044}
+html[data-theme="light"] .pack-art{border-color:rgba(37,142,174,.16)}
+html[data-theme="light"] .jack-search input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23258eae' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:16px 50%!important;background-size:18px!important}
+.special-icon .no-logo{font-size:20px!important;letter-spacing:.04em;padding:0;display:grid;place-items:center;width:100%;min-height:54px;border-radius:12px;background:rgba(121,216,238,.1);border:1px solid rgba(164,218,239,.2)}
+html[data-theme="light"] .special-icon .no-logo{background:#e8f4f7;border-color:rgba(37,142,174,.2)}
+.jack-search input:focus,.jack-search input:focus-visible{outline:none!important;border-color:#83dced!important;box-shadow:0 0 0 3px rgba(131,220,237,.25)!important}
+html[data-theme="light"] .jack-search input:focus{border-color:#258eae!important;box-shadow:0 0 0 3px rgba(37,142,174,.2)!important}
 </style>
 </head>
 <body>
   <main class="wrap">
+    <nav class="topbar" aria-label="Навигация по сайту">
+      <a class="topbar-back" href="/">← Стримерское комьюнити</a>
+      <div class="topbar-tools">
+        <a class="topbar-link" href="/widgets">Виджеты</a>
+        <button class="tool-btn" id="soundToggle" type="button" aria-pressed="true" aria-label="Звук при наведении: включён" title="Звук при наведении"><span id="soundIcon" aria-hidden="true">🔊</span></button>
+        <button class="tool-btn" id="themeToggle" type="button" aria-label="Переключить тему"><span id="themeIcon" aria-hidden="true">☀️</span><span id="themeLabel">Светлая тема</span></button>
+      </div>
+    </nav>
     <header class="hero">
-      
+      <p class="eyebrow">Jackbox · игры для компании</p>
+      <h1>Все игры <span>Jackbox</span></h1>
+      <p class="lead">Паки, отдельные игры и сайты, где можно играть. Нажми на логотип пака или на название игры — появится описание.</p>
+      <div class="hero-stats" id="heroStats" aria-label="Коротко о коллекции"></div>
+      <label class="jack-search"><span class="sr-only">Найти игру или пак</span><input id="gameSearch" type="search" placeholder="Найти игру или пак…" autocomplete="off" enterkeyhint="search"></label>
+      <div class="hero-jumps"><a href="#catalog">Паки</a><a href="#extra">Подборки</a><a href="#sites">Сайты для игры</a></div>
     </header>
+    <p class="search-empty" id="searchEmpty" hidden>Ничего не найдено. Попробуй другое название.</p>
 
     <section id="catalog">
       <div class="section-title">Коллекция Jackbox</div>
@@ -392,18 +502,18 @@ img,video,iframe{max-width:100%}
       </div>
     </section>
 
-    <section class="additional-collections">
+    <section class="additional-collections" id="extra">
       <div class="section-title">Дополнительные подборки</div>
       <div class="specials">
         <article class="special"><div class="special-icon"><img src="https://i.ibb.co/HLy7G6rs/logo-scramble.png" alt="The Jackbox Survey Scramble" loading="lazy"></div><div><h3>Борьба опросов</h3><div class="games"><span>Турнир</span><span>Выше — Ниже</span><span>Скорость</span><span>Квадраты</span><span>Понг</span><span>Ставки</span><span>Скачки</span></div></div></article>
-        <article class="special"><div class="special-icon"><img src="https://i.ibb.co/ZRhY2YRR/logo.png" alt="Party Box" loading="lazy"></div><div><h3>Party Box</h3><div class="games"><span>Честно Говоря</span><span>Правда Или Ложь</span><span>Кто Из Нас</span><span>Квиз</span><span>Пати Гессер</span><span>Маджинариум</span><s>Сказка на ночь</s><span>Резонанс</span></div></div></article>
+        <article class="special"><div class="special-icon"><img src="https://i.ibb.co/ZRhY2YRR/logo.png" alt="Party Box" loading="lazy"></div><div><h3>Party Box</h3><div class="games"><span>Честно Говоря</span><span>Правда Или Ложь</span><span>Кто Из Нас</span><span>Квиз</span><span>Пати Гессер</span><span>Маджинариум</span><s title="Временно недоступно">Сказка на ночь</s><span>Резонанс</span></div></div></article>
         <article class="special"><div class="special-icon"><img src="https://i.ibb.co/DPjdm2pJ/The-Jackbox-Naughty-Pack-wordmark.webp" alt="The Jackbox Naughty Pack" loading="lazy"></div><div><h3>Naughty пак</h3><div class="games"><span>Подло Вы Меня на всю ночь</span><span>Грязная Рисня</span><span>Дай я кончу</span></div></div></article>
         <article class="special"><div class="special-icon"><img src="https://i.ibb.co/rGrGFR81/7439f8fe-0801-46fd-988d-3577d339a35e.png" alt="Отдельные игры" loading="lazy"></div><div><h3>Отдельные игры</h3><div class="games"><span>Рисовач 2</span><span>Смехлыст</span><span>Бредовуха XL</span><span>Trivia Murder Party 3</span></div></div></article><article class="special"><div class="special-icon"><img src="https://i.ibb.co/Q7SRf60F/The-Jackbox-Party-Starter-wordmark.webp" alt="The Jackbox Party Starter" loading="lazy"></div><div><h3>Starter пак</h3><div class="games"><span>Смехлыст 3</span><span>Футбол К.О.</span><span>Смертельная Вечеринка 2</span></div></div></article><article class="special special-dublya"><div class="special-icon"><img src="https://i.ibb.co/sJcNXshf/logo-1.png" alt="Какого Дубля?!" loading="lazy"></div><div><h3>Какого Дубля?!</h3></div></article><article class="special special-named"><div class="special-icon"><img src="https://www.google.com/s2/favicons?domain=vsurf.live&amp;sz=128" alt="Verse Surf" loading="lazy"></div><div><h3>Verse Surf</h3></div></article>
 <article class="special special-named"><div class="special-icon"><img src="https://www.google.com/s2/favicons?domain=dungeon.box&amp;sz=128" alt="Dungeon Box Demo" loading="lazy"></div><div><h3>Dungeon Box Demo</h3></div></article>
       </div>
     </section>
 
-    <section>
+    <section id="sites">
       <div class="section-title">Полезные сайты</div>
       <nav class="links" aria-label="Сайты для игры">
         <a class="site-link" href="https://jackbox.fun/" target="_blank" rel="noopener noreferrer"><span class="site-icon"><img src="https://www.google.com/s2/favicons?domain=jackbox.fun&amp;sz=64" alt="" width="32" height="32" loading="lazy"></span><span class="site-copy"><strong>На сайт JACKBOX.FUN</strong><small>Обычные игры</small></span></a>
@@ -416,7 +526,7 @@ img,video,iframe{max-width:100%}
         <a class="site-link" href="https://dungeon.box/" target="_blank" rel="noopener noreferrer"><span class="site-icon"><img src="https://www.google.com/s2/favicons?domain=dungeon.box&amp;sz=64" alt="" width="32" height="32" loading="lazy"></span><span class="site-copy"><strong>На сайт DUNGEON.BOX</strong><small>Dungeon Box Demo</small></span></a>
       </nav>
     </section>
-    <footer>Страница проекта <a href="https://small-streamers.de1.netrun.io/">Streamers community</a></footer>
+    <footer>Страница проекта <a href="/">Streamers community</a></footer>
   </main>
   <aside class="game-info" id="gameInfo" role="status" aria-live="polite">
     <small id="gameCollection"></small><strong id="gameTitle"></strong><p id="gameDescription"></p>
@@ -474,6 +584,7 @@ img,video,iframe{max-width:100%}
       let audio;
       let lastSound = 0;
       function playHoverSound(){
+        if(window.__jackSoundOff) return;
         const now = Date.now();
         if(now-lastSound<110) return;
         lastSound=now;
@@ -728,5 +839,98 @@ img,video,iframe{max-width:100%}
 })();
 </script>
 
+<script>
+(() => {
+  const root = document.documentElement, $ = id => document.getElementById(id);
+  const plural = (n, a, b, c) => { const m = n % 100, d = n % 10; return (m > 10 && m < 15) ? c : d === 1 ? a : (d >= 2 && d <= 4) ? b : c; };
+
+  // theme (same storage key as the rest of the site)
+  const themeBtn = $('themeToggle'), themeIcon = $('themeIcon'), themeLabel = $('themeLabel');
+  function applyTheme(theme) {
+    root.dataset.theme = theme;
+    const light = theme === 'light';
+    themeIcon.textContent = light ? '🌙' : '☀️';
+    themeLabel.textContent = light ? 'Тёмная тема' : 'Светлая тема';
+    themeBtn.setAttribute('aria-label', light ? 'Включить тёмную тему' : 'Включить светлую тему');
+    const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = light ? '#f5fbfd' : '#0b1726';
+    try { localStorage.setItem('small-streamers-theme', theme); } catch (_) {}
+  }
+  applyTheme(root.dataset.theme === 'light' ? 'light' : 'dark');
+  themeBtn.addEventListener('click', () => {
+    const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+    if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) document.startViewTransition(() => applyTheme(next)); else applyTheme(next);
+  });
+
+  // hover sound toggle
+  const soundBtn = $('soundToggle'), soundIcon = $('soundIcon');
+  let soundOff = false; try { soundOff = localStorage.getItem('jack-sound') === 'off'; } catch (_) {}
+  function applySound() {
+    window.__jackSoundOff = soundOff;
+    soundBtn.setAttribute('aria-pressed', String(!soundOff));
+    soundBtn.setAttribute('aria-label', soundOff ? 'Звук при наведении: выключен' : 'Звук при наведении: включён');
+    soundIcon.textContent = soundOff ? '🔇' : '🔊';
+    try { localStorage.setItem('jack-sound', soundOff ? 'off' : 'on'); } catch (_) {}
+  }
+  applySound();
+  soundBtn.addEventListener('click', () => { soundOff = !soundOff; applySound(); });
+
+  // stats
+  const packs = document.querySelectorAll('.pack').length;
+  const games = new Set([...document.querySelectorAll('.games span:not(.split)')].map(x => x.textContent.trim().toLowerCase())).size;
+  const sites = document.querySelectorAll('.site-link').length;
+  $('heroStats').innerHTML = '<span><b>' + packs + '</b> ' + plural(packs, 'пак', 'пака', 'паков') + '</span><span><b>' + games + '</b> ' + plural(games, 'игра', 'игры', 'игр') + '</span><span><b>' + sites + '</b> ' + plural(sites, 'сайт', 'сайта', 'сайтов') + ' для игры</span>';
+
+  // search
+  const input = $('gameSearch'), empty = $('searchEmpty');
+  const cards = [...document.querySelectorAll('.pack,.special')];
+  const norm = s => s.toLowerCase().replace(/ё/g, 'е');
+  cards.forEach(c => { c._text = norm(c.textContent + ' ' + (c.querySelector('img') ? c.querySelector('img').alt : '')); });
+  function filter() {
+    const q = norm(input.value.trim());
+    let shown = 0;
+    cards.forEach(c => {
+      const hit = !q || c._text.includes(q);
+      c.hidden = !hit; if (hit) shown++;
+      c.classList.add('is-in');
+      c.querySelectorAll('.games span:not(.split)').forEach(sp => sp.classList.toggle('search-hit', Boolean(q) && norm(sp.textContent).includes(q)));
+    });
+    empty.hidden = shown > 0;
+  }
+  input.addEventListener('input', filter);
+  input.addEventListener('keydown', e => { if (e.key === 'Escape') { input.value = ''; filter(); input.blur(); } });
+
+  // images from external hosts: graceful fallback instead of broken-image alt text
+  function fallbackFor(img) {
+    if (img.dataset.failed) return; img.dataset.failed = '1';
+    const host = img.closest('.pack-art,.special-icon,.site-icon'); if (!host) return;
+    const badge = document.createElement('span');
+    if (host.classList.contains('site-icon')) {
+      const a = img.closest('a'), domain = (a ? a.hostname : '').replace(/^www\./, '');
+      badge.className = 'site-fallback'; badge.textContent = domain ? domain[0] : '•';
+    } else {
+      badge.className = 'no-logo';
+      const full = (img.alt || '').replace(/^Оригинальный логотип\s*/i, '').trim() || (host.closest('.pack,.special').querySelector('h2,h3') || {}).textContent || '';
+      if (host.classList.contains('special-icon')) {
+        const words = full.replace(/[^\p{L}\p{N} ]/gu, ' ').split(/\s+/).filter(Boolean).filter(w => !/^(the|jackbox)$/i.test(w));
+        badge.textContent = (words.slice(0, 2).map(w => Array.from(w)[0]).join('') || '•').toUpperCase();
+        badge.title = full;
+      } else badge.textContent = full;
+    }
+    img.replaceWith(badge);
+  }
+  document.addEventListener('error', e => { if (e.target && e.target.tagName === 'IMG') fallbackFor(e.target); }, true);
+  document.querySelectorAll('img').forEach(img => { if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) fallbackFor(img); });
+  document.querySelectorAll('.links img, .site-link img').forEach(img => img.setAttribute('referrerpolicy', 'no-referrer'));
+
+  // reveal on scroll (with a safety net: nothing may stay invisible)
+  if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const targets = [...document.querySelectorAll('.pack,.special,.site-link')];
+    const io = new IntersectionObserver(entries => entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); } }), { rootMargin: '0px 0px -6% 0px' });
+    root.classList.add('reveal-ready');
+    targets.forEach(t => io.observe(t));
+    setTimeout(() => targets.forEach(t => t.classList.add('is-in')), 4000);
+  }
+})();
+</script>
 </body>
 </html>

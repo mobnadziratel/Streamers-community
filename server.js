@@ -650,7 +650,11 @@ async function handleMusicApi(req, res, url) {
       const pair = Object.entries(credentials).find(([login]) => String(login).trim().replace(/^@/, "").toLowerCase() === ch);
       const expected = pair && typeof pair[1] === "string" ? pair[1] : "";
       if (!expected) return json(503, { error: "Для этого канала не настроен отдельный пароль в MUSIC_ADMIN_CREDENTIALS." });
-      if (!safeEqual(password, expected)) return json(401, { error: "Неверный пароль для этого канала." });
+      // Пробелы/переводы строк по краям (частая ошибка при копировании в переменную окружения или на телефоне) не считаются.
+      if (!safeEqual(password.trim(), expected.trim())) {
+        console.warn("Music login failed for channel " + ch + " (entered length " + password.trim().length + ", configured length " + expected.trim().length + ")");
+        return json(401, { error: "Неверный пароль для этого канала. Проверь раскладку, заглавные буквы и пробелы в конце." });
+      }
       const id = require("node:crypto").randomBytes(32).toString("hex");
       musicSessions.set(id, { channel: ch, expiresAt: Date.now() + 43200000 });
       return json(200, { ok: true, channel: ch }, { "Set-Cookie": "music_admin_session=" + id + cookieFlags + "; Max-Age=43200" });

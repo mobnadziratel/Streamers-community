@@ -19,8 +19,10 @@ const style=params.get("game")||"mixed";
 const preview=params.get("preview")==="1";
 const nameColor=/^#[0-9a-f]{6}$/i.test(params.get("nameColor")||"")?params.get("nameColor"):"#b9ff36";
 const useTwitchColors=params.get("twitchColors")!=="0";
-const showMessages=params.get("showMessages")!=="0";
-const showEmotes=params.get("showEmotes")!=="0";
+const bubbleParam=params.get("bubble");
+const bubbleMode=["both","text","emotes","none"].includes(bubbleParam)?bubbleParam:(params.get("showMessages")==="0"?"none":(params.get("showEmotes")==="0"?"text":"both"));
+const showMessages=bubbleMode!=="none",showEmotes=bubbleMode==="both"||bubbleMode==="emotes";
+const FADE_IN=480,FADE_OUT=520,EMOTE_W=22;
 const canvas=document.getElementById("city"),ctx=canvas.getContext("2d"),status=document.getElementById("status");
 const people=new Map();
 const twitchColorCache={};
@@ -107,17 +109,35 @@ function queueTwitchColor(login){
   }catch(_){}
  },180);
 }
+const stripEdge=t=>t.replace(/^[([{¿¡"'“‘]+/,"").replace(/[.,!?;:)}\]”’"'…]+$/,"");
+const isEmoteToken=t=>emoteCache.has(t)||emoteCache.has(stripEdge(t));
+const emojiRe=/\p{Extended_Pictographic}/u;
+// «Только текст» убирает смайлы из сообщения, «Только смайлики» оставляет только их (и обычные эмодзи).
+function filterMessage(text){
+ text=String(text||"");
+ if(bubbleMode==="both"||bubbleMode==="none")return text;
+ const out=[];
+ for(const tok of text.split(/\s+/)){if(!tok)continue;const emo=isEmoteToken(tok);if(bubbleMode==="text"?!emo:(emo||emojiRe.test(tok)))out.push(tok)}
+ return out.join(" ");
+}
+function pickSpawnX(){
+ const margin=40,span=Math.max(1,width-margin*2);let best=margin+Math.random()*span,bestScore=-1;
+ const xs=[...people.values()].filter(v=>!v.leaving).map(v=>v.x);
+ for(let i=0;i<12;i++){const c=margin+Math.random()*span;const score=xs.length?Math.min(...xs.map(v=>Math.abs(v-c))):1e9;if(score>bestScore){bestScore=score;best=c}}
+ return best;
+}
 function addPerson(login,badges=[],userType="",messageText=""){
+ messageText=filterMessage(messageText);
  const key=String(login||"").toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,25);if(!key)return;
  const visibleBadges=badges.filter(entry=>!!badgeLabels[String(entry).split("/")[0]]).map(entry=>{const [id,version]=String(entry).split("/");return {id,version:version||"1",label:badgeLabels[id]}});
  if(userType==="mod"&&!visibleBadges.some(b=>b.id==="moderator"))visibleBadges.push({id:"moderator",version:"1",label:badgeLabels.moderator});
  const now=Date.now();let p=people.get(key);
- if(p){p.last=now;p.display=login;if(visibleBadges.length)p.badges=visibleBadges;if(messageText&&messageText.trim()){p.message=messageText.trim().slice(0,220);p.messageAt=now;}queueTwitchColor(key);return}
+ if(p){if(p.leaving){p.leaving=0;p.born=now-FADE_IN*.6}p.last=now;p.display=login;if(visibleBadges.length)p.badges=visibleBadges;if(messageText&&messageText.trim()){p.message=messageText.trim().slice(0,220);p.messageAt=now;}queueTwitchColor(key);return}
  const palette=palettes[Math.floor(Math.random()*palettes.length)];
- const x=people.size%2===0?Math.random()*Math.max(1,width*.35):width*.65+Math.random()*Math.max(1,width*.3);
- people.set(key,{key,display:login,badges:visibleBadges,last:now,message:messageText.trim().slice(0,220),messageAt:messageText.trim()?now:0,x,y:height-2,vx:(Math.random()>.5?1:-1)*(.3+Math.random()*.45),phase:Math.random()*6.28,palette,kind:style==="mixed"?Math.floor(Math.random()*4):({minecraft:0,terraria:1,rpg:2,scifi:3}[style]??0),variant:Math.floor(Math.random()*6),scale:.85+Math.random()*.7,nameColor:twitchColorCache[key]||nameColor});
+ const x=pickSpawnX();
+ people.set(key,{key,display:login,badges:visibleBadges,last:now,born:now,leaving:0,message:messageText.trim().slice(0,220),messageAt:messageText.trim()?now:0,x,y:height-2,vx:(Math.random()>.5?1:-1)*(.3+Math.random()*.45),phase:Math.random()*6.28,palette,kind:style==="mixed"?Math.floor(Math.random()*4):({minecraft:0,terraria:1,rpg:2,scifi:3}[style]??0),variant:Math.floor(Math.random()*6),scale:.85+Math.random()*.7,nameColor:twitchColorCache[key]||nameColor});
  queueTwitchColor(key);
- if(people.size>150){let oldestKey=null,oldest=Infinity;for(const [k,v] of people)if(v.last<oldest){oldest=v.last;oldestKey=k}if(oldestKey&&oldestKey!==key)people.delete(oldestKey)}
+ if(people.size>150){let oldestKey=null,oldest=Infinity;for(const [k,v] of people)if(!v.leaving&&v.last<oldest){oldest=v.last;oldestKey=k}const o=oldestKey&&oldestKey!==key?people.get(oldestKey):null;if(o)o.leaving=Date.now()}
 }
 function drawPerson(p,t){
  const gait=t*.012+p.phase,stride=Math.sin(gait),bob=Math.abs(Math.cos(gait))*1.5;
@@ -200,21 +220,24 @@ function drawPerson(p,t){
   const padX=8,padY=6,lineHeight=15;
   const maxBubbleWidth=Math.min(260,width-12);
   const maxTextWidth=Math.max(12,maxBubbleWidth-padX*2);
-  const lines=[];let line="",consumed=0;
-  for(const ch of bubbleText){
-   consumed++;
-   if(ch==="\n"){lines.push(line);line="";if(lines.length>=4)break;continue;}
-   const candidate=line+ch;
-   if(line&&ctx.measureText(candidate).width>maxTextWidth){
-    lines.push(line.trimEnd());line=ch===" "? "":ch;
-    if(lines.length>=4)break;
-   }else{line=candidate;}
+  const spaceW=ctx.measureText(" ").width;
+  const tokenW=t=>{if(!showEmotes)return ctx.measureText(t).width;const core=stripEdge(t);if(core&&emoteCache.has(core)){const extra=t.length-core.length;return EMOTE_W+2+(extra?ctx.measureText(t.replace(core,"")).width:0)}return ctx.measureText(t).width};
+  const lines=[];let line="",lineW=0,truncated=false;
+  const pushLine=()=>{lines.push(line.replace(/\s+$/,""));line="";lineW=0};
+  outer:for(const t of bubbleText.split(/(\s+)/)){
+   if(!t)continue;
+   if(/^\s+$/.test(t)){if(line){line+=" ";lineW+=spaceW}continue}
+   const w=tokenW(t);
+   if(lineW+w>maxTextWidth&&line){pushLine();if(lines.length>=4){truncated=true;break}}
+   if(w>maxTextWidth){for(const ch of Array.from(t)){const cw=ctx.measureText(ch).width;if(lineW+cw>maxTextWidth&&line){pushLine();if(lines.length>=4){truncated=true;break outer}}line+=ch;lineW+=cw}}
+   else{line+=t;lineW+=w}
   }
-  if(lines.length<4&&line)lines.push(line.trimEnd());
+  if(!truncated&&line)lines.push(line.replace(/\s+$/,""));
+  if(lines.length>4){lines.length=4;truncated=true}
   if(!lines.length)lines.push(bubbleText.slice(0,10));
-  const truncated=consumed<bubbleText.length;
-  if(truncated){let last=lines[lines.length-1];while(last.length&&ctx.measureText(last+"…").width>maxTextWidth)last=last.slice(0,-1);lines[lines.length-1]=last+"…";}
-  const contentWidth=Math.max(24,...lines.map(value=>ctx.measureText(value).width));
+  if(truncated){let last=lines[lines.length-1];while(last.length&&ctx.measureText(last+"…").width>maxTextWidth)last=last.slice(0,-1);lines[lines.length-1]=last+"…"}
+  const lineWidth=value=>value.split(/(\s+)/).reduce((sum,t)=>sum+(!t?0:/^\s+$/.test(t)?spaceW:tokenW(t)),0);
+  const contentWidth=Math.max(24,...lines.map(lineWidth));
   const bw=Math.min(maxBubbleWidth,contentWidth+padX*2),bh=lines.length*lineHeight+padY*2;
   const bx=Math.max(6,Math.min(width-bw-6,x-bw/2));
   const by=Math.max(6,Math.min(height-bh-6,base-44*s-bh));
@@ -243,7 +266,7 @@ function drawPerson(p,t){
      const size=20;if(cursorX+size>bx+bw-padX+2)break;
      ctx.drawImage(img,cursorX,by+padY+i*lineHeight-3,size,size);cursorX+=size+2;
      if(after){ctx.fillText(after,cursorX,by+padY+i*lineHeight);cursorX+=ctx.measureText(after).width;}
-    }else{ctx.fillText(token,cursorX,by+padY+i*lineHeight);cursorX+=ctx.measureText(token).width;}
+    }else if(showEmotes&&bubbleMode==="emotes"&&isEmoteToken(token)){cursorX+=EMOTE_W+2}else{ctx.fillText(token,cursorX,by+padY+i*lineHeight);cursorX+=ctx.measureText(token).width;}
    }
   });
   ctx.restore();
@@ -252,11 +275,19 @@ function drawPerson(p,t){
   ctx.restore();
  }
 }
+const idleMs=preview?14000:idleMinutes*60000;
 function frame(t){
  if(!lastFrame)lastFrame=t;const dt=Math.min(40,t-lastFrame);lastFrame=t;
  ctx.clearRect(0,0,width,height);const now=Date.now();
- for(const [key,p] of people){if(now-p.last>idleMinutes*60000){people.delete(key);continue}
- p.x+=p.vx*dt*.06;if(p.x>width-18){p.x=width-18;p.vx=-Math.abs(p.vx)}if(p.x<18){p.x=18;p.vx=Math.abs(p.vx)}drawPerson(p,t);}
+ for(const [key,p] of people){
+  if(!p.leaving&&now-p.last>idleMs)p.leaving=now;
+  if(p.leaving&&now-p.leaving>FADE_OUT){people.delete(key);continue}
+  p.x+=p.vx*dt*.06;if(p.x>width-18){p.x=width-18;p.vx=-Math.abs(p.vx)}if(p.x<18){p.x=18;p.vx=Math.abs(p.vx)}
+  let alpha=1,scale=1,lift=0;
+  if(p.leaving){const u=Math.min(1,(now-p.leaving)/FADE_OUT);alpha=1-u;scale=1-.2*u;lift=-16*u*u}
+  else if(now-p.born<FADE_IN){const u=Math.max(0,(now-p.born)/FADE_IN),e=1+2.70158*Math.pow(u-1,3)+1.70158*Math.pow(u-1,2);alpha=Math.min(1,u*1.8);scale=.35+.65*e;lift=0}
+  ctx.save();ctx.globalAlpha=alpha;ctx.translate(p.x,p.y+lift);ctx.scale(scale,scale);ctx.translate(-p.x,-p.y);drawPerson(p,t);ctx.restore();
+ }
  requestAnimationFrame(frame);
 }
 function showStatus(message){if(preview){status.textContent=message;status.hidden=false;setTimeout(()=>status.hidden=true,4500)}}
@@ -267,8 +298,17 @@ function scheduleReconnect(){
  retryTimer=setTimeout(()=>{retryTimer=0;connect()},retryDelay+Math.floor(Math.random()*400));
  retryDelay=Math.min(retryDelay*2,20000);
 }
+function startPreviewDemo(){
+ const emotes={Kappa:"25",LUL:"425618",PogChamp:"88",HeyGuys:"30259",BibleThump:"86",KappaPride:"55338",SeemsGood:"64138"};
+ for(const [name,id] of Object.entries(emotes))addEmote(name,"https://static-cdn.jtvnw.net/emoticons/v2/"+id+"/default/dark/2.0");
+ const names=["rueumur","homka20_","d1unizi","medverina","viewer_42","mob_nadziratel","cherrys_fox","ne_twig"];
+ const phrases=["Всем привет! Kappa","LUL это было сильно","Kappa Kappa Kappa","PogChamp","Классный стрим 💜","Погнали! HeyGuys","SeemsGood LUL","Это просто невероятно, чат, вы это видели? PogChamp","BibleThump","Залетайте в чат KappaPride"];
+ const talk=name=>addPerson(name,[],"",phrases[Math.floor(Math.random()*phrases.length)]);
+ names.slice(0,4).forEach((n,i)=>setTimeout(()=>talk(n),i*450));
+ setInterval(()=>talk(names[Math.floor(Math.random()*names.length)]),2200);
+}
 function connect(){
- if(preview){["rueumur","homka20_","d1unizi","medverina","Зритель_42"].forEach((name,i)=>setTimeout(()=>addPerson(name),i*350));return}
+ if(preview){startPreviewDemo();return}
  if(stopped||!(/^[a-z0-9_]{1,25}$/.test(channel)))return;
  if(socket&&(socket.readyState===WebSocket.OPEN||socket.readyState===WebSocket.CONNECTING))return;
  clearTimeout(retryTimer);retryTimer=0;

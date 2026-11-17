@@ -22,7 +22,49 @@ const PROMPTS = [
   "Что написано на последней странице инструкции к тостеру", "Название песни, которую поёт будильник", "Что прячет под кроватью монстр, когда ему стыдно",
   "Худший сюжет для мультфильма", "Самая неловкая надпись на футболке", "Что чат пишет, когда стример молчит"
 ];
-const ROUNDS = 2, MIN_PLAYERS = 3, MAX_PLAYERS = 8, MAX_AUDIENCE = 100, MAX_ROOMS = 300;
+PROMPTS.push(
+  "Худшее, что можно услышать от стоматолога", "Название реалити-шоу про соседей по подъезду", "Что на самом деле делает лифт между этажами",
+  "Самая странная реклама ночью", "Что бы вы забрали с необитаемого острова, кроме здравого смысла", "Название блюда, которое страшно заказывать",
+  "Худшее прозвище для начальника", "Секретный пароль от клуба любителей носков", "Самая неубедительная отмазка от физкультуры",
+  "Лучшее название для кота-бизнесмена", "Что говорит навигатор, когда вы окончательно заблудились", "Плохое название для спа-салона",
+  "Что нельзя класть в микроволновку, но очень хочется", "Реклама самого бесполезного гаджета", "Худшее время для танца",
+  "Что показывает рентген у вашего друга-геймера", "Тайная миссия обычного голубя", "Название ролика, после которого вас забанят на YouTube",
+  "Самая дурацкая причина для звонка в техподдержку", "Необычная примета, которая работает только у вас", "Что кричат болельщики на турнире по шахматам",
+  "Худший совет по выживанию в лесу", "Название духов с запахом понедельника", "Чем на самом деле занимается ваш холодильник в отпуске",
+  "Слоган для зубочисток класса люкс", "Самое неловкое объявление в метро", "Что надо сказать Деду Морозу в июле", "Название альбома группы из чайников",
+  "Самый странный повод для праздника", "Худшая работа для супергероя", "Что стример прячет за камерой", "Самая смешная надпись на надгробии пирата",
+  "Что у кота в голове в 3 часа ночи", "Худший вопрос для первого свидания", "Лучшее название для школы волшебников-неудачников", "Идеальная фраза для рекламы лапши быстрого приготовления",
+  "Что скрывается в самом дальнем углу шкафа", "Неожиданный ингредиент борща", "Название квеста, в который не хочется идти", "Что говорит робот-пылесос, возвращаясь на базу",
+  "Самый нелепый талант на шоу «Минута славы»", "Подсказка, которая только всё усложняет", "Худший сюрприз на день рождения", "Название книги, которую никто не дочитал",
+  "Что должно быть на гербе вашей кухни", "Странное правило в клубе любителей кактусов", "Самая странная находка в старом рюкзаке", "Как чат отреагирует, если вы скажете «я сейчас вернусь»",
+  "Название мобильной игры для бабушек-хакеров", "Лучшая реплика для злодея в мультфильме про овощи"
+);
+const FIBS = [
+  ["У осьминога ___ сердца.", "три"], ["Мёд не портится: в египетских гробницах нашли съедобный мёд возрастом около ___ лет.", "3000"],
+  ["С точки зрения ботаники, банан — это ___.", "ягода"], ["Самая большая пустыня на Земле — не Сахара, а ___.", "Антарктическая"],
+  ["Летом Эйфелева башня «вырастает» из-за жары примерно на ___ сантиметров.", "15"], ["Вомбаты — единственные животные, чей помёт имеет форму ___.", "кубиков"],
+  ["Кошки не чувствуют вкус ___.", "сладкого"], ["Столица Австралии — не Сидней и не Мельбурн, а ___.", "Канберра"],
+  ["«Чёрные ящики» самолётов на самом деле ___ цвета.", "оранжевого"], ["Молния нагревает воздух вокруг себя примерно до ___ градусов.", "30 000"],
+  ["Первая в мире веб-страница появилась в ___ году.", "1991"], ["Фламинго розовые из-за ___.", "еды"],
+  ["Улитка может проспать подряд до ___ лет.", "трёх"], ["Самая высокая гора Солнечной системы, вулкан Олимп, находится на ___.", "Марсе"],
+  ["В Исландии нет ___.", "комаров"], ["У жирафа ___ шейных позвонков — столько же, сколько у человека.", "семь"],
+  ["Рыба-клоун рождается самцом, а потом может стать ___.", "самкой"], ["Сапсан при пикировании разгоняется быстрее ___ км/ч.", "300"],
+  ["Самая прочная кость человека — ___.", "бедренная"], ["Кофейные «зёрна» на самом деле ___ ягоды.", "семена"],
+  ["Глубина Марианской впадины — около ___ километров.", "11"], ["Первый искусственный спутник Земли назывался ___.", "Спутник-1"],
+  ["В Мёртвом море невозможно ___.", "утонуть"], ["Самое маленькое государство мира — ___.", "Ватикан"],
+  ["Самая длинная река Европы — ___.", "Волга"], ["Жгучесть перца чили создаёт вещество ___.", "капсаицин"]
+].map(([q, a]) => ({ q, a }));
+const DRAWS = ["Кот-программист", "Робот на пляже", "Дракон, который боится огня", "Пингвин в сауне", "Единорог на работе", "Привидение в лифте", "Космонавт в метро",
+  "Слон на самокате", "Динозавр с зонтиком", "Пицца с глазами", "Сумасшедший учёный", "Утка-супергерой", "Бабушка на мотоцикле", "Волк и семеро козлят", "Снеговик летом",
+  "Холодильник мечтает", "Акула на велосипеде", "Король пельменей", "Лягушка-принцесса в суде", "Осьминог за компьютером", "Жираф в тесной комнате", "Ёжик в тумане с телефоном",
+  "Тыква на свидании", "Кактус-массажист", "Совы-детективы", "Медведь на льду", "Крокодил чистит зубы", "Чайник-путешественник", "Рыцарь против пылесоса", "Стример на необитаемом острове",
+  "Корова в космосе", "Мышь-тяжелоатлет", "Улитка на гонках", "Банан-пират", "Зомби на диете", "Верблюд в аэропорту", "Кролик-фокусник", "Борщ-монстр", "Паук-программист", "Лама на концерте"];
+const DRAW_MS = Number(process.env.PARTY_DRAW_MS) || 90000;
+const AVATARS = ["🦊", "🐸", "🐙", "🦄", "🐼", "🐯", "🦉", "🐧", "🦖", "🐝", "🐳", "🦆", "🐺", "🐱", "🤖", "👾"];
+const LIE_MS = Number(process.env.PARTY_LIE_MS) || 45000, PICK_MS = Number(process.env.PARTY_PICK_MS) || 25000;
+const MODES = ["quip", "fib", "draw"];
+const normText = t => String(t).toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+const MIN_PLAYERS = 3, MAX_PLAYERS = 8, MAX_AUDIENCE = 100, MAX_ROOMS = 300;
 const ANSWER_MS = Number(process.env.PARTY_ANSWER_MS) || 75000;
 const VOTE_MS = Number(process.env.PARTY_VOTE_MS) || 20000;
 const REVEAL_MS = Number(process.env.PARTY_REVEAL_MS) || 6500;
@@ -40,6 +82,19 @@ function limited(key, max, windowMs) {
   if (list.length >= max) { rates.set(key, list); return true; }
   list.push(now); rates.set(key, list); return false;
 }
+// Рисунок = список штрихов {c: цвет 0-9, w: толщина 0-2, p: [x1,y1,x2,y2,…] в координатах 0–400}.
+function cleanStrokes(input) {
+  if (!Array.isArray(input) || input.length > 150) return null;
+  let points = 0; const out = [];
+  for (const st of input) {
+    if (!st || !Array.isArray(st.p) || st.p.length < 2 || st.p.length % 2) return null;
+    points += st.p.length / 2; if (points > 8000) return null;
+    const c = Number(st.c), w = Number(st.w), pts = st.p.map(n => Math.round(Number(n)));
+    if (!(c >= 0 && c <= 9) || !(w >= 0 && w <= 2) || pts.some(n => !(n >= 0 && n <= 400))) return null;
+    out.push({ c: Math.round(c), w: Math.round(w), p: pts });
+  }
+  return out.length ? out : null;
+}
 function makeCode() {
   for (;;) {
     const code = Array.from({ length: 4 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ"[crypto.randomInt(24)]).join("");
@@ -50,18 +105,37 @@ function makeCode() {
 // ── Снимок состояния для конкретного зрителя (секретные ответы наружу не уходят) ──
 function view(room, who) {
   const v = {
-    code: room.code, phase: room.phase, round: room.round, rounds: ROUNDS, now: Date.now(), deadline: room.deadline,
+    code: room.code, mode: room.mode, phase: room.phase, round: room.round, rounds: room.rounds, now: Date.now(), deadline: room.deadline,
     role: who.role, audience: room.audience.size, min: MIN_PLAYERS,
-    players: room.players.map(p => ({ id: p.id, name: p.name, color: p.color, score: p.score, online: p.online > 0, done: room.phase === "answering" ? p.done : undefined }))
+    players: room.players.map(p => ({ id: p.id, name: p.name, color: p.color, avatar: p.avatar, score: p.score, online: p.online > 0, done: ["answering", "lie", "drawing"].includes(room.phase) ? p.done : undefined }))
   };
   const me = who.p;
-  if (me) v.me = { id: me.id, name: me.name, color: me.color, score: me.score };
+  if (me) v.me = { id: me.id, name: me.name, color: me.color, avatar: me.avatar, score: me.score };
+  if (room.phase === "drawing" && me && who.role === "player") {
+    const t = room.drawTasks.get(me.id); v.myPrompt = t && t.prompt; v.drawn = Boolean(t && t.strokes);
+  }
   if (room.phase === "answering" && me && who.role === "player") {
     v.tasks = room.matchups.map((m, mi) => ({ m, mi })).filter(x => x.m.opts.some(o => o.pid === me.id))
       .map(x => ({ mi: x.mi, prompt: x.m.prompt, answer: x.m.opts.find(o => o.pid === me.id).text }));
   }
   const m = room.matchups[room.cur];
-  if ((room.phase === "voting" || room.phase === "reveal") && m) {
+  const nameOf = id => (room.players.find(x => x.id === id) || [...room.audience.values()].find(x => x.id === id) || {}).name;
+  if (room.phase === "final") {
+    const aw = awards(room);
+    v.cards = room.players.slice().sort((a, b) => b.score - a.score).map((p, i) => Object.assign({ id: p.id, name: p.name, avatar: p.avatar, color: p.color, score: p.score, place: i + 1 }, aw[p.id]));
+  }
+  if (m && m.kind === "fib" && ["lie", "pick", "reveal"].includes(room.phase)) {
+    v.fib = { i: room.cur + 1, n: room.matchups.length, prompt: m.prompt };
+    if (m.artist) { v.fib.prompt = "Что нарисовано?"; v.fib.art = room.cur; v.fib.artist = nameOf(m.artist); v.isArtist = who.id === m.artist; }
+    if (room.phase === "lie") v.lied = m.lies.has(who.id);
+    if (room.phase === "pick") {
+      v.options = m.options.map(o => o.text); v.picks = m.picks.size;
+      v.mine = m.options.map((o, k) => o.authors.includes(who.id) ? k : -1).filter(k => k >= 0);
+      v.myPick = m.picks.has(who.id) ? m.picks.get(who.id) : null; v.canPick = (who.role === "player" || who.role === "audience") && who.id !== m.artist;
+    }
+    if (room.phase === "reveal") v.fibReveal = { truth: m.truth, options: m.options.map((o, k) => ({ text: o.text, truth: o.truth, authors: o.authors.map(nameOf),
+      pickedBy: [...m.picks].filter(x => x[1] === k).map(x => nameOf(x[0])) })) };
+  } else if ((room.phase === "voting" || room.phase === "reveal") && m) {
     v.match = { i: room.cur + 1, n: room.matchups.length, prompt: m.prompt, answers: m.opts.map(o => o.text) };
     const authors = m.opts.map(o => o.pid);
     if (room.phase === "voting") {
@@ -93,13 +167,66 @@ function setPhase(room, phase, ms) {
   push(room);
 }
 function advance(room) {
+  const next = room.mode === "quip" ? startVoting : startLie;
   if (room.phase === "answering") startVoting(room, 0);
+  else if (room.phase === "drawing") startArt(room);
+  else if (room.phase === "lie") startPick(room);
+  else if (room.phase === "pick") revealFib(room);
   else if (room.phase === "voting") reveal(room);
-  else if (room.phase === "reveal") (room.cur + 1 < room.matchups.length ? startVoting(room, room.cur + 1) : setPhase(room, "roundScores", SCORES_MS));
-  else if (room.phase === "roundScores") (room.round < ROUNDS ? startRound(room) : setPhase(room, "final", 0));
+  else if (room.phase === "reveal") (room.cur + 1 < room.matchups.length ? next(room, room.cur + 1) : setPhase(room, "roundScores", SCORES_MS));
+  else if (room.phase === "roundScores") (room.round < room.rounds ? startRound(room) : setPhase(room, "final", 0));
+}
+// «Враки»: придумай правдоподобную ложь к факту, потом найди правду среди всех вариантов.
+function startArt(room) {
+  room.matchups = [...room.drawTasks].filter(([, t]) => t.strokes && t.strokes.length).map(([pid, t]) => ({ kind: "fib", artist: pid, art: t.strokes, prompt: "", truth: t.prompt, lies: new Map(), options: [], picks: new Map(), result: null }));
+  room.cur = -1;
+  if (!room.matchups.length) return setPhase(room, "roundScores", SCORES_MS);
+  startLie(room, 0);
+}
+function startLie(room, i) {
+  room.cur = i; room.players.forEach(p => { p.done = room.matchups[i].artist === p.id; });
+  setPhase(room, "lie", LIE_MS);
+}
+function startPick(room) {
+  const q = room.matchups[room.cur], byText = new Map();
+  for (const [pid, text] of q.lies) { const k = normText(text); if (!byText.has(k)) byText.set(k, { text, truth: false, authors: [] }); byText.get(k).authors.push(pid); }
+  q.options = shuffle([{ text: q.truth, truth: true, authors: [] }, ...byText.values()]);
+  setPhase(room, "pick", PICK_MS);
+}
+function revealFib(room) {
+  const q = room.matchups[room.cur], unit = 100 * room.round, byId = id => room.players.find(x => x.id === id);
+  for (const [voter, k] of q.picks) {
+    const o = q.options[k], vp = byId(voter);
+    if (o.truth) { if (vp) { vp.score += 5 * unit; vp.st.truths++; } const ar = q.artist && byId(q.artist); if (ar) { ar.score += 3 * unit; ar.st.art++; } }
+    else o.authors.forEach(a => { const ap = byId(a); if (ap) { ap.score += 3 * unit; ap.st.fooled++; } });
+  }
+  q.result = {}; setPhase(room, "reveal", Math.round(REVEAL_MS * 1.6));
+}
+function awards(room) {
+  const cats = [["🤣", "Король шуток", "votes", n => n + " голосов за ответы"], ["🕵️", "Детектив", "truths", n => "нашёл правду " + n + " раз"],
+    ["🎭", "Мастер обмана", "fooled", n => "обманул " + n + " раз"], ["💥", "Разгромщик", "crush", n => "разгромов: " + n], ["🎨", "Художник", "art", n => "тебя поняли " + n + " раз"]];
+  const res = {};
+  for (const [icon, label, key, fmt] of cats) {
+    const lead = room.players.filter(p => !res[p.id] && p.st[key] > 0).sort((a, b) => b.st[key] - a.st[key])[0];
+    if (lead) res[lead.id] = { icon, label, note: fmt(lead.st[key]) };
+  }
+  const spare = [["🎉", "Душа компании"], ["🍀", "Везунчик"], ["🌟", "Звезда вечера"], ["🦉", "Тихий наблюдатель"]];
+  room.players.forEach((p, i) => { if (!res[p.id]) res[p.id] = { icon: spare[i % 4][0], label: spare[i % 4][1], note: "" }; });
+  return res;
 }
 function startRound(room) {
   room.round++;
+  if (room.mode === "draw") {
+    if (room.drawDeck.length < room.players.length) room.drawDeck = shuffle(DRAWS.slice());
+    room.drawTasks = new Map(room.players.map(p => [p.id, { prompt: room.drawDeck.pop(), strokes: null }]));
+    room.players.forEach(p => { p.done = false; });
+    return setPhase(room, "drawing", DRAW_MS);
+  }
+  if (room.mode === "fib") {
+    if (room.fibDeck.length < 3) room.fibDeck = shuffle(FIBS.slice());
+    room.matchups = Array.from({ length: 3 }, () => { const f = room.fibDeck.pop(); return { kind: "fib", prompt: f.q, truth: f.a, lies: new Map(), options: [], picks: new Map(), result: null }; });
+    return startLie(room, 0);
+  }
   if (room.deck.length < room.players.length) room.deck = shuffle(PROMPTS.slice());
   const order = shuffle(room.players.slice()), n = order.length;
   room.matchups = order.map((p, i) => ({
@@ -122,7 +249,8 @@ function reveal(room) {
   let points = counts.map(c => c * unit), bonus = false, auto = missing[0] || missing[1];
   if (auto) points = missing.map(x => (x || (missing[0] && missing[1])) ? 0 : unit * 2);
   else if (total >= 2 && (counts[0] === total || counts[1] === total)) { bonus = true; points[counts[0] === total ? 0 : 1] += 200 * room.round; }
-  m.opts.forEach((o, k) => { const p = room.players.find(x => x.id === o.pid); if (p) p.score += points[k]; });
+  const top = Math.max(counts[0], counts[1]);
+  m.opts.forEach((o, k) => { const p = room.players.find(x => x.id === o.pid); if (p) { p.score += points[k]; p.st.votes += counts[k]; if (top > 0 && counts[k] === top && counts[0] !== counts[1]) p.st.wins++; if (bonus && counts[k] === total) p.st.crush++; } });
   m.result = { counts, points, bonus, auto };
   if (auto) m.opts.forEach(o => { if (o.text === null) o.text = "— не успел(а) —"; });
   setPhase(room, "reveal", REVEAL_MS);
@@ -133,9 +261,9 @@ function json(res, status, body) {
   res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
   res.end(JSON.stringify(body));
 }
-async function readBody(req) {
+async function readBody(req, limit = 4096) {
   let size = 0; const chunks = [];
-  for await (const c of req) { size += c.length; if (size > 4096) throw Object.assign(new Error("Слишком большой запрос."), { status: 413 }); chunks.push(c); }
+  for await (const c of req) { size += c.length; if (size > limit) throw Object.assign(new Error("Слишком большой запрос."), { status: 413 }); chunks.push(c); }
   try { return chunks.length ? JSON.parse(Buffer.concat(chunks).toString("utf8")) : {}; } catch (_) { throw Object.assign(new Error("Некорректный JSON."), { status: 400 }); }
 }
 const codeOf = v => clean(v, 4).toUpperCase();
@@ -155,6 +283,12 @@ async function handleParty(req, res, url) {
       return room ? json(res, 200, { exists: true, phase: room.phase, players: room.players.length, open: room.phase === "lobby" && room.players.length < MAX_PLAYERS })
                   : json(res, 404, { exists: false, error: "Комната не найдена." });
     }
+    if (route === "art" && req.method === "GET") {
+      const room = rooms.get(codeOf(url.searchParams.get("code"))), q = room && room.matchups[Number(url.searchParams.get("k"))];
+      if (!q || !q.art || room.phase === "drawing") return json(res, 404, { error: "Рисунок недоступен." });
+      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "private, max-age=3600" });
+      return res.end(JSON.stringify(q.art));
+    }
     if (route === "events" && req.method === "GET") {
       const room = rooms.get(codeOf(url.searchParams.get("code")));
       const who = room && identify(room, String(url.searchParams.get("token") || ""));
@@ -171,12 +305,12 @@ async function handleParty(req, res, url) {
       return;
     }
     if (req.method !== "POST") return json(res, 404, { error: "Неизвестный маршрут." });
-    const body = await readBody(req), ip = ipOf(req);
+    const body = await readBody(req, route === "draw" ? 65536 : 4096), ip = ipOf(req);
 
     if (route === "create") {
       if (limited("c:" + ip, 6, 600000)) return json(res, 429, { error: "Слишком много комнат. Подожди немного." });
       if (rooms.size >= MAX_ROOMS) return json(res, 503, { error: "Сервер переполнен, попробуй позже." });
-      const room = { code: makeCode(), hostKey: uid(16), phase: "lobby", round: 0, cur: -1, deadline: 0, timer: null, players: [], audience: new Map(), matchups: [], deck: shuffle(PROMPTS.slice()), subs: new Set(), lastActive: Date.now() };
+      const room = { code: makeCode(), hostKey: uid(16), mode: MODES.includes(body.mode) ? body.mode : "quip", drawDeck: shuffle(DRAWS.slice()), rounds: Math.min(3, Math.max(1, Math.round(Number(body.rounds)) || 2)), fibDeck: shuffle(FIBS.slice()), phase: "lobby", round: 0, cur: -1, deadline: 0, timer: null, players: [], audience: new Map(), matchups: [], deck: shuffle(PROMPTS.slice()), subs: new Set(), lastActive: Date.now() };
       rooms.set(room.code, room);
       return json(res, 201, { code: room.code, key: room.hostKey });
     }
@@ -197,7 +331,9 @@ async function handleParty(req, res, url) {
       while (taken(unique)) unique = name.slice(0, 13) + " " + n++;
       const token = uid(16);
       if (asPlayer) {
-        room.players.push({ id: uid(4), token, name: unique, color: COLORS[room.players.length % COLORS.length], score: 0, online: 0, done: false });
+        const free = AVATARS.filter(a => !room.players.some(p => p.avatar === a));
+        const avatar = AVATARS.includes(body.avatar) && free.includes(body.avatar) ? body.avatar : free[crypto.randomInt(free.length)];
+        room.players.push({ id: uid(4), token, name: unique, avatar, color: COLORS[room.players.length % COLORS.length], score: 0, online: 0, done: false, st: { votes: 0, wins: 0, truths: 0, fooled: 0, crush: 0, art: 0 } });
         push(room); return json(res, 201, { token, role: "player" });
       }
       room.audience.set(token, { id: uid(4), token, name: unique });
@@ -215,6 +351,28 @@ async function handleParty(req, res, url) {
       if (room.players.every(p => p.done)) advance(room); else push(room);
       return json(res, 200, { ok: true });
     }
+    if (route === "draw" && who.role === "player" && room.phase === "drawing") {
+      const t = room.drawTasks.get(who.id), strokes = cleanStrokes(body.strokes);
+      if (!t || t.strokes || !strokes) return json(res, 400, { error: "Рисунок не принят." });
+      t.strokes = strokes; who.p.done = true;
+      if (room.players.every(p => p.done)) advance(room); else push(room);
+      return json(res, 200, { ok: true });
+    }
+    if (route === "lie" && who.role === "player" && room.phase === "lie") {
+      const q = room.matchups[room.cur], text = clean(body.text, 50);
+      if (!text || q.lies.has(who.id) || q.artist === who.id) return json(res, 400, { error: "Ответ не принят." });
+      if (normText(text) === normText(q.truth)) return json(res, 400, { error: "Слишком похоже на правду — придумай ложь!" });
+      q.lies.set(who.id, text); who.p.done = true;
+      if (room.players.every(p => p.done)) advance(room); else push(room);
+      return json(res, 200, { ok: true });
+    }
+    if (route === "pick" && room.phase === "pick" && (who.role === "player" || who.role === "audience")) {
+      const q = room.matchups[room.cur], k = Number(body.k);
+      if (!q.options[k] || q.options[k].authors.includes(who.id) || q.artist === who.id) return json(res, 400, { error: "Выбор не принят." });
+      q.picks.set(who.id, k);
+      if (room.audience.size === 0 && room.players.every(p => p.id === q.artist || q.picks.has(p.id))) advance(room); else push(room);
+      return json(res, 200, { ok: true });
+    }
     if (route === "vote" && room.phase === "voting" && (who.role === "player" || who.role === "audience")) {
       const m = room.matchups[room.cur], side = Number(body.side);
       if (!m || (side !== 0 && side !== 1) || m.opts.some(o => o.pid === who.id)) return json(res, 400, { error: "Голос не принят." });
@@ -228,10 +386,10 @@ async function handleParty(req, res, url) {
       if (room.phase !== "lobby" || room.players.length < MIN_PLAYERS) return json(res, 400, { error: "Нужно минимум " + MIN_PLAYERS + " игрока." });
       room.round = 0; startRound(room); return json(res, 200, { ok: true });
     }
-    if (route === "skip") { if (["answering", "voting", "reveal", "roundScores"].includes(room.phase)) advance(room); return json(res, 200, { ok: true }); }
+    if (route === "skip") { if (["answering", "drawing", "lie", "pick", "voting", "reveal", "roundScores"].includes(room.phase)) advance(room); return json(res, 200, { ok: true }); }
     if (route === "kick" && room.phase === "lobby") { room.players = room.players.filter(p => p.id !== body.id); push(room); return json(res, 200, { ok: true }); }
     if (route === "restart" && room.phase === "final") {
-      room.players.forEach(p => { p.score = 0; p.done = false; }); room.round = 0; room.matchups = []; room.cur = -1; setPhase(room, "lobby", 0); return json(res, 200, { ok: true });
+      room.players.forEach(p => { p.score = 0; p.done = false; p.st = { votes: 0, wins: 0, truths: 0, fooled: 0, crush: 0, art: 0 }; }); room.round = 0; room.matchups = []; room.cur = -1; setPhase(room, "lobby", 0); return json(res, 200, { ok: true });
     }
     if (route === "close") {
       clearTimeout(room.timer); for (const s of room.subs) { try { s.res.end(); } catch (_) {} } rooms.delete(room.code); return json(res, 200, { ok: true });

@@ -38,6 +38,21 @@ button{font:inherit;font-weight:850;font-size:15px;border:1px solid var(--line);
 button.main{background:linear-gradient(135deg,#8ce5f3,#4daac8);color:#082032;border:0;font-size:18px;padding:12px 26px}button:disabled{opacity:.4}
 .kick{margin-left:4px;background:none;border:0;color:var(--muted);padding:0 4px;font-size:18px}
 .err{color:#ff9aa6;font-weight:700}
+.logo{font-size:clamp(60px,9vw,120px);filter:drop-shadow(0 8px 30px rgba(140,226,242,.45));animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px) rotate(-5deg)}}
+.modes{display:flex;gap:2vw;justify-content:center;flex-wrap:wrap}
+.mode{display:flex;flex-direction:column;align-items:center;gap:6px;width:min(270px,29vw);padding:2.2vh 1.4vw;border-radius:22px;border:2px solid var(--line);background:rgba(20,46,67,.7);color:var(--text);transition:transform .15s,border-color .15s}
+.mode .ico{font-size:clamp(34px,4vw,56px)}.mode b{font-size:clamp(20px,2.4vw,32px)}.mode small{color:var(--muted);font-size:clamp(12px,1.3vw,17px);font-weight:600;line-height:1.35}
+.mode.on{border-color:var(--accent);background:rgba(34,86,116,.8);transform:scale(1.04);box-shadow:0 0 40px rgba(140,226,242,.2)}
+.rounds{display:flex;align-items:center;gap:10px}.rounds p{font-size:clamp(15px,1.8vw,22px)}.rn{width:48px;height:48px;border-radius:14px;font-size:20px;padding:0}.rn.on{background:linear-gradient(135deg,#8ce5f3,#4daac8);color:#082032;border:0}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:1.6vw;width:min(1300px,100%)}.opts .card{font-size:clamp(18px,2.6vw,36px);padding:2vh 1.4vw}
+.card.truth{border-color:#69db7c;box-shadow:0 0 50px rgba(105,219,124,.3)}
+.awards{display:flex;flex-wrap:wrap;gap:12px 22px;justify-content:center;max-width:1100px;font-size:clamp(14px,1.7vw,24px);font-weight:800}
+.awards span{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(20,46,67,.7)}
+.dot{font-size:1.15em}
+.art{width:min(44vh,42vw);height:min(44vh,42vw);border-radius:18px;background:#fdfcf7;box-shadow:0 12px 50px rgba(0,0,0,.45);animation:pop .4s cubic-bezier(.2,1.5,.4,1)}
+.stage-row{display:flex;gap:3vw;align-items:center;justify-content:center;width:min(1500px,100%)}.stage-row .opts{grid-template-columns:1fr;flex:1;min-width:0}
+@media(max-width:900px){.stage-row{flex-direction:column}}
 @keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
 @media(max-width:700px){.duel{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -58,11 +73,15 @@ button.main{background:linear-gradient(135deg,#8ce5f3,#4daac8);color:#082032;bor
   const act = (route, extra) => api(route, Object.assign({ code: session.code, key: session.key }, extra || {})).catch(e => alert(e.message));
   const joinUrl = () => location.origin + "/party";
 
+  let mode = "quip", rounds = 2;
   function intro(error) {
     stop && stop(); timer.textContent = "";
-    stage.replaceChildren(h("h1", {}, "По", h("span", {}, "дкол")), p("Игра для стрима: зрители и друзья отвечают на вопросы с телефонов, а все голосуют за лучшие ответы. Нужно от 3 игроков."),
+    const modes = [["quip", "🎭", "Подкол", "Отвечай на вопросы смешно — все голосуют за лучший ответ"], ["fib", "🕵️", "Враки", "Придумай ложь к настоящему факту и найди правду среди вариантов"], ["draw", "🎨", "Каракули", "Рисуй секретное задание, остальные угадывают, что это"]];
+    stage.replaceChildren(...[h("div", { class: "logo" }, "🎭"), h("h1", {}, "По", h("span", {}, "дкол")), p("Игра для стрима: зрители и друзья играют с телефонов. Нужно от 3 игроков."),
+      h("div", { class: "modes" }, modes.map(([id, ico, name, desc]) => h("button", { class: "mode" + (mode === id ? " on" : ""), onclick: () => { mode = id; intro(error); } }, h("span", { class: "ico" }, ico), h("b", {}, name), h("small", {}, desc)))),
+      h("div", { class: "rounds" }, p("Раундов:"), [1, 2, 3].map(n => h("button", { class: "rn" + (rounds === n ? " on" : ""), onclick: () => { rounds = n; intro(error); } }, n))),
       error ? h("div", { class: "err" }, error) : null,
-      h("button", { class: "main", onclick: async e => { e.target.disabled = true; try { const r = await api("create"); save({ code: r.code, key: r.key }); begin(); } catch (err) { intro(err.message); } } }, "Создать комнату"));
+      h("button", { class: "main", onclick: async e => { e.target.disabled = true; try { const r = await api("create", { mode, rounds }); save({ code: r.code, key: r.key }); begin(); } catch (err) { intro(err.message); } } }, "Создать комнату")].filter(Boolean));
     bar.replaceChildren(h("button", { onclick: () => document.body.classList.toggle("clean") }, "Скрыть панель (H)"));
   }
   function begin() {
@@ -76,13 +95,29 @@ button.main{background:linear-gradient(135deg,#8ce5f3,#4daac8);color:#082032;bor
     const v = view, ph = v.phase;
     timer.textContent = ""; let nodes = [], controls = [];
     if (ph === "lobby") {
-      nodes = [h("p", {}, "Заходи с телефона на"), h("div", { class: "url" }, joinUrl().replace(/^https?:\/\//, "")), h("div", { class: "code" }, v.code),
+      nodes = [h("p", {}, "Заходи с телефона на"), h("div", { class: "url" }, joinUrl().replace(/^https?:\/\//, "")), h("div", { class: "code" }, v.code), p0(({ fib: "🕵️ Враки", draw: "🎨 Каракули" }[v.mode] || "🎭 Подкол") + " · раундов: " + v.rounds),
         v.players.length ? chips(v.players, true) : p0("Ждём игроков… (до 8, остальные могут быть зрителями)"),
         v.audience ? p0("Зрителей: " + v.audience) : null];
       controls = [h("button", { class: "main", disabled: v.players.length < v.min, onclick: () => act("start") }, v.players.length < v.min ? "Нужно игроков: " + v.min : "Старт")];
     } else if (ph === "answering") {
       nodes = [h("h1", {}, "Раунд " + v.round + " из " + v.rounds), p0("Пишите ответы на телефонах. У каждого два вопроса!"), chips(v.players)];
       controls = [h("button", { onclick: () => act("skip") }, "Закончить приём ответов")];
+    } else if (ph === "drawing") {
+      nodes = [h("h1", {}, "🎨 Рисуем! Раунд " + v.round + " из " + v.rounds), p0("У каждого своё секретное задание — рисуйте на телефоне пальцем"), chips(v.players)];
+      controls = [h("button", { onclick: () => act("skip") }, "Закончить рисование")];
+    } else if (ph === "lie") {
+      const art = v.fib.art != null;
+      nodes = [p0("Раунд " + v.round + " из " + v.rounds + (art ? " · рисунок " : " · факт ") + v.fib.i + " из " + v.fib.n + (art ? " · художник: " + v.fib.artist : "")), art ? artBox(v) : h("div", { class: "prompt" }, v.fib.prompt),
+        p0(art ? "Придумайте подпись к рисунку на телефонах" : "Придумайте правдоподобную ложь на телефонах"), chips(v.players)];
+      controls = [h("button", { onclick: () => act("skip") }, "Закончить приём")];
+    } else if (ph === "pick") {
+      nodes = [v.fib.art != null ? null : h("div", { class: "prompt" }, v.fib.prompt), row(v, h("div", { class: "opts" }, v.options.map(t => h("div", { class: "card" }, t)))), p0("Выбрали: " + v.picks + " — где правда?")];
+      controls = [h("button", { onclick: () => act("skip") }, "Закончить выбор")];
+    } else if (ph === "reveal" && v.fibReveal) {
+      const r = v.fibReveal;
+      nodes = [v.fib.art != null ? null : h("div", { class: "prompt" }, v.fib.prompt), row(v, h("div", { class: "opts" }, r.options.map(o => h("div", { class: "card" + (o.truth ? " truth" : "") }, o.text,
+        h("small", {}, o.truth ? "✅ Правда" : "Автор: " + (o.authors.join(", ") || "?")), o.pickedBy.length ? h("small", {}, "Выбрали: " + o.pickedBy.join(", ")) : null))))];
+      controls = [h("button", { onclick: () => act("skip") }, "Дальше")];
     } else if (ph === "voting") {
       nodes = [p0("Пара " + v.match.i + " из " + v.match.n), h("div", { class: "prompt" }, v.match.prompt),
         h("div", { class: "duel" }, v.match.answers.map(t => h("div", { class: "card" }, t))), p0("Голосов: " + v.votes + " — выбирайте на телефонах")];
@@ -94,8 +129,9 @@ button.main{background:linear-gradient(135deg,#8ce5f3,#4daac8);color:#082032;bor
       controls = [h("button", { onclick: () => act("skip") }, "Дальше")];
     } else {
       const list = v.players.slice().sort((a, b) => b.score - a.score), max = Math.max(1, list[0] ? list[0].score : 1), final = ph === "final";
-      nodes = [h("h1", {}, final ? "🏆 " + (list[0] ? list[0].name : "") + " побеждает!" : "Счёт после раунда " + v.round),
-        h("div", { class: "bars" }, list.map(x => h("div", { class: "bar" }, h("span", { class: "name" }, x.name), h("div", { class: "track" }, h("div", { class: "fill", style: "width:0;background:" + x.color, "data-w": Math.round(x.score / max * 100) })), h("span", { class: "pts" }, x.score))))];
+      nodes = [h("h1", {}, final ? "🏆 " + (list[0] ? list[0].avatar + " " + list[0].name : "") + " побеждает!" : "Счёт после раунда " + v.round),
+        final && v.cards ? h("div", { class: "awards" }, v.cards.map(c => h("span", {}, c.icon + " " + c.label + " — " + c.name))) : null,
+        h("div", { class: "bars" }, list.map(x => h("div", { class: "bar" }, h("span", { class: "name" }, (x.avatar || "") + " " + x.name), h("div", { class: "track" }, h("div", { class: "fill", style: "width:0;background:" + x.color, "data-w": Math.round(x.score / max * 100) })), h("span", { class: "pts" }, x.score))))];
       controls = final ? [h("button", { class: "main", onclick: () => act("restart") }, "Сыграть ещё")] : [h("button", { onclick: () => act("skip") }, "Дальше")];
       requestAnimationFrame(() => requestAnimationFrame(() => stage.querySelectorAll(".fill").forEach(f => { f.style.width = f.dataset.w + "%"; })));
     }
@@ -103,8 +139,10 @@ button.main{background:linear-gradient(135deg,#8ce5f3,#4daac8);color:#082032;bor
     if (ph === "lobby" || ph === "final") controls.push(h("button", { onclick: () => confirm("Закрыть комнату для всех?") && act("close").then(() => { save(null); intro(); }) }, "Закрыть комнату"));
     controls.push(h("button", { onclick: () => document.body.classList.toggle("clean") }, "Скрыть панель (H)"));
     bar.replaceChildren(...controls);
-    if (["answering", "voting"].includes(ph) && v.deadline) clock(timer);
+    if (["answering", "voting", "lie", "pick", "drawing"].includes(ph) && v.deadline) clock(timer);
   }
+  const artBox = v => Party.artCanvas(v.code, v.fib.art, "art");
+  const row = (v, opts) => v.fib.art != null ? h("div", { class: "stage-row" }, artBox(v), opts) : opts;
   const p0 = t => h("p", {}, t);
   const p = p0;
   document.addEventListener("keydown", e => { if (e.key.toLowerCase() === "h" && !/input|textarea/i.test(e.target.tagName)) document.body.classList.toggle("clean"); });

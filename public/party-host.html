@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0b1726">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
-<title>Подкол — экран ведущего</title>
+<title>Экран ведущего</title>
 <link rel="stylesheet" href="/party-theme.css">
 <style>
 :root{color-scheme:dark;--bg:#0b1726;--line:rgba(164,218,239,.22);--text:#edf7ff;--muted:#a9bfd0;--accent:#8ce2f2;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -78,7 +78,8 @@ button.main{background:linear-gradient(135deg,#8ce5f3,#4daac8);color:#082032;bor
   function intro(error) {
     stop && stop(); timer.textContent = ""; Party.bg(mode);
     const modes = [["quip", "🎭", "Подкол", "Отвечай на вопросы смешно — все голосуют за лучший ответ"], ["fib", "🕵️", "Враки", "Придумай ложь к настоящему факту и найди правду среди вариантов"], ["draw", "🎨", "Каракули", "Рисуй секретное задание, остальные угадывают, что это"]];
-    stage.replaceChildren(...[h("div", { class: "logo" }, "🎭"), h("h1", {}, "По", h("span", {}, "дкол")), p("Игра для стрима: зрители и друзья играют с телефонов. Нужно от 3 игроков."),
+    document.title = "Экран ведущего";
+    stage.replaceChildren(...[h("div", { class: "logo" }, "🎮"), h("h1", {}, "Новая игра"), p("Выбери режим и число раундов. Зрители и друзья играют с телефонов, нужно от 3 игроков."),
       h("div", { class: "modes" }, modes.map(([id, ico, name, desc]) => h("button", { class: "mode" + (mode === id ? " on" : ""), onclick: () => { mode = id; intro(error); } }, h("span", { class: "ico" }, ico), h("b", {}, name), h("small", {}, desc)))),
       h("div", { class: "rounds" }, p("Раундов:"), [1, 2, 3].map(n => h("button", { class: "rn" + (rounds === n ? " on" : ""), onclick: () => { rounds = n; intro(error); } }, n))),
       error ? h("div", { class: "err" }, error) : null,
@@ -106,11 +107,13 @@ button.main{background:linear-gradient(135deg,#8ce5f3,#4daac8);color:#082032;bor
   function render() {
     const v = view, ph = v.phase;
     Party.bg(v.mode);
+    const modeTitle = { fib: "🕵️ Враки", draw: "🎨 Каракули" }[v.mode] || "🎭 Подкол";
+    document.title = modeTitle.replace(/^\S+\s/, "") + " — экран ведущего";
     const key = ph + ":" + v.cur + ":" + v.round + ":" + (v.fib ? v.fib.i : "") + (v.match ? v.match.i : "");
     if (key !== lastKey) { lastKey = key; stage.classList.remove("screen-in"); void stage.offsetWidth; stage.classList.add("screen-in"); if (ph === "final") Party.confetti(); }
     timer.textContent = ""; let nodes = [], controls = [];
     if (ph === "lobby") {
-      nodes = [h("p", {}, "Заходи с телефона на"), h("div", { class: "url" }, joinUrl().replace(/^https?:\/\//, "")), h("div", { class: "code" }, v.code), p0(({ fib: "🕵️ Враки", draw: "🎨 Каракули" }[v.mode] || "🎭 Подкол") + " · раундов: " + v.rounds),
+      nodes = [h("h1", {}, modeTitle), h("p", {}, "Заходи с телефона на"), h("div", { class: "url" }, joinUrl().replace(/^https?:\/\//, "")), h("div", { class: "code" }, v.code), p0("Раундов: " + v.rounds),
         v.players.length ? chips(v.players, true) : p0("Ждём игроков… (до 8, остальные могут быть зрителями)"),
         v.audience ? p0("Зрителей: " + v.audience) : null];
       controls = [h("button", { class: "main", disabled: v.players.length < v.min, onclick: () => act("start") }, v.players.length < v.min ? "Нужно игроков: " + v.min : "Старт")];

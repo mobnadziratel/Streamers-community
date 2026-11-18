@@ -2223,6 +2223,235 @@ img,video,iframe{max-width:100%}
 .chat-field:has(input[type="color"]){padding:2px 0}
 .chat-preview-label,.chat-panel h2{letter-spacing:-.01em}
 @media(max-width:700px){.chat-field:has(select){flex-direction:column;align-items:stretch;gap:6px}.chat-field:has(select) select{max-width:100%!important;width:100%!important;flex:none!important;font-size:16px!important}}
+
+
+/* === Integrated GTA VI / Vice City theme === */
+/* === GTA VI / VICE CITY & LEONIDA THEME === */
+:root {
+  --bg: #090612 !important;
+  --panel: #130e24 !important;
+  --panel2: #1c1433 !important;
+  --text: #fff5fa !important;
+  --muted: #b8a3c4 !important;
+  --accent: #ff4fa3 !important;
+  --accent2: #00e5ff !important;
+  --line: rgba(255, 95, 162, 0.24) !important;
+
+  --winter-bg: #090612 !important;
+  --winter-panel: #130e24 !important;
+  --winter-panel2: #1c1433 !important;
+  --winter-text: #fff5fa !important;
+  --winter-muted: #b8a3c4 !important;
+  --winter-accent: #ff4fa3 !important;
+  --winter-accent2: #00e5ff !important;
+  --winter-line: rgba(255, 95, 162, 0.24) !important;
+  --winter-glow: rgba(255, 79, 163, 0.24) !important;
+}
+
+html, body {
+  scrollbar-color: #ff4fa3 #090612 !important;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 85% 45% at 50% -8%, rgba(255, 110, 64, 0.28), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 12%, rgba(0, 229, 255, 0.16), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 15% 18%, rgba(255, 61, 139, 0.22), transparent 55%),
+    linear-gradient(180deg, #160b28 0%, #090612 52%, #07050e 100%) !important;
+  color: var(--text) !important;
+}
+
+body::before {
+  background-image: radial-gradient(rgba(255, 115, 179, 0.22) 1px, transparent 1px) !important;
+}
+
+header, .site-header, .top {
+  background: rgba(12, 8, 24, 0.85) !important;
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 79, 163, 0.26) !important;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(0, 229, 255, 0.16) !important;
+}
+
+.logo {
+  background: linear-gradient(135deg, #ff9a3c 0%, #ff3d8b 52%, #7c3aed 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 0 26px rgba(255, 61, 139, 0.55), 0 0 12px rgba(0, 229, 255, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+.brand span, h1 span, .category-title span, .eyebrow {
+  background: linear-gradient(95deg, #ff9e44 0%, #ff4fa3 50%, #00e5ff 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: #ff4fa3 !important;
+}
+
+.eyebrow::before {
+  background: linear-gradient(90deg, #ff9e44, #ff4fa3) !important;
+}
+
+.hero {
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255, 138, 61, 0.22), transparent 42%),
+    radial-gradient(circle at 12% 85%, rgba(0, 229, 255, 0.14), transparent 45%),
+    linear-gradient(135deg, rgba(26, 16, 48, 0.92), rgba(14, 10, 28, 0.96)) !important;
+  border: 1px solid rgba(255, 79, 163, 0.28) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+.site-switch, .navtag, .theme-toggle {
+  background: rgba(20, 14, 38, 0.88) !important;
+  border: 1px solid rgba(255, 79, 163, 0.28) !important;
+  color: #f3dff0 !important;
+}
+
+.site-switch a.current,
+.tab-button.active,
+.tab-button[aria-selected="true"],
+.random-streamer-button,
+.refresh-clips,
+button.main {
+  background: linear-gradient(135deg, #ff8a3d 0%, #ff3d8b 55%, #b829ea 100%) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  box-shadow: 0 6px 22px rgba(255, 61, 139, 0.38) !important;
+}
+
+.tab-button {
+  background: rgba(20, 14, 38, 0.85) !important;
+  border-color: rgba(255, 79, 163, 0.22) !important;
+  color: #c8b2d6 !important;
+}
+
+.tab-button:hover:not(.active) {
+  border-color: #00e5ff !important;
+  color: #fff !important;
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.22) !important;
+}
+
+.streamer, .clip-card, .profile-card, .card, .pack, .special, .clip-modal-dialog, #wallPanel {
+  background: linear-gradient(145deg, rgba(22, 15, 42, 0.95), rgba(14, 10, 27, 0.97)) !important;
+  border: 1px solid rgba(255, 79, 163, 0.22) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+}
+
+.streamer:hover, .clip-card:hover, .card:hover, .special:hover, .pack:hover {
+  border-color: rgba(0, 229, 255, 0.58) !important;
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.55),
+    0 0 22px rgba(255, 61, 139, 0.22),
+    0 0 12px rgba(0, 229, 255, 0.2) !important;
+}
+
+.search input, input, textarea, select {
+  background: rgba(15, 11, 29, 0.92) !important;
+  border: 1px solid rgba(255, 79, 163, 0.26) !important;
+  color: #fff5fa !important;
+}
+
+.search input:focus, input:focus, textarea:focus, select:focus {
+  border-color: #00e5ff !important;
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.18) !important;
+}
+
+.live-status.is-live {
+  color: #ff4fa3 !important;
+  text-shadow: 0 0 12px rgba(255, 79, 163, 0.55) !important;
+}
+
+.live-status.is-live::before {
+  background: #ff4fa3 !important;
+  box-shadow: 0 0 10px #ff4fa3 !important;
+}
+
+footer b { color: #00e5ff !important; }
+.city-placeholder {
+  background: linear-gradient(135deg, #24113d, #111633) !important;
+  color: #ff4fa3 !important;
+  border-color: rgba(255, 79, 163, 0.32) !important;
+}
+
+/* Превращаем зимние частицы и нижний сугроб в неоновый вечерний бриз и эфирную строку Vice City */
+.winter-flake {
+  background: radial-gradient(circle, rgba(255, 110, 180, 0.9), rgba(0, 229, 255, 0.4)) !important;
+  box-shadow: 0 0 8px rgba(255, 79, 163, 0.65) !important;
+}
+#winter-snowdrift {
+  background: linear-gradient(90deg, rgba(20, 10, 38, 0.95), rgba(38, 14, 52, 0.96), rgba(14, 24, 48, 0.95)) !important;
+  border-top: 1px solid rgba(255, 79, 163, 0.45) !important;
+  box-shadow: 0 -6px 24px rgba(255, 61, 139, 0.22) !important;
+}
+#winter-live-ticker { color: #fff5fa !important; }
+.winter-ticker-label { color: #ff8a3d !important; text-shadow: 0 0 10px rgba(255, 138, 61, 0.5); }
+.winter-ticker-link { color: #00e5ff !important; }
+.winter-ticker-names small { color: #d8bfd8 !important; }
+.winter-ticker-separator { color: #ff4fa3 !important; }
+
+/* === GTA VI LIGHT MODE (LEONIDA DAYLIGHT) === */
+html[data-theme="light"] {
+  --bg: #fff6f2 !important;
+  --panel: #ffffff !important;
+  --panel2: #ffeae2 !important;
+  --text: #23132b !important;
+  --muted: #6e5278 !important;
+  --accent: #e62e83 !important;
+  --line: rgba(230, 46, 131, 0.18) !important;
+  color-scheme: light;
+}
+
+html[data-theme="light"] body {
+  background:
+    radial-gradient(ellipse 65% 45% at 10% 0%, rgba(255, 154, 82, 0.28), transparent 55%),
+    radial-gradient(ellipse 55% 40% at 92% 4%, rgba(0, 210, 235, 0.22), transparent 50%),
+    linear-gradient(180deg, #fff8f4 0%, #f9eef6 100%) !important;
+  color: #23132b !important;
+}
+
+html[data-theme="light"] header,
+html[data-theme="light"] .site-header {
+  background: rgba(255, 250, 248, 0.88) !important;
+  border-bottom-color: rgba(230, 46, 131, 0.16) !important;
+}
+
+html[data-theme="light"] .hero {
+  background: linear-gradient(125deg, #ffffff 0%, #fff0f5 55%, #eafaff 100%) !important;
+  border-color: rgba(230, 46, 131, 0.22) !important;
+}
+
+html[data-theme="light"] h1,
+html[data-theme="light"] .category-title,
+html[data-theme="light"] .name,
+html[data-theme="light"] .profile-name,
+html[data-theme="light"] .brand {
+  color: #23132b !important;
+}
+
+html[data-theme="light"] .streamer,
+html[data-theme="light"] .clip-card,
+html[data-theme="light"] .profile-card,
+html[data-theme="light"] .pack,
+html[data-theme="light"] .special,
+html[data-theme="light"] .clip-modal-dialog {
+  background: linear-gradient(145deg, #ffffff, #fff7fa) !important;
+  border-color: rgba(230, 46, 131, 0.16) !important;
+  color: #23132b !important;
+}
+
+html[data-theme="light"] .streamer:hover,
+html[data-theme="light"] .clip-card:hover {
+  border-color: #00a8c6 !important;
+  box-shadow: 0 12px 28px rgba(230, 46, 131, 0.14) !important;
+}
+
+html[data-theme="light"] #winter-snowdrift {
+  background: linear-gradient(90deg, rgba(255, 244, 240, 0.96), rgba(255, 232, 242, 0.96), rgba(232, 250, 255, 0.96)) !important;
+  border-top: 1px solid rgba(230, 46, 131, 0.25) !important;
+}
+html[data-theme="light"] #winter-live-ticker { color: #23132b !important; }
+html[data-theme="light"] .winter-ticker-label { color: #e62e83 !important; }
+html[data-theme="light"] .winter-ticker-link { color: #008ca8 !important; }
+(Также в самом низу index.html и widgets.html в строке tickerLabel.textContent="🌴 СЕЙЧАС В ЭФИРЕ"; можно заменить снежинку на пальму: tickerLabel.textContent="🌴 СЕЙЧАС В ЭФИРЕ";).
+
 </style>
 </head><body>
 <header><div class="wrap nav">
@@ -2617,7 +2846,7 @@ img,video,iframe{max-width:100%}
  document.body.appendChild(layer);
  const drift=document.createElement("div");drift.id="winter-snowdrift";drift.setAttribute("aria-hidden","true");
  const ticker=document.createElement("div");ticker.id="winter-live-ticker";ticker.setAttribute("role","status");ticker.setAttribute("aria-live","polite");
- const tickerLabel=document.createElement("span");tickerLabel.className="winter-ticker-label";tickerLabel.textContent="❄ СЕЙЧАС В ЭФИРЕ";
+ const tickerLabel=document.createElement("span");tickerLabel.className="winter-ticker-label";tickerLabel.textContent="🌴 СЕЙЧАС В ЭФИРЕ";
  const tickerNames=document.createElement("span");tickerNames.className="winter-ticker-names";tickerNames.textContent="Проверяем трансляции…";
  ticker.append(tickerLabel,tickerNames);drift.appendChild(ticker);document.body.appendChild(drift);
  async function updateWinterLiveTicker(){

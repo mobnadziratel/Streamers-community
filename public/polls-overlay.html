@@ -8,6 +8,13 @@
 .choice{margin:10px 0}.choice-top{display:flex;justify-content:space-between;gap:12px;font-size:14px;font-weight:750}.track{height:9px;border-radius:99px;background:#ffffff18;overflow:hidden;margin-top:6px}.fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#9147ff,#c4a0ff);min-width:0}
 .meta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-top:13px}.empty{padding:22px;text-align:center;color:var(--muted);font-size:14px;border:1px dashed #a970ff55;border-radius:16px;background:#17132199}
 .hidden{display:none!important}
+
+/* === Integrated GTA VI / Vice City OBS theme === */
+:root{color-scheme:dark;--accent:#ff4fa3;--text:#fff5fa;--muted:#c8b2d6}
+.card{padding:18px 20px;border:1px solid rgba(255,79,163,.45);border-radius:18px;background:linear-gradient(145deg,rgba(22,12,38,.94),rgba(10,7,22,.92));box-shadow:0 10px 35px rgba(255,61,139,.22);backdrop-filter:blur(8px)}
+.kind{font-size:11px;font-weight:900;letter-spacing:.15em;color:#00e5ff;text-transform:uppercase;margin-bottom:8px}
+.fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#ff8a3d,#ff3d8b,#00e5ff);min-width:0}
+
 </style></head><body><main id="root"><div class="empty">Ожидаем активный опрос или прогноз Twitch…</div></main>
 <script>
 const channel=new URLSearchParams(location.search).get("channel")||"",root=document.getElementById("root");

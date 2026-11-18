@@ -1868,7 +1868,7 @@ html[data-theme="light"] .back-to-top { color:#252b18; background:linear-gradien
 \n/* Prevent the three brand lines from sharing a line box or overlapping. */
 .brand{align-items:center}
 .brand-wordmark{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-start!important;gap:4px!important;line-height:1.2!important;height:auto!important;min-height:0!important;overflow:visible!important}
-.brand-wordmark .brand-top,.brand-wordmark .brand-main,.brand-wordmark .brand-bottom{position:static!important;display:block!important;float:none!important;clear:both!important;line-height:1.2!important;margin:0!important;padding:0!important;transform:none!important;flex:none!important}
+.brand-wordmark .brand-top,.brand-wordmark .brand-main,.brand-wordmark .brand-bottom{position:static!important;display:block!important;float:none!important;clear:both!important;line-height:1.2!important;margin:0!important;padding:0!important;flex:none!important}
 .brand-wordmark .brand-top,.brand-wordmark .brand-bottom{font-size:.56em}
 .brand-wordmark .brand-main{font-size:1em}
 /* Animated three-line community wordmark */
@@ -2681,6 +2681,10 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;max-width:100%}
 img,video,iframe{max-width:100%}
 #winter-snowdrift{left:0!important;width:100%!important}
 @media(max-width:650px){.hero{overflow:hidden}.winter-mascot.right{right:6px}}
+#brandMainLead{display:inline-block;will-change:transform}
+.sched-line{display:block;margin-top:3px;font-size:12px;line-height:1.35;font-weight:650;color:var(--muted)}
+.stream-meta .sched-line:first-child{margin-top:0}
+@media (min-width: 651px){#wallPanel .wanted-poster-second{margin-top:30px!important;margin-right:12%!important;transform:rotate(-1.8deg)}}
 </style>
 </head>
 <body>
@@ -2777,6 +2781,13 @@ img,video,iframe{max-width:100%}
         <p class="wanted-name">cherrys_fox</p>
         <p class="wanted-reason">Воровала письки.<br>Нужна живой!</p>
         <a class="wanted-link" href="https://www.twitch.tv/cherrys_fox" target="_blank" rel="noopener noreferrer">Найти на Twitch ↗</a>
+      </div>
+      <div class="wanted-poster wanted-poster-second" aria-label="Шуточный плакат розыска pickachu2281">
+        <h2 class="wanted-title">WANTED</h2>
+        <img class="wanted-avatar" id="wantedPickAvatar" alt="Аватар pickachu2281" loading="lazy">
+        <p class="wanted-name">pickachu2281</p>
+        <p class="wanted-reason">Самый стильный пикачу эфира!<br>Заходи и подписывайся!</p>
+        <a class="wanted-link" href="https://www.twitch.tv/pickachu2281" target="_blank" rel="noopener noreferrer">Найти на Twitch ↗</a>
       </div>
       <article class="bakery-flyer" aria-label="Рекламная листовка — Пекарня: БАТОНЫ БАТОНА">
         <div class="bakery-logo" aria-label="Изображение пекарни: БАТОНЫ БАТОНА">
@@ -3220,6 +3231,8 @@ function avatarSvg(name, i) {
 }
 const wantedCherryAvatar = document.getElementById("wantedCherryAvatar");
 if (wantedCherryAvatar) wantedCherryAvatar.src = avatarSvg("cherrys_fox", 5);
+const wantedPickAvatar = document.getElementById("wantedPickAvatar");
+if (wantedPickAvatar) wantedPickAvatar.src = avatarSvg("pickachu2281", 3);
 // A shared site-icon loader: request a large favicon, retry another provider,
 // then show a recognizable fallback abbreviation if both providers fail.
 function siteIconFallback(url, label) {
@@ -3349,6 +3362,7 @@ async function loadTwitchAvatar(name, img) {
 
 // Replace the wall poster placeholder with cherrys_fox's current Twitch avatar when available.
 if (wantedCherryAvatar) loadTwitchAvatar("cherrys_fox", wantedCherryAvatar);
+if (wantedPickAvatar) loadTwitchAvatar("pickachu2281", wantedPickAvatar);
 
 function initClipStreamerPicker() {
   restoreClipFilterControls();
@@ -3939,6 +3953,51 @@ async function refreshCollaborations(force = false) {
   return collabRequestInFlight;
 }
 
+// ── «Был в эфире» и «Следующий стрим» (данные /api/schedules, обновляются раз в 10 минут) ──
+let latestSchedules = null;
+function formatAgo(iso) {
+  const t = Date.parse(iso); if (!Number.isFinite(t)) return "";
+  const minutes = Math.floor((Date.now() - t) / 60000);
+  if (minutes < 2) return "только что";
+  if (minutes < 60) return `${minutes} мин назад`;
+  const hours = Math.floor(minutes / 60); if (hours < 24) return `${hours} ч назад`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "вчера";
+  if (days < 7) return `${days} дн. назад`;
+  if (days < 30) return `${Math.floor(days / 7)} нед. назад`;
+  if (days < 365) return `${Math.floor(days / 30)} мес. назад`;
+  return "больше года назад";
+}
+function formatWhen(iso) {
+  const date = new Date(iso), now = new Date(), tomorrow = new Date(now.getTime() + 864e5);
+  const time = date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+  if (date.toDateString() === now.toDateString()) return `сегодня в ${time}`;
+  if (date.toDateString() === tomorrow.toDateString()) return `завтра в ${time}`;
+  return `${date.toLocaleDateString("ru-RU", { weekday: "short", day: "numeric", month: "short" })} в ${time}`;
+}
+function scheduleLines(name) {
+  const lines = [];
+  const entry = latestSchedules && latestSchedules[String(name).toLowerCase()];
+  const add = (icon, text, title) => { const row = document.createElement("span"); row.className = "sched-line"; row.textContent = `${icon} ${text}`; if (title) row.title = title; lines.push(row); };
+  if (!latestSchedules) return lines;
+  if (!entry) return lines;
+  if (entry.lastStreamAt) add("🕒", `Был в эфире: ${formatAgo(entry.lastStreamAt)}`, new Date(entry.lastStreamAt).toLocaleString("ru-RU"));
+  else add("🕒", "Прошлый эфир: нет данных");
+  if (entry.onVacation) add("🏖", "Сейчас в отпуске");
+  else if (entry.nextStream) add("📅", `Следующий: ${formatWhen(entry.nextStream.startTime)}${entry.nextStream.category ? " · " + entry.nextStream.category : ""}`, new Date(entry.nextStream.startTime).toLocaleString("ru-RU") + (entry.nextStream.title ? " — " + entry.nextStream.title : ""));
+  else add("📅", "Расписания нет");
+  return lines;
+}
+async function refreshSchedules() {
+  try {
+    const response = await fetch("/api/schedules");
+    if (!response.ok) throw new Error("schedules unavailable");
+    const payload = await response.json();
+    if (!payload || typeof payload.schedules !== "object") throw new Error("invalid schedules");
+    latestSchedules = payload.schedules;
+    if (latestStreamData && Object.keys(latestStreamData).length) applyLiveStatuses(latestStreamData);
+  } catch (error) { console.warn("Could not load Twitch schedules:", error); }
+}
 function applyLiveStatuses(streams) {
   streamers.forEach(({name}) => {
     const status = document.querySelector(`[data-status="${name}"]`);
@@ -3958,11 +4017,13 @@ function applyLiveStatuses(streams) {
       meta.textContent = "Не удалось проверить эфир. Данные Twitch неполные.";
     } else {
       status.textContent = "НЕ В СЕТИ";
-      meta.textContent = "";
+      meta.replaceChildren(...scheduleLines(name));
     }
   });
 }
 
+refreshSchedules();
+setInterval(refreshSchedules, 10 * 60_000);
 async function refreshLiveStatuses() {
   if (statusRequestInFlight) return statusRequestInFlight;
   // Avoid starting a request on every search keystroke or rapid tab switch.
@@ -4155,23 +4216,21 @@ function activateTab(nextTab) {
   if (reduceWordmarkMotion || !Element.prototype.animate) {
     wordmarkLines.forEach(([element, nextText]) => { element.textContent = nextText; });
   } else {
-    // Keep the layout in normal document flow; animate the real text, not fixed-position clones.
-    const changedLines = wordmarkLines.filter(([element, nextText]) => element.textContent !== nextText);
-    changedLines.forEach(([element]) => {
-      element.getAnimations().forEach(animation => animation.cancel());
-      element.style.visibility = "";
-    });
+    // FLIP: слова не «моргают», а плавно переезжают на новые места (с изменением размера и цвета).
+    const els = wordmarkLines.map(([element]) => element);
+    const before = els.map(element => { const cs = getComputedStyle(element), rect = element.getBoundingClientRect(); return { text: element.textContent, left: rect.left, top: rect.top, fs: parseFloat(cs.fontSize), color: cs.color }; });
+    els.forEach(element => element.getAnimations().forEach(animation => animation.cancel()));
     wordmarkLines.forEach(([element, nextText]) => { element.textContent = nextText; });
-    changedLines.forEach(([element], index) => {
+    wordmarkLines.forEach(([element, nextText], index) => {
+      const from = before.find(item => item.text === nextText);
+      if (!from) return;
+      const cs = getComputedStyle(element), rect = element.getBoundingClientRect(), fs = parseFloat(cs.fontSize);
+      const dx = from.left - rect.left, dy = from.top - rect.top, k = from.fs / fs;
+      if (Math.abs(dx) < .5 && Math.abs(dy) < .5 && Math.abs(k - 1) < .01) return;
       element.animate([
-        { transform: "translate3d(0, 9px, 0)", opacity: 0.72 },
-        { transform: "translate3d(0, 0, 0)", opacity: 1 }
-      ], {
-        duration: 680,
-        delay: index * 45,
-        easing: "cubic-bezier(.22, 1, .36, 1)",
-        fill: "none"
-      });
+        { transformOrigin: "0 50%", transform: `translate(${dx}px, ${dy}px) scale(${k})`, color: from.color },
+        { transformOrigin: "0 50%", transform: "translate(0, 0) scale(1)", color: cs.color }
+      ], { duration: 720, delay: index * 30, easing: "cubic-bezier(.22, 1, .36, 1)" });
     });
   }
   const heroSection = document.querySelector(".hero");
@@ -4826,5 +4885,6 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
 })();
 </script>
 
+<script src="/ticker-fit.js" defer></script>
 </body>
 </html>

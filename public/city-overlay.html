@@ -221,7 +221,7 @@ function drawPerson(p,t){
   const maxBubbleWidth=Math.min(260,width-12);
   const maxTextWidth=Math.max(12,maxBubbleWidth-padX*2);
   const spaceW=ctx.measureText(" ").width;
-  const tokenW=t=>{if(!showEmotes)return ctx.measureText(t).width;const core=stripEdge(t);if(core&&emoteCache.has(core)){const extra=t.length-core.length;return EMOTE_W+2+(extra?ctx.measureText(t.replace(core,"")).width:0)}return ctx.measureText(t).width};
+  const tokenW=t=>{if(!showEmotes)return ctx.measureText(t).width;const core=stripEdge(t);if(core&&(emoteImages.has(core)||(bubbleMode==="emotes"&&emoteCache.has(core)))){const extra=t.length-core.length;return EMOTE_W+2+(extra?ctx.measureText(t.replace(core,"")).width:0)}return ctx.measureText(t).width};
   const lines=[];let line="",lineW=0,truncated=false;
   const pushLine=()=>{lines.push(line.replace(/\s+$/,""));line="";lineW=0};
   outer:for(const t of bubbleText.split(/(\s+)/)){

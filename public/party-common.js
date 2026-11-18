@@ -51,5 +51,20 @@ window.Party = (() => {
     return artCache.get(key);
   };
   const artCanvas = (code, k, cls) => { const c = h("canvas", { class: cls || "art", width: 400, height: 400 }); paper(c); loadArt(code, k).then(st => paint(c, st)); return c; };
-  return { h, api, clock, connect, dot, PALETTE, WIDTHS, paper, segment, paint, artCanvas };
+  // Фон: слой с плавающими значками, набор зависит от режима (сцена / расследование / мастерская).
+  const GLYPHS = { quip: ["💬", "🎤", "😂", "✨", "🎭"], fib: ["❓", "🔎", "🕵️", "📎", "🗝️"], draw: ["🎨", "✏️", "🖍️", "⭐", "🌈"], none: ["✦", "✧", "❄"] };
+  let bgMode = null;
+  const bg = mode => {
+    mode = GLYPHS[mode] ? mode : "none";
+    document.body.dataset.mode = mode === "none" ? "" : mode;
+    if (bgMode === mode) return; bgMode = mode;
+    let layer = document.querySelector(".pbg"); if (!layer) { layer = h("div", { class: "pbg", "aria-hidden": "true" }); document.body.prepend(layer); }
+    layer.replaceChildren(...Array.from({ length: 16 }, (_, i) => h("span", { class: "pp", style: "left:" + (Math.random() * 96).toFixed(1) + "%;font-size:" + (18 + Math.random() * 30).toFixed(0) + "px;--d:" + (20 + Math.random() * 18).toFixed(1) + "s;--w:-" + (Math.random() * 30).toFixed(1) + "s;--r:" + (Math.random() * 120 - 60).toFixed(0) + "deg" }, GLYPHS[mode][i % GLYPHS[mode].length])));
+  };
+  const confetti = () => {
+    const box = h("div", { class: "confetti", "aria-hidden": "true" }), cols = ["#ffd43b", "#ff6b6b", "#69db7c", "#4dabf7", "#f783ac", "#9775fa"];
+    for (let i = 0; i < 70; i++) box.append(h("i", { style: "left:" + (Math.random() * 100).toFixed(1) + "%;background:" + cols[i % 6] + ";--d:" + (3.5 + Math.random() * 3).toFixed(1) + "s;--w:" + (Math.random() * 1.6).toFixed(2) + "s;--x:" + (Math.random() * 160 - 80).toFixed(0) + "px;--r:" + (360 + Math.random() * 720).toFixed(0) + "deg" }));
+    document.body.append(box); setTimeout(() => box.remove(), 9000);
+  };
+  return { h, api, clock, connect, dot, PALETTE, WIDTHS, paper, segment, paint, artCanvas, bg, confetti };
 })();

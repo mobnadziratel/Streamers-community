@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#0b1726">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
 <title>Подкол — экран ведущего</title>
+<link rel="stylesheet" href="/party-theme.css">
 <style>
 :root{color-scheme:dark;--bg:#0b1726;--line:rgba(164,218,239,.22);--text:#edf7ff;--muted:#a9bfd0;--accent:#8ce2f2;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden}
@@ -67,7 +68,7 @@ button.main{background:linear-gradient(135deg,#8ce5f3,#4daac8);color:#082032;bor
 (() => {
   const { h, api, clock, connect, dot } = Party, stage = document.getElementById("stage"), bar = document.getElementById("bar"), timer = document.getElementById("timer");
   const KEY = "party-host";
-  let session = null, view = null, stop = null;
+  let session = null, view = null, stop = null, lastKey = "";
   try { session = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (_) {}
   const save = s => { session = s; try { s ? localStorage.setItem(KEY, JSON.stringify(s)) : localStorage.removeItem(KEY); } catch (_) {} };
   const act = (route, extra) => api(route, Object.assign({ code: session.code, key: session.key }, extra || {})).catch(e => alert(e.message));
@@ -75,7 +76,7 @@ button.main{background:linear-gradient(135deg,#8ce5f3,#4daac8);color:#082032;bor
 
   let mode = "quip", rounds = 2;
   function intro(error) {
-    stop && stop(); timer.textContent = "";
+    stop && stop(); timer.textContent = ""; Party.bg(mode);
     const modes = [["quip", "🎭", "Подкол", "Отвечай на вопросы смешно — все голосуют за лучший ответ"], ["fib", "🕵️", "Враки", "Придумай ложь к настоящему факту и найди правду среди вариантов"], ["draw", "🎨", "Каракули", "Рисуй секретное задание, остальные угадывают, что это"]];
     stage.replaceChildren(...[h("div", { class: "logo" }, "🎭"), h("h1", {}, "По", h("span", {}, "дкол")), p("Игра для стрима: зрители и друзья играют с телефонов. Нужно от 3 игроков."),
       h("div", { class: "modes" }, modes.map(([id, ico, name, desc]) => h("button", { class: "mode" + (mode === id ? " on" : ""), onclick: () => { mode = id; intro(error); } }, h("span", { class: "ico" }, ico), h("b", {}, name), h("small", {}, desc)))),
@@ -88,11 +89,25 @@ button.main{background:linear-gradient(135deg,#8ce5f3,#4daac8);color:#082032;bor
     stop && stop();
     stop = connect(session.code, session.key, v => { view = v; render(); }, () => { save(null); intro("Комната закрыта или сервер перезапускался."); });
   }
-  const chips = (list, withKick) => h("div", { class: "players" }, list.map(p => h("div", { class: "chip" + (p.done ? " done" : "") }, dot(p), p.name, p.done ? h("small", {}, "✓") : null,
+  const chips = (list, withKick) => h("div", { class: "players m-" + (view ? view.mode : "quip") }, list.map(p => h("div", { class: "chip" + (p.done ? " done" : "") + (p.online === false ? " off" : ""), style: "--c:" + p.color }, dot(p), h("span", { class: "nm" }, p.name), p.done ? h("small", { class: "st" }, "ГОТОВО") : null,
     withKick ? h("button", { class: "kick", title: "Убрать игрока", onclick: () => act("kick", { id: p.id }) }, "×") : null)));
+  // Итоги выглядят по-разному: подиум (сцена), досье (расследование), рамки на стене (мастерская).
+  function board(v, list, final) {
+    const max = Math.max(1, list[0] ? list[0].score : 1);
+    if (final && v.mode === "quip" && list.length >= 2) {
+      const top = [list[1], list[0], list[2]].filter(Boolean), cls = x => "p" + (list.indexOf(x) + 1);
+      return [h("div", { class: "podium" }, top.map(x => h("div", { class: "pcol " + cls(x) }, list.indexOf(x) === 0 ? h("div", { class: "crown" }, "👑") : null, dot(x, 70), h("div", { class: "nm" }, x.name), h("div", { class: "block" }, x.score)))),
+        list.length > 3 ? h("p", {}, list.slice(3).map(x => (x.avatar || "") + " " + x.name + " — " + x.score).join("   ·   ")) : null];
+    }
+    if (v.mode === "draw") return [h("div", { class: "gallery" }, list.map((x, i) => h("div", { class: "frame" + (final && i === 0 ? " gold" : ""), style: "animation-delay:" + (i * .12) + "s" }, h("div", { class: "pic", style: "background:" + x.color }, x.avatar || "🎨"), h("div", { class: "nm" }, x.name), h("div", { class: "pt" }, x.score + " очк."))))];
+    return [h("div", { class: "bars m-" + v.mode }, list.map(x => h("div", { class: "bar" }, h("span", { class: "name" }, (x.avatar || "") + " " + x.name), h("div", { class: "track" }, h("div", { class: "fill", style: "width:0;background:" + x.color, "data-w": Math.round(x.score / max * 100) })), h("span", { class: "pts" }, x.score))))];
+  }
 
   function render() {
     const v = view, ph = v.phase;
+    Party.bg(v.mode);
+    const key = ph + ":" + v.cur + ":" + v.round + ":" + (v.fib ? v.fib.i : "") + (v.match ? v.match.i : "");
+    if (key !== lastKey) { lastKey = key; stage.classList.remove("screen-in"); void stage.offsetWidth; stage.classList.add("screen-in"); if (ph === "final") Party.confetti(); }
     timer.textContent = ""; let nodes = [], controls = [];
     if (ph === "lobby") {
       nodes = [h("p", {}, "Заходи с телефона на"), h("div", { class: "url" }, joinUrl().replace(/^https?:\/\//, "")), h("div", { class: "code" }, v.code), p0(({ fib: "🕵️ Враки", draw: "🎨 Каракули" }[v.mode] || "🎭 Подкол") + " · раундов: " + v.rounds),
@@ -131,7 +146,7 @@ button.main{background:linear-gradient(135deg,#8ce5f3,#4daac8);color:#082032;bor
       const list = v.players.slice().sort((a, b) => b.score - a.score), max = Math.max(1, list[0] ? list[0].score : 1), final = ph === "final";
       nodes = [h("h1", {}, final ? "🏆 " + (list[0] ? list[0].avatar + " " + list[0].name : "") + " побеждает!" : "Счёт после раунда " + v.round),
         final && v.cards ? h("div", { class: "awards" }, v.cards.map(c => h("span", {}, c.icon + " " + c.label + " — " + c.name))) : null,
-        h("div", { class: "bars" }, list.map(x => h("div", { class: "bar" }, h("span", { class: "name" }, (x.avatar || "") + " " + x.name), h("div", { class: "track" }, h("div", { class: "fill", style: "width:0;background:" + x.color, "data-w": Math.round(x.score / max * 100) })), h("span", { class: "pts" }, x.score))))];
+        ...board(v, list, final)];
       controls = final ? [h("button", { class: "main", onclick: () => act("restart") }, "Сыграть ещё")] : [h("button", { onclick: () => act("skip") }, "Дальше")];
       requestAnimationFrame(() => requestAnimationFrame(() => stage.querySelectorAll(".fill").forEach(f => { f.style.width = f.dataset.w + "%"; })));
     }

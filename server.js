@@ -345,6 +345,55 @@ async function helix(pathname, params) {
   }
   return response.json();
 }
+// ── Расписание Twitch и «когда был последний стрим» (кэш 10 минут) ──
+let scheduleCache = null, scheduleCacheAt = 0, scheduleInFlight = null, scheduleFailUntil = 0;
+const parseTwitchDuration = value => {
+  const m = /^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/.exec(String(value || ""));
+  return m ? (((+m[1] || 0) * 3600) + ((+m[2] || 0) * 60) + (+m[3] || 0)) * 1000 : 0;
+};
+async function fetchSchedules() {
+  const params = new URLSearchParams();
+  LOGINS.forEach(login => params.append("login", login));
+  const users = (await helix("users", params)).data || [];
+  const result = {}, queue = users.map(u => [String(u.login).toLowerCase(), u.id]);
+  const worker = async () => {
+    while (queue.length) {
+      const [login, id] = queue.shift();
+      const entry = { lastStreamAt: null, nextStream: null, onVacation: false };
+      const [videos, schedule] = await Promise.allSettled([
+        helix("videos", new URLSearchParams({ user_id: id, type: "archive", first: "1" })),
+        helix("schedule", new URLSearchParams({ broadcaster_id: id, first: "8" }))
+      ]);
+      if (videos.status === "fulfilled") {
+        const video = (videos.value.data || [])[0], started = video && Date.parse(video.created_at);
+        if (Number.isFinite(started)) entry.lastStreamAt = new Date(started + parseTwitchDuration(video.duration)).toISOString();
+      }
+      if (schedule.status === "fulfilled") {
+        const data = schedule.value.data || {}, now = Date.now();
+        const vacation = data.vacation && Date.parse(data.vacation.start_time) <= now && now < Date.parse(data.vacation.end_time);
+        entry.onVacation = Boolean(vacation);
+        const upcoming = (data.segments || []).filter(seg => !seg.canceled_until && Date.parse(seg.start_time) > now).sort((a, b) => Date.parse(a.start_time) - Date.parse(b.start_time))[0];
+        if (upcoming && !vacation) entry.nextStream = { startTime: upcoming.start_time, endTime: upcoming.end_time || null, title: upcoming.title || "", category: upcoming.category ? upcoming.category.name : "" };
+      }
+      result[login] = entry; // 404 «расписания нет» — обычная ситуация, не ошибка
+    }
+  };
+  await Promise.all(Array.from({ length: 6 }, worker));
+  return result;
+}
+async function getSchedules() {
+  if (scheduleCache && Date.now() - scheduleCacheAt < 10 * 60_000) return scheduleCache;
+  if (Date.now() < scheduleFailUntil && !scheduleCache) throw new Error("schedule temporarily unavailable");
+  if (!scheduleInFlight) {
+    scheduleInFlight = fetchSchedules().then(result => { scheduleCache = result; scheduleCacheAt = Date.now(); return result; }).catch(error => {
+      console.error("Twitch schedules refresh failed:", error.message);
+      scheduleFailUntil = Date.now() + 60_000;
+      if (scheduleCache) { scheduleCacheAt = Date.now() - 9 * 60_000; return scheduleCache; } // старые данные, повтор через минуту
+      throw error;
+    }).finally(() => { scheduleInFlight = null; });
+  }
+  return scheduleInFlight;
+}
 async function fetchFollowerCount(login) {
   const now = Date.now();
   const cached = followerCountCache.get(login);
@@ -993,6 +1042,19 @@ async function handleRequest(req, res) {
     return;
   }
 
+  if (url.pathname === "/api/schedules") {
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    try {
+      const schedules = await getSchedules();
+      res.setHeader("Cache-Control", "public, max-age=120");
+      res.writeHead(200); res.end(JSON.stringify({ updatedAt: new Date(scheduleCacheAt || Date.now()).toISOString(), schedules }));
+    } catch (error) {
+      res.setHeader("Cache-Control", "no-store");
+      res.writeHead(503); res.end(JSON.stringify({ schedules: {}, error: "unavailable" }));
+    }
+    return;
+  }
+
   if (url.pathname === "/api/collaborations") {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.setHeader("Cache-Control", "no-store");
@@ -1341,7 +1403,7 @@ async function serveStatic(req, res, filePath, options) {
   }
   const headers = { "Content-Type": MIME_TYPES[ext] || "application/octet-stream", "ETag": entry.etag, "Vary": "Accept-Encoding" };
   if (options.fonts) { headers["Cache-Control"] = "public, max-age=31536000, immutable"; headers["Access-Control-Allow-Origin"] = "*"; }
-  else if (ext === ".html" || ext === ".js") headers["Cache-Control"] = "no-cache"; // всегда сверяем ETag: после деплоя отдаётся свежая версия
+  else if (ext === ".html" || ext === ".js" || ext === ".css") headers["Cache-Control"] = "no-cache"; // всегда сверяем ETag: после деплоя отдаётся свежая версия
   else headers["Cache-Control"] = "public, max-age=86400, stale-while-revalidate=86400";
   if (req.headers["if-none-match"] === entry.etag) { res.writeHead(304, headers); res.end(); return; }
   let body = entry.buf;

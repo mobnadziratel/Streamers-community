@@ -60,7 +60,12 @@ const DRAWS = ["Кот-программист", "Робот на пляже", "�
   "Тыква на свидании", "Кактус-массажист", "Совы-детективы", "Медведь на льду", "Крокодил чистит зубы", "Чайник-путешественник", "Рыцарь против пылесоса", "Стример на необитаемом острове",
   "Корова в космосе", "Мышь-тяжелоатлет", "Улитка на гонках", "Банан-пират", "Зомби на диете", "Верблюд в аэропорту", "Кролик-фокусник", "Борщ-монстр", "Паук-программист", "Лама на концерте"];
 const DRAW_MS = Number(process.env.PARTY_DRAW_MS) || 90000;
-const AVATARS = ["🦊", "🐸", "🐙", "🦄", "🐼", "🐯", "🦉", "🐧", "🦖", "🐝", "🐳", "🦆", "🐺", "🐱", "🤖", "👾"];
+// Аватарки подбираются под режим: комики на сцене, сыщики на допросе, художники в мастерской.
+const AVATAR_SETS = {
+  quip: ["🎤", "🤡", "🎭", "😎", "🤪", "🥳", "🕺", "💃", "🦸", "🧙", "🎩", "🤓", "🥸", "😜", "🦄", "🐸"],
+  fib: ["🕵️", "🥷", "🦊", "🐍", "🦉", "🐺", "🎩", "🧛", "🦹", "🧐", "🐀", "🦅", "🦎", "🕶️", "🗝️", "🔎"],
+  draw: ["🎨", "🖌️", "🖍️", "🐙", "🦋", "🐠", "🦜", "🐝", "🌈", "🌻", "🍄", "🦖", "🐼", "🐸", "✏️", "⭐"]
+};
 const LIE_MS = Number(process.env.PARTY_LIE_MS) || 45000, PICK_MS = Number(process.env.PARTY_PICK_MS) || 25000;
 const MODES = ["quip", "fib", "draw"];
 const normText = t => String(t).toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
@@ -280,7 +285,7 @@ async function handleParty(req, res, url) {
   try {
     if (route === "room" && req.method === "GET") {
       const room = rooms.get(codeOf(url.searchParams.get("code")));
-      return room ? json(res, 200, { exists: true, phase: room.phase, players: room.players.length, open: room.phase === "lobby" && room.players.length < MAX_PLAYERS })
+      return room ? json(res, 200, { exists: true, mode: room.mode, avatars: AVATAR_SETS[room.mode], phase: room.phase, players: room.players.length, open: room.phase === "lobby" && room.players.length < MAX_PLAYERS })
                   : json(res, 404, { exists: false, error: "Комната не найдена." });
     }
     if (route === "art" && req.method === "GET") {
@@ -331,8 +336,8 @@ async function handleParty(req, res, url) {
       while (taken(unique)) unique = name.slice(0, 13) + " " + n++;
       const token = uid(16);
       if (asPlayer) {
-        const free = AVATARS.filter(a => !room.players.some(p => p.avatar === a));
-        const avatar = AVATARS.includes(body.avatar) && free.includes(body.avatar) ? body.avatar : free[crypto.randomInt(free.length)];
+        const set = AVATAR_SETS[room.mode], free = set.filter(a => !room.players.some(p => p.avatar === a));
+        const avatar = free.includes(body.avatar) ? body.avatar : free[crypto.randomInt(free.length)];
         room.players.push({ id: uid(4), token, name: unique, avatar, color: COLORS[room.players.length % COLORS.length], score: 0, online: 0, done: false, st: { votes: 0, wins: 0, truths: 0, fooled: 0, crush: 0, art: 0 } });
         push(room); return json(res, 201, { token, role: "player" });
       }

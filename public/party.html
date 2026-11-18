@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#0b1726">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
 <title>Подкол — играть с телефона</title>
+<link rel="stylesheet" href="/party-theme.css">
 <style>
 :root{color-scheme:dark;--bg:#0b1726;--panel:#122438;--line:rgba(164,218,239,.2);--text:#edf7ff;--muted:#a9bfd0;--accent:#8ce2f2;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;overflow-x:clip}
@@ -60,11 +61,21 @@ button:active{transform:scale(.97)}button:disabled{opacity:.45}
   const save = s => { session = s; try { s ? localStorage.setItem(KEY, JSON.stringify(s)) : localStorage.removeItem(KEY); } catch (_) {} };
   const prefill = new URLSearchParams(location.search).get("code") || "";
 
-  const AV = ["🦊", "🐸", "🐙", "🦄", "🐼", "🐯", "🦉", "🐧", "🦖", "🐝", "🐳", "🦆", "🐺", "🐱", "🤖", "👾"];
+  const MODE_NAMES = { quip: "🎭 Подкол", fib: "🕵️ Враки", draw: "🎨 Каракули" };
   function joinScreen(error) {
-    let avatar = localStorage.getItem("party-avatar") || AV[Math.floor(Math.random() * AV.length)];
-    const grid = h("div", { class: "avatars" }, AV.map(a => h("button", { type: "button", class: "av" + (a === avatar ? " on" : ""), "aria-label": "Аватар " + a,
+    Party.bg(null);
+    let avatar = localStorage.getItem("party-avatar") || "", avatars = [];
+    const grid = h("div", { class: "avatars" }), modeTag = h("p", { class: "hint" }, "Введи код с экрана — подберу аватарки для режима");
+    const renderGrid = () => grid.replaceChildren(...avatars.map(a => h("button", { type: "button", class: "av" + (a === avatar ? " on" : ""), "aria-label": "Аватар " + a,
       onclick: () => { avatar = a; grid.querySelectorAll(".av").forEach(b => b.classList.toggle("on", b.textContent === a)); } }, a)));
+    const loadRoom = async c => {
+      try {
+        const r = await fetch("/api/party/room?code=" + encodeURIComponent(c)); if (!r.ok) throw new Error("none");
+        const info = await r.json(); Party.bg(info.mode); avatars = info.avatars;
+        if (!avatars.includes(avatar)) avatar = avatars[Math.floor(Math.random() * avatars.length)];
+        modeTag.textContent = "Режим: " + (MODE_NAMES[info.mode] || info.mode) + (info.open ? "" : " · игра уже идёт, войдёшь зрителем"); renderGrid();
+      } catch (_) { avatars = []; Party.bg(null); grid.replaceChildren(); modeTag.textContent = "Комната с таким кодом не найдена"; }
+    };
     app.replaceChildren(h("div", { class: "hero" }, h("div", { class: "logo" }, "🎭"), h("h1", {}, "По", h("span", {}, "дкол")), p("Отвечай смешно, обманывай убедительно, голосуй честно — прямо с телефона.")),
       h("div", { class: "steps" }, h("span", {}, h("b", {}, "1"), "Код с экрана"), h("span", {}, h("b", {}, "2"), "Ник и аватар"), h("span", {}, h("b", {}, "3"), "Играй!")));
     const code = h("input", { id: "code", maxlength: 4, placeholder: "КОД", autocomplete: "off", autocapitalize: "characters", value: prefill.toUpperCase() });
@@ -74,13 +85,14 @@ button:active{transform:scale(.97)}button:disabled{opacity:.45}
     const go = h("button", { onclick: async () => {
       err.textContent = ""; go.disabled = true;
       try {
-        const c = code.value.trim().toUpperCase(); localStorage.setItem("party-name", name.value.trim()); localStorage.setItem("party-avatar", avatar);
+        const c = code.value.trim().toUpperCase(); localStorage.setItem("party-name", name.value.trim()); if (avatar) localStorage.setItem("party-avatar", avatar);
         const r = await api("join", { code: c, name: name.value, avatar, audience: aud.checked });
         save({ code: c, token: r.token }); start();
       } catch (e) { err.textContent = e.message; go.disabled = false; }
     } }, "Войти в игру");
-    app.append(h("div", { class: "card" }, code, name, p("Выбери аватар"), grid, h("label", { class: "check" }, aud, "Я зритель: только голосую"), err, go));
-    code.addEventListener("input", () => { code.value = code.value.toUpperCase().replace(/[^A-ZА-Я]/g, ""); });
+    app.append(h("div", { class: "card" }, code, name, modeTag, grid, h("label", { class: "check" }, aud, "Я зритель: только голосую"), err, go));
+    code.addEventListener("input", () => { code.value = code.value.toUpperCase().replace(/[^A-ZА-Я]/g, ""); if (code.value.length === 4) loadRoom(code.value); else { avatars = []; grid.replaceChildren(); Party.bg(null); modeTag.textContent = "Введи код с экрана — подберу аватарки для режима"; } });
+    if (code.value.length === 4) loadRoom(code.value);
   }
   const p = t => h("p", {}, t);
 
@@ -92,6 +104,7 @@ button:active{transform:scale(.97)}button:disabled{opacity:.45}
 
   function render() {
     const v = view, aud = v.role === "audience";
+    Party.bg(v.mode);
     // Пока игрок рисует, пакеты состояния не должны перестраивать экран и стирать холст.
     if (v.phase === "drawing" && !v.drawn && shown === "drawing" && document.getElementById("pad")) { if (v.deadline) clock(document.getElementById("tm")); return; }
     shown = v.phase + (v.drawn ? "+" : "");

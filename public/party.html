@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0b1726">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
-<title>Подкол — играть с телефона</title>
+<title>Играть с телефона</title>
 <link rel="stylesheet" href="/party-theme.css">
 <style>
 :root{color-scheme:dark;--bg:#0b1726;--panel:#122438;--line:rgba(164,218,239,.2);--text:#edf7ff;--muted:#a9bfd0;--accent:#8ce2f2;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -71,12 +71,20 @@ button:active{transform:scale(.97)}button:disabled{opacity:.45}
     const loadRoom = async c => {
       try {
         const r = await fetch("/api/party/room?code=" + encodeURIComponent(c)); if (!r.ok) throw new Error("none");
-        const info = await r.json(); Party.bg(info.mode); avatars = info.avatars;
+        const info = await r.json(); Party.bg(info.mode); setTitle(info.mode); avatars = info.avatars;
         if (!avatars.includes(avatar)) avatar = avatars[Math.floor(Math.random() * avatars.length)];
         modeTag.textContent = "Режим: " + (MODE_NAMES[info.mode] || info.mode) + (info.open ? "" : " · игра уже идёт, войдёшь зрителем"); renderGrid();
-      } catch (_) { avatars = []; Party.bg(null); grid.replaceChildren(); modeTag.textContent = "Комната с таким кодом не найдена"; }
+      } catch (_) { avatars = []; Party.bg(null); setTitle(null); grid.replaceChildren(); modeTag.textContent = "Комната с таким кодом не найдена"; }
     };
-    app.replaceChildren(h("div", { class: "hero" }, h("div", { class: "logo" }, "🎭"), h("h1", {}, "По", h("span", {}, "дкол")), p("Отвечай смешно, обманывай убедительно, голосуй честно — прямо с телефона.")),
+    // Название игры скрыто, пока не введён верный код: сначала нейтральный заголовок.
+    const MODE_ICONS = { quip: "🎭", fib: "🕵️", draw: "🎨" }, MODE_TITLES = { quip: "Подкол", fib: "Враки", draw: "Каракули" };
+    const MODE_TAGS = { quip: "Отвечай смешно и голосуй за лучшие ответы.", fib: "Придумывай правдоподобную ложь и ищи правду.", draw: "Рисуй задания и угадывай чужие рисунки." };
+    const logo = h("div", { class: "logo" }, "🎮"), title = h("h1", {}, "Вход в игру"), tagline = p("Введи код с экрана, чтобы присоединиться.");
+    const setTitle = mode => {
+      logo.textContent = mode ? MODE_ICONS[mode] : "🎮"; title.textContent = mode ? MODE_TITLES[mode] : "Вход в игру";
+      tagline.textContent = mode ? MODE_TAGS[mode] : "Введи код с экрана, чтобы присоединиться."; document.title = mode ? MODE_TITLES[mode] + " — играть с телефона" : "Играть с телефона";
+    };
+    app.replaceChildren(h("div", { class: "hero" }, logo, title, tagline),
       h("div", { class: "steps" }, h("span", {}, h("b", {}, "1"), "Код с экрана"), h("span", {}, h("b", {}, "2"), "Ник и аватар"), h("span", {}, h("b", {}, "3"), "Играй!")));
     const code = h("input", { id: "code", maxlength: 4, placeholder: "КОД", autocomplete: "off", autocapitalize: "characters", value: prefill.toUpperCase() });
     const name = h("input", { id: "name", maxlength: 16, placeholder: "Твой ник", autocomplete: "nickname", value: localStorage.getItem("party-name") || "" });
@@ -91,7 +99,7 @@ button:active{transform:scale(.97)}button:disabled{opacity:.45}
       } catch (e) { err.textContent = e.message; go.disabled = false; }
     } }, "Войти в игру");
     app.append(h("div", { class: "card" }, code, name, modeTag, grid, h("label", { class: "check" }, aud, "Я зритель: только голосую"), err, go));
-    code.addEventListener("input", () => { code.value = code.value.toUpperCase().replace(/[^A-ZА-Я]/g, ""); if (code.value.length === 4) loadRoom(code.value); else { avatars = []; grid.replaceChildren(); Party.bg(null); modeTag.textContent = "Введи код с экрана — подберу аватарки для режима"; } });
+    code.addEventListener("input", () => { code.value = code.value.toUpperCase().replace(/[^A-ZА-Я]/g, ""); if (code.value.length === 4) loadRoom(code.value); else { avatars = []; grid.replaceChildren(); Party.bg(null); setTitle(null); modeTag.textContent = "Введи код с экрана — подберу аватарки для режима"; } });
     if (code.value.length === 4) loadRoom(code.value);
   }
   const p = t => h("p", {}, t);

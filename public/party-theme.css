@@ -76,32 +76,3 @@ body:not([data-mode]) .pbg::after,body[data-mode=""] .pbg::after{background:radi
 .screen-in{animation:screen-in .45s ease both}
 @keyframes screen-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.pbg *,.pbg::before,.pbg::after,.chip,.pcol,.frame,.screen-in,.confetti i{animation:none!important}.confetti{display:none}}
-
-
-/* === GTA VI / Vice City additions === */
-/* «Подкол» — тема GTA VI / Vice City */
-:root{--bgA:#090612;--bgB:#3d153b;--glow:#ff4fa3}
-body[data-mode="quip"]{--bgA:#12071f;--bgB:#6b1d4f;--glow:#ff8a3d}
-body[data-mode="fib"]{--bgA:#06101e;--bgB:#0d4b6e;--glow:#00e5ff}
-body[data-mode="draw"]{--bgA:#140924;--bgB:#4c1d73;--glow:#ff4fa3}
-body{background:radial-gradient(ellipse at 50% -12%,var(--bgB),transparent 58%),var(--bgA)!important;transition:background .8s}
-
-/* ───── фоновый слой ───── */
-.pbg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
-.pbg::before,.pbg::after{content:"";position:absolute;inset:0}
-.pbg .pp{position:absolute;bottom:-12vh;opacity:.0;animation:pbg-rise var(--d,24s) linear infinite;animation-delay:var(--w,0s);filter:saturate(1.1)}
-@keyframes pbg-rise{0%{transform:translateY(0) rotate(0);opacity:0}10%{opacity:.22}85%{opacity:.18}100%{transform:translateY(-118vh) rotate(var(--r,40deg));opacity:0}}
-
-/* сцена: неоновые прожекторы Ocean Drive */
-body[data-mode="quip"] .pbg::before{background:conic-gradient(from 198deg at 18% -12%,transparent 0 38deg,rgba(255,138,61,.24) 48deg,transparent 60deg),conic-gradient(from 162deg at 82% -12%,transparent 0 38deg,rgba(255,61,139,.22) 48deg,transparent 60deg);animation:pbg-sway 9s ease-in-out infinite alternate}
-body[data-mode="quip"] .pbg::after{background:radial-gradient(ellipse at 50% 112%,rgba(255,79,163,.32),transparent 52%)}
-@keyframes pbg-sway{from{transform:rotate(-2.5deg) scale(1.05)}to{transform:rotate(2.5deg) scale(1.05)}}
-
-/* расследование: полицейский сканер Vice City */
-body[data-mode="fib"] .pbg::before{background-image:linear-gradient(rgba(0,229,255,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.09) 1px,transparent 1px);background-size:52px 52px;-webkit-mask-image:radial-gradient(ellipse at 50% 40%,#000 25%,transparent 78%);mask-image:radial-gradient(ellipse at 50% 40%,#000 25%,transparent 78%)}
-body[data-mode="fib"] .pbg::after{background:linear-gradient(180deg,transparent,rgba(0,229,255,.15),transparent);height:22vh;inset:auto 0 auto 0;top:-24vh;animation:pbg-scan 7s linear infinite}
-@keyframes pbg-scan{to{transform:translateY(130vh)}}
-
-/* мастерская: граффити Wynwood */
-body[data-mode="draw"] .pbg::before{background:radial-gradient(circle,rgba(255,79,163,.16) 1.6px,transparent 2.2px) 0 0/30px 30px}
-body[data-mode="draw"] .pbg::after{background:radial-gradient(circle at 14% 78%,rgba(255,138,61,.22),transparent 36%),radial-gradient(circle at 86% 24%,rgba(0,229,255,.2),transparent 38%)}

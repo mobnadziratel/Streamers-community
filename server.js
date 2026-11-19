@@ -1425,7 +1425,7 @@ async function handleRequest(req, res) {
     return serveStatic(req, res, fontPath, { fonts: true });
   }
 
-  const pageRoutes = { "": "index.html", "music-dock": "music-dock.html", "jack": "jack.html", "widgets": "widgets.html", "party": "party.html", "party/host": "party-host.html" };
+  const pageRoutes = { "": "index.html", "music-dock": "music-dock.html", "jack": "jack.html", "widgets": "widgets.html", "party": "party.html", "party/host": "party-host.html", "ad": "ad/index.html", "ad/widget": "ad/widget/index.html" };
   const trimmedPath = decodedPath.replace(/\/+$/, "");
   const requested = Object.prototype.hasOwnProperty.call(pageRoutes, trimmedPath) ? pageRoutes[trimmedPath] : decodedPath;
   const filePath = path.resolve(PUBLIC_DIR, requested);

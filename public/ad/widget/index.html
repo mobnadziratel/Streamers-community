@@ -33,7 +33,8 @@ body.hide-name #copy{gap:4px}
 const params=new URLSearchParams(location.search);
 const names=[
 {name:"brill1antt",description:"18,5cm (яйца). По вопросам рекламы и предложениям: brilliantt300@gmail.com.",url:"https://www.twitch.tv/brill1antt"},
-{name:"mob_nadziratel",description:"Создатель Стримерского комьюнити. Стримы, игры и общение с сообществом.",url:"https://www.twitch.tv/mob_nadziratel"}
+{name:"mob_nadziratel",description:"Создатель Стримерского комьюнити. Стримы, игры и общение с сообществом.",url:"https://www.twitch.tv/mob_nadziratel"},
+{name:"Низина Твича",description:"Telegram-канал Низины Твича — подписывайся на сообщество и следи за новостями.",url:"https://t.me/Ntwich",image:"/lowlands-logo.png",cta:"Открыть Telegram ↗"}
 ];
 const body=document.body;
 if(params.get("bg")==="0"||params.get("transparent")==="1")body.classList.add("transparent");
@@ -49,10 +50,12 @@ async function show(next){
  const item=names[index];
  banner.style.opacity="0";
  await new Promise(resolve=>setTimeout(resolve,220));
- banner.href=item.url;name.textContent=item.name;description.textContent=item.description;
- avatar.alt="Аватар "+item.name;
+ banner.href=item.url;name.textContent=item.name;description.textContent=item.description;document.getElementById("cta").textContent=item.cta||"Открыть Twitch ↗";
+ avatar.alt=(item.image?"Логотип ":"Аватар ")+item.name;
+ if(item.image){avatar.src=item.image;}else{
  avatar.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" rx="22" fill="#33264d"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="48" font-weight="bold" fill="#fff">'+item.name.slice(0,2).toUpperCase()+'</text></svg>');
  try{const response=await fetch("/api/avatar?login="+encodeURIComponent(item.name),{cache:"no-store"});if(response.ok){const data=await response.json();if(data.avatarUrl&&/^https:\/\//i.test(data.avatarUrl))avatar.src=data.avatarUrl;}}catch(_){}
+ }
  banner.style.opacity="1";
 }
 show(0);

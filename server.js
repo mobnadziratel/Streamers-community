@@ -106,70 +106,53 @@ async function getTwitchDiagnostics() {
   twitchDiagnosticsInFlight = (async () => {
     const report = {
       checkedAt: new Date().toISOString(),
-      environment: {
-        clientIdConfigured: Boolean(CLIENT_ID),
-        clientSecretConfigured: Boolean(CLIENT_SECRET)
-      },
+      configuredChannels: LOGINS.length,
       authentication: { ok: false },
-      userLookup: { ok: false, found: false },
-      streamByLogin: { ok: false, isLive: false },
-      streamByUserId: { ok: false, isLive: false }
+      lookup: { ok: false, resolved: 0, missing: [], live: 0, offline: 0 },
+      channels: {}
     };
     if (!CLIENT_ID || !CLIENT_SECRET) {
-      report.authentication.error = "Missing TWITCH_CLIENT_ID or TWITCH_CLIENT_SECRET in Render Environment.";
+      report.authentication.error = "Missing TWITCH_CLIENT_ID or TWITCH_CLIENT_SECRET in the Netrun environment.";
       return report;
     }
-    let accessToken;
     try {
-      accessToken = await getAppToken();
+      await getAppToken();
       report.authentication = { ok: true };
-    } catch (error) {
-      report.authentication = { ok: false, error: error.message };
-      return report;
-    }
-
-    async function queryHelix(endpoint, params) {
-      try {
-        const response = await fetch(`https://api.twitch.tv/helix/${endpoint}?${params}`, {
-          headers: { "Client-Id": CLIENT_ID, "Authorization": `Bearer ${accessToken}` },
-          signal: AbortSignal.timeout(8000)
-        });
-        if (!response.ok) return { ok: false, status: response.status };
-        return { ok: true, data: await response.json() };
-      } catch (error) {
-        return { ok: false, error: error.name === "TimeoutError" ? "Request timed out" : error.message };
+      const userParams = new URLSearchParams();
+      for (const login of LOGINS) userParams.append("login", login);
+      const usersPayload = await helix("users", userParams);
+      if (!usersPayload || !Array.isArray(usersPayload.data)) throw new Error("Twitch users response has an invalid format.");
+      const usersByLogin = new Map(usersPayload.data.map(user => [String(user.login || "").toLowerCase(), user]));
+      const missing = LOGINS.filter(login => !usersByLogin.has(login));
+      const resolvedUsers = LOGINS.map(login => usersByLogin.get(login)).filter(Boolean);
+      const streamParams = new URLSearchParams();
+      for (const user of resolvedUsers) streamParams.append("user_id", String(user.id));
+      const streamsPayload = resolvedUsers.length ? await helix("streams", streamParams) : { data: [] };
+      if (!streamsPayload || !Array.isArray(streamsPayload.data)) throw new Error("Twitch streams response has an invalid format.");
+      const liveById = new Map(streamsPayload.data.map(stream => [String(stream.user_id), stream]));
+      report.lookup.ok = true;
+      report.lookup.resolved = resolvedUsers.length;
+      report.lookup.missing = missing;
+      for (const login of LOGINS) {
+        const user = usersByLogin.get(login);
+        if (!user) {
+          report.channels[login] = { exists: false, status: "not_found" };
+          continue;
+        }
+        const stream = liveById.get(String(user.id));
+        report.channels[login] = {
+          exists: true,
+          userId: String(user.id),
+          canonicalLogin: String(user.login || login),
+          isLive: Boolean(stream),
+          viewerCount: stream ? Number(stream.viewer_count || 0) : null
+        };
+        if (stream) report.lookup.live++;
+        else report.lookup.offline++;
       }
-    }
-
-    const userResult = await queryHelix("users", new URLSearchParams({ login: "z3kat" }));
-    report.userLookup.ok = userResult.ok;
-    if (!userResult.ok) {
-      Object.assign(report.userLookup, { status: userResult.status, error: userResult.error });
-      return report;
-    }
-    const user = (userResult.data.data || [])[0];
-    report.userLookup.found = Boolean(user);
-    if (!user) return report;
-    report.userLookup.login = user.login;
-    report.userLookup.displayName = user.display_name;
-    report.userLookup.userId = user.id;
-
-    const byLogin = await queryHelix("streams", new URLSearchParams({ user_login: String(user.login || "z3kat").toLowerCase() }));
-    report.streamByLogin.ok = byLogin.ok;
-    if (!byLogin.ok) Object.assign(report.streamByLogin, { status: byLogin.status, error: byLogin.error });
-    else {
-      const stream = (byLogin.data.data || [])[0];
-      report.streamByLogin.isLive = Boolean(stream);
-      if (stream) Object.assign(report.streamByLogin, { title: stream.title, viewerCount: Number(stream.viewer_count || 0) });
-    }
-
-    const byId = await queryHelix("streams", new URLSearchParams({ user_id: String(user.id) }));
-    report.streamByUserId.ok = byId.ok;
-    if (!byId.ok) Object.assign(report.streamByUserId, { status: byId.status, error: byId.error });
-    else {
-      const stream = (byId.data.data || [])[0];
-      report.streamByUserId.isLive = Boolean(stream);
-      if (stream) Object.assign(report.streamByUserId, { title: stream.title, viewerCount: Number(stream.viewer_count || 0) });
+    } catch (error) {
+      report.lookup.error = error.message;
+      if (/token|401/i.test(error.message)) report.authentication = { ok: false, error: error.message };
     }
     return report;
   })().then(report => {
@@ -202,101 +185,49 @@ async function getAppToken() {
 
 async function fetchStreams() {
   if (!CLIENT_ID || !CLIENT_SECRET) {
-    throw new Error("Set TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET in the environment.");
+    throw new Error("Set TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET in the Netrun environment.");
   }
-  const accessToken = await getAppToken();
-  // Helix accepts up to 100 user_login parameters per request.
-  const batches = [];
-  for (let i = 0; i < LOGINS.length; i += 100) batches.push(LOGINS.slice(i, i + 100));
-  const payloads = await Promise.all(batches.map(async batch => {
+
+  // First resolve every configured login. Helix /streams omits offline users,
+  // so the users lookup is required to distinguish offline from deleted/renamed accounts.
+  const userParams = new URLSearchParams();
+  for (const login of LOGINS) userParams.append("login", login);
+  const usersPayload = await helix("users", userParams);
+  if (!usersPayload || !Array.isArray(usersPayload.data)) {
+    throw new Error("Twitch users returned an unexpected response format.");
+  }
+
+  const usersByLogin = new Map(usersPayload.data.map(user => [String(user.login || "").toLowerCase(), user]));
+  const result = {};
+  for (const login of LOGINS) {
+    result[login] = usersByLogin.has(login)
+      ? { isLive: false, viewerCount: null, title: null, userId: String(usersByLogin.get(login).id) }
+      : { isLive: false, viewerCount: null, title: null, error: "channel_not_found" };
+  }
+
+  const users = LOGINS.map(login => usersByLogin.get(login)).filter(Boolean);
+  const streams = [];
+  for (let i = 0; i < users.length; i += 100) {
     const params = new URLSearchParams();
-    batch.forEach(login => params.append("user_login", login));
-    const response = await fetch(`https://api.twitch.tv/helix/streams?${params}`, {
-      headers: { "Client-Id": CLIENT_ID, "Authorization": `Bearer ${accessToken}` },
-      signal: AbortSignal.timeout(12000)
-    });
-    if (!response.ok) {
-      if (response.status === 401) { token = null; tokenExpiresAt = 0; }
-      throw new Error(`Twitch streams request failed (${response.status})`);
-    }
-    const payload = await response.json();
+    for (const user of users.slice(i, i + 100)) params.append("user_id", String(user.id));
+    const payload = await helix("streams", params);
     if (!payload || !Array.isArray(payload.data)) {
       throw new Error("Twitch streams returned an unexpected response format.");
     }
-    return payload.data;
-  }));
-  const liveStreams = payloads.flat();
-  const result = {};
-  LOGINS.forEach(login => {
-    result[login] = { isLive: false, viewerCount: null, title: null };
-  });
-  liveStreams.forEach(stream => {
-    const login = String(stream.user_login || "").toLowerCase();
-    if (result[login]) {
-      result[login] = {
-        isLive: true,
-        viewerCount: Number(stream.viewer_count || 0),
-        title: String(stream.title || ""),
-        startedAt: String(stream.started_at || "")
-      };
-    }
-  });
+    streams.push(...payload.data);
+  }
 
-  // Focused fallback for Z3KAT. Resolve the canonical Twitch user first, then
-  // verify the stream by both login and stable user ID. A missing stream entry
-  // in Helix means offline; a failed lookup is logged and never treated as proof.
-  if (!result.z3kat?.isLive) {
-    try {
-      const userParams = new URLSearchParams({ login: "z3kat" });
-      const userResponse = await fetch(`https://api.twitch.tv/helix/users?${userParams}`, {
-        headers: { "Client-Id": CLIENT_ID, "Authorization": `Bearer ${accessToken}` },
-        signal: AbortSignal.timeout(8000)
-      });
-      if (!userResponse.ok) throw new Error(`users lookup HTTP ${userResponse.status}`);
-      const userData = await userResponse.json();
-      const twitchUser = (userData.data || [])[0];
-
-      if (!twitchUser) {
-        console.warn("Twitch users lookup did not resolve login z3kat; check whether the channel username changed.");
-      } else {
-        const canonicalLogin = String(twitchUser.login || "z3kat").toLowerCase();
-        const singleQueries = [
-          { label: "login", params: new URLSearchParams({ user_login: canonicalLogin }) },
-          { label: "user_id", params: new URLSearchParams({ user_id: String(twitchUser.id) }) }
-        ];
-        for (const query of singleQueries) {
-          const singleResponse = await fetch(`https://api.twitch.tv/helix/streams?${query.params}`, {
-            headers: { "Client-Id": CLIENT_ID, "Authorization": `Bearer ${accessToken}` },
-            signal: AbortSignal.timeout(8000)
-          });
-          if (!singleResponse.ok) {
-            console.error(`Focused Z3KAT ${query.label} lookup failed (HTTP ${singleResponse.status})`);
-            continue;
-          }
-          const singleData = await singleResponse.json();
-          const stream = (singleData.data || []).find(item =>
-            String(item.user_id || "") === String(twitchUser.id) ||
-            String(item.user_login || "").toLowerCase() === canonicalLogin
-          );
-          if (stream) {
-            result.z3kat = {
-              isLive: true,
-              viewerCount: Number(stream.viewer_count || 0),
-              title: String(stream.title || ""),
-              startedAt: String(stream.started_at || ""),
-              userLogin: canonicalLogin
-            };
-            break;
-          }
-        }
-        if (!result.z3kat?.isLive) {
-          console.info(`Twitch confirms no live stream for Z3KAT (${canonicalLogin}, user id ${twitchUser.id}) at ${new Date().toISOString()}.`);
-        }
-      }
-    } catch (error) {
-      // Do not silently assume that a failed fallback means the channel is offline.
-      console.error(`Focused Z3KAT status lookup failed: ${error.message}`);
-    }
+  const loginById = new Map(users.map(user => [String(user.id), String(user.login || "").toLowerCase()]));
+  for (const stream of streams) {
+    const login = loginById.get(String(stream.user_id));
+    if (!login || !result[login]) continue;
+    result[login] = {
+      isLive: true,
+      viewerCount: Number(stream.viewer_count || 0),
+      title: String(stream.title || ""),
+      startedAt: String(stream.started_at || ""),
+      userId: String(stream.user_id)
+    };
   }
 
   cachedStreams = result;
@@ -367,7 +298,7 @@ const avatarCache = new Map();
 const followerCountCache = new Map();
 const followerCountInFlight = new Map();
 async function helix(pathname, params) {
-  if (!CLIENT_ID || !CLIENT_SECRET) throw new Error("Set TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET in Render environment.");
+  if (!CLIENT_ID || !CLIENT_SECRET) throw new Error("Set TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET in Netrun environment.");
   const accessToken = await getAppToken();
   const response = await fetch(`https://api.twitch.tv/helix/${pathname}?${params.toString()}`, {
     headers: { "Client-Id": CLIENT_ID, "Authorization": `Bearer ${accessToken}` },
@@ -435,25 +366,39 @@ async function fetchFollowerCount(login) {
   if (followerCountInFlight.has(login)) return followerCountInFlight.get(login);
 
   const request = (async () => {
-    const response = await fetch(`https://decapi.me/twitch/followcount/${encodeURIComponent(login)}`, {
-      headers: { "Accept": "text/plain", "User-Agent": "SmallStreamersDirectory/1.0" },
-      signal: AbortSignal.timeout(8000)
-    });
-    const raw = (await response.text()).trim();
-    // DecAPI returns the public follower total as plain text. Reject error messages rather than displaying them as counts.
-    const normalized = raw.replace(/[\s,]/g, "");
-    if (!response.ok || !/^\d+$/.test(normalized)) {
-      throw new Error(`Follower count provider returned an invalid response (${response.status})`);
+    try {
+      // DecAPI is currently the public source used by the directory. Twitch's
+      // official follower-list endpoint requires a broadcaster/moderator user
+      // token, which this public multi-channel directory does not possess.
+      const response = await fetch(`https://decapi.me/twitch/followcount/${encodeURIComponent(login)}`, {
+        headers: { "Accept": "text/plain", "User-Agent": "StreamersCommunity/1.0" },
+        signal: AbortSignal.timeout(8000)
+      });
+      const raw = (await response.text()).trim();
+      const normalized = raw.replace(/[\\s,]/g, "");
+      if (!response.ok || !/^\\d+$/.test(normalized)) {
+        throw new Error(`Follower count provider returned an invalid response (${response.status})`);
+      }
+      const total = Number(normalized);
+      if (!Number.isSafeInteger(total) || total < 0) throw new Error("Follower count is outside the supported numeric range.");
+      const result = { login, total, source: "DecAPI", stale: false, updatedAt: new Date().toISOString() };
+      followerCountCache.set(login, { result, fetchedAt: Date.now() });
+      return result;
+    } catch (error) {
+      // Retain the last good value for one day during third-party outages.
+      // The UI can display it as stale instead of losing the count entirely.
+      const previous = followerCountCache.get(login);
+      if (previous && now - previous.fetchedAt < 24 * 60 * 60_000) {
+        return { ...previous.result, stale: true, warning: "Показано последнее сохранённое значение." };
+      }
+      throw error;
     }
-    const total = Number(normalized);
-    const result = { login, total, updatedAt: new Date().toISOString() };
-    followerCountCache.set(login, { result, fetchedAt: Date.now() });
-    return result;
   })().finally(() => followerCountInFlight.delete(login));
 
   followerCountInFlight.set(login, request);
   return request;
 }
+
 async function fetchClips(period) {
   const now = Date.now();
   const cacheKey = period;

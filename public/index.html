@@ -4739,8 +4739,8 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
 // Community suggestions: all untrusted content is inserted with textContent, never as HTML.
 (function initCommunitySuggestions(){
   const form=document.getElementById("communitySuggestionForm");
-  if(!form)return;
   const byId=id=>document.getElementById(id);
+  if(form){
   const kind=byId("suggestionKind"), streamerFields=byId("suggestionStreamerFields"), wallFields=byId("suggestionWallFields");
   const imageInput=byId("suggestionImage"), imagePreview=byId("suggestionImagePreview");
   let selectedImage="";
@@ -4787,6 +4787,7 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
     finally{button.disabled=false;}
   });
 
+  }
   function makeText(tag,text,className){const el=document.createElement(tag);if(className)el.className=className;el.textContent=text||"";return el;}
   async function loadApproved(){
     const wallFeed=byId("communityWallFeed");

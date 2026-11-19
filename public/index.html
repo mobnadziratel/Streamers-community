@@ -1879,6 +1879,10 @@ html[data-theme="light"] .back-to-top { color:#252b18; background:linear-gradien
 /* Move the WANTED poster lower on the desktop mural without changing the compact mobile layout. */
 @media (min-width: 651px) { #wallPanel .wanted-poster { margin-top: 120px; } }
 
+
+/* Streamer promo carousel */
+.promotions-panel{max-width:920px;margin:30px auto 70px}.promotions-intro{margin:0 0 18px}.promotions-intro h2{margin:0 0 7px;font-size:clamp(22px,3vw,30px);color:var(--text)}.promotions-intro p{margin:0;color:var(--muted)}.promo-stage{min-height:150px}.promo-banner{position:relative;display:flex;align-items:center;gap:20px;min-height:150px;padding:22px 58px 22px 22px;border:1px solid var(--border);border-radius:22px;background:linear-gradient(115deg,rgba(169,139,255,.18),rgba(25,19,39,.96) 58%,rgba(50,37,75,.7));box-shadow:0 14px 38px rgba(0,0,0,.18);color:var(--text);text-decoration:none;overflow:hidden;animation:promo-in .45s ease both}.promo-banner:focus-visible{outline:3px solid var(--accent);outline-offset:4px}.promo-avatar{width:104px;height:104px;flex:0 0 104px;border-radius:22px;object-fit:cover;border:2px solid rgba(207,185,255,.45);box-shadow:0 5px 20px #0004;background:var(--panel)}.promo-copy{display:flex;flex-direction:column;gap:7px;min-width:0}.promo-copy strong{font-size:clamp(20px,3vw,27px);font-weight:900;letter-spacing:-.5px}.promo-copy>span:not(.promo-cta){color:var(--muted);font-size:14px;line-height:1.5}.promo-cta{font-size:12px;font-weight:850;color:var(--accent)}.promo-counter{position:absolute;right:17px;top:16px;color:var(--muted);font-size:11px;font-weight:800}.promo-dots{display:flex;justify-content:center;gap:9px;padding:15px}.promo-dot{width:9px;height:9px;padding:0;border:0;border-radius:50%;background:var(--muted);opacity:.45;cursor:pointer}.promo-dot.is-active{width:25px;border-radius:9px;background:var(--accent);opacity:1}@keyframes promo-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@media(max-width:600px){.promotions-panel{margin:22px auto 50px}.promo-banner{gap:13px;min-height:120px;padding:16px 40px 16px 15px;border-radius:17px}.promo-avatar{width:76px;height:76px;flex-basis:76px;border-radius:17px}.promo-copy>span:not(.promo-cta){font-size:12px}.promo-counter{right:11px;top:11px}}
+
 /* ===== STREAMERS COMMUNITY — visual refresh 2026 ===== */
 :root{
  --bg:#090711;--panel:#151120;--panel2:#1d172b;--text:#f7f3ff;--muted:#aaa0bc;
@@ -2727,7 +2731,7 @@ img,video,iframe{max-width:100%}
     <button class="tab-button" id="moderatorsTab" role="tab" aria-selected="false" type="button">МОДЕРАТОРЫ</button>
     <button class="tab-button" id="clipsTab" role="tab" aria-selected="false" type="button">КЛИПЫ</button>
     <button class="tab-button" id="wallTab" role="tab" aria-selected="false" aria-controls="wallPanel" type="button">СТЕНА</button>
-    <button class="tab-button" id="suggestionsTab" role="tab" aria-selected="false" aria-controls="suggestionsPanel" type="button">ПРЕДЛОЖКА</button>
+    <button class="tab-button" id="promotionsTab" role="tab" aria-selected="false" aria-controls="promotionsPanel" type="button">РЕКЛАМА</button>
   </div>
   <section id="streamersPanel" aria-label="Список стримеров">
     <div class="toolbar">
@@ -2852,75 +2856,15 @@ LEGENDS</div>
     </div>
     <p class="wall-contact-note">Хотите что-то добавить? Пишите <a href="https://t.me/MNIVPI" target="_blank" rel="noopener noreferrer">@MNIVPI</a> в ТГ!</p>
   </section>
-
-  <section id="suggestionsPanel" class="community-submission-area" aria-label="Предложка" hidden>
-    <div class="suggest-intro">
-      <h2>Что хочешь предложить?</h2>
-      <p class="wall-muted">Выбери категорию и заполни форму. Стримеры, модераторы и публикации на стену появляются на сайте после одобрения модератором и остаются там. Идеи по улучшению видят только модераторы.</p>
-    </div>
-    <div class="suggest-cats" role="radiogroup" aria-label="Категория предложения">
-      <button type="button" class="suggest-cat is-active" data-kind="streamer" role="radio" aria-checked="true"><span class="ico" aria-hidden="true">🎙</span><b>Стример на сайт</b><small>Канал появится в списке стримеров</small></button>
-      <button type="button" class="suggest-cat" data-kind="moderator" role="radio" aria-checked="false"><span class="ico" aria-hidden="true">🛡</span><b>Модератор на сайт</b><small>Появится во вкладке «Модераторы»</small></button>
-      <button type="button" class="suggest-cat" data-kind="wall" role="radio" aria-checked="false"><span class="ico" aria-hidden="true">🧱</span><b>Публикация на стену</b><small>Картинка и/или текст для стены</small></button>
-      <button type="button" class="suggest-cat" data-kind="site" role="radio" aria-checked="false"><span class="ico" aria-hidden="true">💡</span><b>Предложение по улучшению</b><small>Идея для сайта — прочитают модераторы</small></button>
-    </div>
-    <form id="communitySuggestionForm" class="wall-submit-card suggest-form" autocomplete="off">
-      <select id="suggestionKind" hidden aria-hidden="true" tabindex="-1">
-        <option value="streamer" selected>Стример на сайт</option><option value="moderator">Модератор на сайт</option><option value="wall">Публикация на стену</option><option value="site">Предложение по улучшению</option>
-      </select>
-      <label for="suggestionNickname">Твой ник</label>
-      <input id="suggestionNickname" type="text" maxlength="32" minlength="2" required autocomplete="nickname" placeholder="Как к тебе обращаться">
-      <div id="suggestionStreamerFields">
-        <label for="suggestionTwitch">Twitch-канал (ссылка или ник)</label>
-        <input id="suggestionTwitch" type="text" maxlength="300" required placeholder="twitch.tv/nickname или просто nickname">
-        <label for="suggestionStreamerText">Пара слов о стримере (необязательно)</label>
-        <textarea id="suggestionStreamerText" rows="3" maxlength="1200" placeholder="Чем занимается, во что играет…"></textarea>
-      </div>
-      <div id="suggestionModeratorFields" hidden>
-        <label for="suggestionModeratorName">Ник модератора</label>
-        <input id="suggestionModeratorName" type="text" maxlength="32" placeholder="Ник человека, которого предлагаешь">
-        <label for="suggestionModeratorOf">Где он модератор (Twitch-ники каналов через запятую)</label>
-        <input id="suggestionModeratorOf" type="text" maxlength="300" placeholder="например: d1unizi, charakoi">
-      </div>
-      <div id="suggestionWallFields" hidden>
-        <label for="suggestionWallText">Текст публикации</label>
-        <textarea id="suggestionWallText" rows="4" maxlength="1200" placeholder="Подпись, мем, шутка…"></textarea>
-        <label for="suggestionImage">Картинка (JPG, PNG, WEBP или GIF до 2 МБ)</label>
-        <input id="suggestionImage" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
-        <img id="suggestionImagePreview" alt="Предпросмотр картинки" hidden>
-      </div>
-      <div id="suggestionSiteFields" hidden>
-        <label for="suggestionSiteText">Что стоит улучшить или добавить?</label>
-        <textarea id="suggestionSiteText" rows="5" maxlength="1200" placeholder="Опиши идею как можно подробнее"></textarea>
-      </div>
-      <button class="wall-action-button" type="submit">Отправить на модерацию</button>
-      <p id="suggestionFormMessage" class="wall-muted suggestion-message" role="status" aria-live="polite"></p>
-    </form>
-    <details class="wall-moderator-login" id="wallModeratorDetails">
-      <summary>Вход для модераторов</summary>
-      <div class="wall-moderator-login-inner">
-        <form id="communityModeratorLogin" autocomplete="on">
-          <h2>Панель модератора</h2>
-          <p class="wall-muted">Логин и пароль выдаёт владелец сайта.</p>
-          <label for="moderatorUsername">Логин</label>
-          <input id="moderatorUsername" type="text" autocomplete="username" required>
-          <label for="moderatorPassword">Пароль</label>
-          <input id="moderatorPassword" type="password" autocomplete="current-password" required>
-          <button class="wall-action-button" type="submit">Войти</button>
-        </form>
-        <div id="communityModeratorPanel" hidden>
-          <p id="moderatorSessionLabel" class="wall-muted"></p>
-          <p id="moderatorSummary" class="wall-muted"></p>
-          <div class="community-pending-actions">
-            <button class="wall-action-button secondary" id="communityModeratorRefresh" type="button">Обновить список</button>
-            <button class="wall-action-button secondary" id="communityModeratorLogout" type="button">Выйти</button>
-          </div>
-          <div id="communityPendingList" class="community-pending-list"></div>
-        </div>
-        <p id="moderatorFormMessage" class="wall-muted" role="status" aria-live="polite"></p>
-      </div>
-    </details>
+  <section id="promotionsPanel" class="promotions-panel" aria-label="Рекламные баннеры стримеров" hidden>
+    <div class="promotions-intro"><h2>Стримеры сообщества</h2><p>Небольшие рекламные карточки участников — баннеры сменяются автоматически.</p></div>
+    <div class="promo-stage" aria-live="polite"><a class="promo-banner" id="promoBanner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer">
+      <img class="promo-avatar" id="promoAvatar" alt="Аватар стримера" src=""><span class="promo-copy"><strong id="promoName">brill1antt</strong><span id="promoDescription">Стример сообщества</span><span class="promo-cta">Открыть Twitch ↗</span></span><span class="promo-counter" id="promoCounter">1 / 2</span></a></div>
+    <div class="promo-dots" id="promoDots" aria-label="Выбор рекламного баннера"><button type="button" class="promo-dot is-active" data-promo-index="0" aria-label="Баннер brill1antt"></button><button type="button" class="promo-dot" data-promo-index="1" aria-label="Баннер mob_nadziratel"></button></div>
   </section>
+
+
+
 
 </main>
 <footer class="wrap"><span>Открывай каналы и поддерживай стримеров на Twitch ✦</span></footer>
@@ -3030,7 +2974,7 @@ const streamers = [
     {label:"DonationAlerts", url:"https://www.donationalerts.com/r/alicefagg"},
     {label:"YouTube", url:"https://youtube.com/channel/UCfSM0eArqWK9FiOo8uNngJA?si=0nn4LoEPSSrXrwzG"}
    ]},
-  {name:"mob_nadziratel", url:"https://www.twitch.tv/mob_nadziratel", group:"creator",
+  {name:"mob_nadziratel", url:"https://www.twitch.tv/mob_nadziratel", group:"creator", description:"Создатель Стримерского комьюнити. Стримы, игры и общение с сообществом.",
    links:[
     {label:"MemeAlerts", url:"https://memealerts.com/mob_nadziratel"},
     {label:"Steam", url:"https://steamcommunity.com/profiles/76561199570716875"},
@@ -3312,7 +3256,7 @@ const editors = [
 let activeTab = "streamers";
 try {
   const savedTab = sessionStorage.getItem("small-streamers-active-tab");
-  if (["streamers", "moderators", "clips", "wall", "suggestions"].includes(savedTab)) activeTab = savedTab;
+  if (["streamers", "moderators", "clips", "wall", "promotions"].includes(savedTab)) activeTab = savedTab;
 } catch (_) {}
 (function startAtTopOnReload() {
   let isReload = false;
@@ -3511,6 +3455,13 @@ async function loadTwitchAvatar(name, img) {
     // The generated SVG placeholder remains visible if Twitch or the server is unavailable.
   }
 }
+
+
+const streamerPromotions=[{name:"brill1antt",url:"https://www.twitch.tv/brill1antt",description:"18,5cm (яйца). По вопросам рекламы и предложениям: brilliantt300@gmail.com.",index:0},{name:"mob_nadziratel",url:"https://www.twitch.tv/mob_nadziratel",description:"Создатель Стримерского комьюнити. Стримы, игры и общение с сообществом.",index:1}];
+let activePromotion=0,promoRotationTimer=null;
+function showStreamerPromotion(index){activePromotion=(index+streamerPromotions.length)%streamerPromotions.length;const promo=streamerPromotions[activePromotion],banner=document.getElementById("promoBanner"),avatar=document.getElementById("promoAvatar");if(!banner||!avatar)return;banner.href=promo.url;document.getElementById("promoName").textContent=promo.name;document.getElementById("promoDescription").textContent=promo.description;document.getElementById("promoCounter").textContent=(activePromotion+1)+" / "+streamerPromotions.length;avatar.alt="Аватар "+promo.name;avatar.src=avatarSvg(promo.name,promo.index);loadTwitchAvatar(promo.name,avatar);document.querySelectorAll(".promo-dot").forEach((dot,i)=>{dot.classList.toggle("is-active",i===activePromotion);dot.setAttribute("aria-pressed",String(i===activePromotion));});banner.style.animation="none";void banner.offsetWidth;banner.style.animation="";}
+document.querySelectorAll(".promo-dot").forEach(dot=>dot.addEventListener("click",()=>{showStreamerPromotion(Number(dot.dataset.promoIndex)||0);if(promoRotationTimer)clearInterval(promoRotationTimer);promoRotationTimer=setInterval(()=>showStreamerPromotion(activePromotion+1),6500);}));
+showStreamerPromotion(0);promoRotationTimer=setInterval(()=>showStreamerPromotion(activePromotion+1),6500);
 
 // Replace the wall poster placeholder with cherrys_fox's current Twitch avatar when available.
 if (wantedCherryAvatar) loadTwitchAvatar("cherrys_fox", wantedCherryAvatar);
@@ -4336,7 +4287,7 @@ const tabButtons = {
   moderators: "moderatorsTab",
   clips: "clipsTab",
   wall: "wallTab",
-  suggestions: "suggestionsTab",
+  promotions: "promotionsTab",
 };
 function activateTab(nextTab) {
   activeTab = nextTab;
@@ -4346,14 +4297,14 @@ function activateTab(nextTab) {
     moderators: ["МОДЕРАТОРЫ", "Команда, которая помогает сообществу и поддерживает порядок на каналах."],
     clips: ["КЛИПЫ", "Лучшие моменты со стримов — выбирай период, сортировку и смотри подборку."],
     wall: ["СТЕНА", "Общие мемы, картинки и подписи — всё, что делает наше комьюнити живым."],
-    suggestions: ["ПРЕДЛОЖКА", "Предложи стримера, модератора, публикацию на стену или идею для сайта — модераторы всё прочитают."],
+    promotions: ["РЕКЛАМА", "Небольшие рекламные баннеры стримеров сообщества."],
   };
   const [heading, description] = sectionCopy[nextTab] || sectionCopy.streamers;
   document.getElementById("streamersPanel").hidden = nextTab !== "streamers";
   document.getElementById("moderatorsPanel").hidden = nextTab !== "moderators";
   document.getElementById("clipsPanel").hidden = nextTab !== "clips";
   document.getElementById("wallPanel").hidden = nextTab !== "wall";
-  document.getElementById("suggestionsPanel").hidden = nextTab !== "suggestions";
+  document.getElementById("promotionsPanel").hidden = nextTab !== "promotions";
   const brandWordmark = document.getElementById("brandWordmark");
   const brandTop = document.getElementById("brandTop");
   const brandMainLead = document.getElementById("brandMainLead");
@@ -4404,7 +4355,7 @@ function activateTab(nextTab) {
     moderators: "moderatorsPanel",
     clips: "clipsPanel",
     wall: "wallPanel",
-    suggestions: "suggestionsPanel"
+    promotions: "promotionsPanel"
   }[nextTab]);
   [heroSection, activePanel].filter(Boolean).forEach(node => {
     node.classList.remove("tab-section-arrive");

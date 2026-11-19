@@ -2753,6 +2753,10 @@ img,video,iframe{max-width:100%}
       <h2 class="category-title">Другие классные стримеры</h2>
       <div class="grid" id="othersGrid"></div>
     </div>
+    <div class="category" id="lowlandsCategory">
+      <h2 class="category-title">Низина твича</h2>
+      <div class="grid" id="lowlandsGrid"></div>
+    </div>
     <div class="empty" id="empty">Никого не нашли. Попробуй другой ник.</div>
   </section>
   <section id="clipsPanel" aria-label="Клипы стримеров" hidden>
@@ -2949,6 +2953,89 @@ LEGENDS</div>
 </button>
 <script>
 const streamers = [
+  {name:"sputnikmn", url:"", group:"lowlands", displayName:"sputnikmn (Kick)",
+   links:[
+    {label:"Telegram", url:"https://t.me/sputnikmn"},
+    {label:"Kick", url:"https://kick.com/sputnikmn"}
+   ]},
+
+  {name:"oak1338", url:"https://www.twitch.tv/oak1338", group:"lowlands",
+   links:[
+    {label:"Telegram", url:"https://t.me/oakgame"}
+   ]},
+
+  {name:"gerbionus", url:"https://www.twitch.tv/gerbionus", group:"lowlands",
+   links:[
+    {label:"Telegram", url:"https://t.me/gerbionus"}
+   ]},
+
+  {name:"ofmyhart", url:"https://www.twitch.tv/ofmyhart", group:"lowlands",
+   links:[
+    {label:"Telegram", url:"https://t.me/offthemyheart"},
+    {label:"YouTube", url:"https://youtube.com/@offthemyheart"}
+   ]},
+
+  {name:"artemillen", url:"https://www.twitch.tv/artemillen", group:"lowlands",
+   links:[
+    {label:"Telegram", url:"https://t.me/artemillen"}
+   ]},
+
+  {name:"cxmatozzz", url:"https://www.twitch.tv/cxmatozzz", group:"lowlands",
+   links:[
+    {label:"Telegram", url:"https://t.me/cxmatozzz"}
+   ]},
+
+  {name:"prosto_debzik", url:"https://www.twitch.tv/prosto_debzik", group:"lowlands",
+   links:[
+    {label:"Telegram", url:"https://t.me/prosto_debzik"},
+    {label:"TikTok", url:"https://www.tiktok.com/@prosto_debzik"}
+   ]},
+
+  {name:"naomio404", url:"https://www.twitch.tv/naomio404", group:"lowlands",
+   links:[
+    {label:"Telegram", url:"https://t.me/NaoMio404"}
+   ]},
+
+  {name:"q1yuqva", url:"https://www.twitch.tv/q1yuqva", group:"lowlands",
+   links:[
+    {label:"Telegram", url:"https://t.me/q1yuqva"},
+    {label:"Discord", url:"https://discord.gg/hNg9FSSXGs"}
+   ]},
+
+  {name:"comileg", url:"https://www.twitch.tv/comileg", group:"lowlands",
+   links:[
+    {label:"Telegram", url:"https://t.me/comileg"},
+    {label:"YouTube", url:"https://www.youtube.com/@Comileg"},
+    {label:"VK", url:"https://vk.com/cmlg14"},
+    {label:"DonationAlerts", url:"https://www.donationalerts.com/r/comileg228"},
+    {label:"TikTok", url:"https://www.tiktok.com/@comileg228"}
+   ]},
+
+  {name:"lunteeekkk", url:"https://www.twitch.tv/lunteeekkk", group:"lowlands",
+   links:[
+    {label:"Telegram", url:"https://t.me/lunteeekk"}
+   ]},
+
+  {name:"refferency", url:"https://www.twitch.tv/refferency", group:"lowlands",
+   links:[
+    {label:"Telegram", url:"https://t.me/reffTG"},
+    {label:"YouTube", url:"https://www.youtube.com/shorts/bJFVnqkiN7E"},
+    {label:"Instagram", url:"https://www.instagram.com/p/DXM_NSiCo0g/"},
+    {label:"TikTok", url:"https://www.tiktok.com/@refferencyclips"}
+   ]},
+
+  {name:"niavii_", url:"https://www.twitch.tv/niavii_", group:"lowlands",
+   links:[
+    {label:"Telegram", url:"https://t.me/niaviitg"}
+   ]},
+
+  {name:"kolplayyyyy", url:"https://www.twitch.tv/kolplayyyyy", group:"lowlands",
+   links:[
+    {label:"Telegram", url:"https://t.me/kolplayyyyy"},
+    {label:"DonationAlerts", url:"https://www.donationalerts.com/r/kolplayyyyy"},
+    {label:"YouTube", url:"https://www.youtube.com/@UCxPWFdvRwj7neqruxMnlk-Q"}
+   ]},
+
   {name:"knaz_52", url:"https://www.twitch.tv/knaz_52", group:"others",
    description:"По рекламе: @knaz_pr",
    links:[
@@ -3412,13 +3499,15 @@ const grids = {
   creator: document.getElementById("creatorGrid"),
   main: document.getElementById("mainGrid"),
   others: document.getElementById("othersGrid"),
+  lowlands: document.getElementById("lowlandsGrid"),
   moderators: document.getElementById("moderatorsGrid"),
   editors: document.getElementById("editorsGrid")
 };
 const categories = {
   creator: document.getElementById("creatorCategory"),
   main: document.getElementById("mainCategory"),
-  others: document.getElementById("othersCategory")
+  others: document.getElementById("othersCategory"),
+  lowlands: document.getElementById("lowlandsCategory")
 };
 const avatarCache = new Map();
 const followerCountCache = new Map();

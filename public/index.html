@@ -3457,7 +3457,7 @@ async function loadTwitchAvatar(name, img) {
 
 const streamerPromotions=[{name:"brill1antt",url:"https://www.twitch.tv/brill1antt",description:"18,5cm (яйца). По вопросам рекламы и предложениям: brilliantt300@gmail.com.",index:0},{name:"mob_nadziratel",url:"https://www.twitch.tv/mob_nadziratel",description:"Создатель Стримерского комьюнити. Стримы, игры и общение с сообществом.",index:1}];
 let activePromotion=0,promoRotationTimer=null;
-function showStreamerPromotion(index){activePromotion=(index+streamerPromotions.length)%streamerPromotions.length;const promo=streamerPromotions[activePromotion],banner=document.getElementById("promoBanner"),avatar=document.getElementById("promoAvatar");if(!banner||!avatar)return;banner.href=promo.url;document.getElementById("promoName").textContent=promo.name;document.getElementById("promoDescription").textContent=promo.description;avatar.alt="Аватар "+promo.name;avatar.src=avatarSvg(promo.name,promo.index);loadTwitchAvatar(promo.name,avatar);document.querySelectorAll(".promo-dot").forEach((dot,i)=>{dot.classList.toggle("is-active",i===activePromotion);dot.setAttribute("aria-pressed",String(i===activePromotion));});banner.style.animation="none";void banner.offsetWidth;banner.style.animation="";}
+function showStreamerPromotion(index){activePromotion=(index+streamerPromotions.length)%streamerPromotions.length;const promo=streamerPromotions[activePromotion],banner=document.getElementById("promoBanner"),avatar=document.getElementById("promoAvatar");if(!banner||!avatar)return;banner.href=promo.url;document.getElementById("promoName").textContent=promo.name;document.getElementById("promoDescription").textContent=promo.description;avatar.alt="Аватар "+promo.name;avatar.src=avatarSvg(promo.name,promo.index);loadTwitchAvatar(promo.name,avatar);banner.style.animation="none";void banner.offsetWidth;banner.style.animation="";}
 showStreamerPromotion(0);promoRotationTimer=setInterval(()=>showStreamerPromotion(activePromotion+1),6500);
 
 // Replace the wall poster placeholder with cherrys_fox's current Twitch avatar when available.
@@ -4297,6 +4297,7 @@ function activateTab(nextTab) {
     promotions: ["РЕКЛАМА", "Небольшие рекламные баннеры стримеров сообщества."],
   };
   const [heading, description] = sectionCopy[nextTab] || sectionCopy.streamers;
+  const promoNav=document.getElementById("promotionsNavLink"); if(promoNav){if(nextTab==="promotions"){promoNav.classList.add("current");promoNav.setAttribute("aria-current","page");}else{promoNav.classList.remove("current");promoNav.removeAttribute("aria-current");}}
   document.getElementById("streamersPanel").hidden = nextTab !== "streamers";
   document.getElementById("moderatorsPanel").hidden = nextTab !== "moderators";
   document.getElementById("clipsPanel").hidden = nextTab !== "clips";

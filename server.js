@@ -85,7 +85,8 @@ const LOGINS = [
   "alicefagg",
   "uman_kind",
   "ugucyugaha",
-  "ivi_owl"
+  "ivi_owl",
+  "nick_empty"
 ];
 
 let token = null;
@@ -204,28 +205,32 @@ async function fetchStreams() {
     throw new Error("Set TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET in the environment.");
   }
   const accessToken = await getAppToken();
-  const params = new URLSearchParams();
-  LOGINS.forEach(login => params.append("user_login", login));
-  const response = await fetch(`https://api.twitch.tv/helix/streams?${params}`, {
-    headers: {
-      "Client-Id": CLIENT_ID,
-      "Authorization": `Bearer ${accessToken}`
-    },
-    signal: AbortSignal.timeout(12000)
-  });
-  if (!response.ok) {
-    if (response.status === 401) {
-      token = null;
-      tokenExpiresAt = 0;
+  // Helix accepts up to 100 user_login parameters per request.
+  const batches = [];
+  for (let i = 0; i < LOGINS.length; i += 100) batches.push(LOGINS.slice(i, i + 100));
+  const payloads = await Promise.all(batches.map(async batch => {
+    const params = new URLSearchParams();
+    batch.forEach(login => params.append("user_login", login));
+    const response = await fetch(`https://api.twitch.tv/helix/streams?${params}`, {
+      headers: { "Client-Id": CLIENT_ID, "Authorization": `Bearer ${accessToken}` },
+      signal: AbortSignal.timeout(12000)
+    });
+    if (!response.ok) {
+      if (response.status === 401) { token = null; tokenExpiresAt = 0; }
+      throw new Error(`Twitch streams request failed (${response.status})`);
     }
-    throw new Error(`Twitch streams request failed (${response.status})`);
-  }
-  const data = await response.json();
+    const payload = await response.json();
+    if (!payload || !Array.isArray(payload.data)) {
+      throw new Error("Twitch streams returned an unexpected response format.");
+    }
+    return payload.data;
+  }));
+  const liveStreams = payloads.flat();
   const result = {};
   LOGINS.forEach(login => {
     result[login] = { isLive: false, viewerCount: null, title: null };
   });
-  (data.data || []).forEach(stream => {
+  liveStreams.forEach(stream => {
     const login = String(stream.user_login || "").toLowerCase();
     if (result[login]) {
       result[login] = {

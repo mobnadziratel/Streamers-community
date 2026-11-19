@@ -4126,7 +4126,7 @@ async function refreshLiveStatuses() {
   lastStatusAttemptAt = Date.now();
   statusRequestInFlight = (async () => {
     try {
-      const response = await fetch("/api/streams", { cache: "no-store" });
+      const response = await fetch("/api/streams", { cache: "no-store", signal: AbortSignal.timeout(15000) });
       if (!response.ok) throw new Error(`Status endpoint unavailable (${response.status})`);
       const payload = await response.json();
       if (!payload || !payload.streams || typeof payload.streams !== "object") {
@@ -4147,12 +4147,12 @@ async function refreshLiveStatuses() {
       // confirmed live/offline state. Only show unavailable before the first
       // successful status response; keep known statuses during transient outages.
       if (!Object.keys(latestStreamData).length) {
-        document.querySelectorAll("#streamersPanel .live-status").forEach(el => {
+        document.querySelectorAll("#streamersPanel .live-status.is-loading").forEach(el => {
           el.classList.remove("is-loading", "is-live");
           el.textContent = "СТАТУС НЕДОСТУПЕН";
         });
         document.querySelectorAll("#streamersPanel .stream-meta").forEach(el => {
-          el.textContent = "Не удалось проверить эфир. Последний статус пока неизвестен.";
+          if (!el.textContent.trim()) el.textContent = "Не удалось проверить эфир. Повторная проверка будет выполнена автоматически.";
         });
       }
       console.warn("Live status refresh failed; keeping last confirmed statuses:", error);
@@ -4680,7 +4680,7 @@ document.addEventListener("keydown", event => {
 initClipStreamerPicker();
 render();
 refreshLiveStatuses();
-setInterval(refreshLiveStatuses, 60000);
+setInterval(refreshLiveStatuses, 30000);
 const initialProfileLogin = new URLSearchParams(window.location.search).get("streamer");
 if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
 

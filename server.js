@@ -20,6 +20,20 @@ const communityMutex = createMutex();
 const jackboxRoomChecks = new Map();
 
 const LOGINS = [
+  "vanaya_sigma",
+  "oak1338",
+  "gerbionus",
+  "ofmyhart",
+  "artemillen",
+  "cxmatozzz",
+  "prosto_debzik",
+  "naomio404",
+  "q1yuqva",
+  "comileg",
+  "lunteeekkk",
+  "refferency",
+  "niavii_",
+  "kolplayyyyy",
   "tanaka_mangaca",
   "knaz_52",
   "mob_nadziratel",

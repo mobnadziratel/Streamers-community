@@ -1,42 +1,42 @@
 <!doctype html>
 <html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#100c18"><meta name="description" content="Реклама стримеров и сообществ в Стримерском комьюнити.">
+<meta name="theme-color" content="#0b0b0f"><meta name="description" content="Реклама стримеров и сообществ в Стримерском комьюнити.">
 <title>Реклама — Стримерское комьюнити</title>
-<link rel="icon" href="/favicon.svg">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
 <style>
-:root{color-scheme:dark;--bg:#100c18;--panel:#1a1424;--line:#ffffff18;--text:#f7f3fc;--muted:#b6aabe;--accent:#b98cff}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -20%,#39244f 0,transparent 55%),var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
-main{width:min(920px,calc(100% - 32px));margin:0 auto;padding:64px 0 48px}.eyebrow{color:var(--accent);font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}h1{font-size:clamp(36px,7vw,64px);line-height:1.04;letter-spacing:-.045em;margin:12px 0} .lead{color:var(--muted);max-width:620px}
-.panel{margin-top:34px;padding:clamp(20px,4vw,34px);border:1px solid var(--line);border-radius:24px;background:#1a1424dd;box-shadow:0 24px 80px #0005}
-h2{margin:0 0 8px;font-size:24px}.muted{color:var(--muted)}.banner{display:flex;align-items:center;gap:22px;margin-top:24px;padding:clamp(16px,4vw,28px);border:1px solid var(--line);border-radius:18px;background:#ffffff08;color:inherit;text-decoration:none;min-height:160px;transition:border-color .2s,transform .2s}.banner:hover{border-color:var(--accent);transform:translateY(-2px)}
-.avatar{width:112px;height:112px;flex:0 0 112px;object-fit:cover;border-radius:20px;background:#30243d}.copy{display:flex;flex-direction:column;gap:7px}.name{font-size:clamp(22px,4vw,30px);font-weight:850}.desc{color:var(--muted)}.cta{color:var(--accent);font-size:13px;font-weight:800;margin-top:4px}
+:root{color-scheme:dark;--bg:#0b0b0f;--panel:#14141b;--panel2:#1a1a23;--line:rgba(255,255,255,.09);--text:#f5f5f7;--muted:#9a9aa8;--accent:#b9ff36}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,#292b20 0,transparent 42%),var(--bg);color:var(--text);font:16px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{width:min(1120px,calc(100% - 36px));margin:0 auto;padding:28px 0 48px}.eyebrow{color:var(--accent);font-size:12px;font-weight:800;letter-spacing:.19em;text-transform:uppercase;display:flex;align-items:center;gap:9px}.eyebrow:before{content:"";width:22px;height:2px;background:var(--accent)}h1{font-size:clamp(42px,7vw,76px);line-height:.98;letter-spacing:-.065em;margin:18px 0 16px;font-weight:950} .lead{color:var(--muted);max-width:620px}
+.panel{margin-top:34px;padding:clamp(20px,4vw,34px);border:1px solid var(--line);border-radius:22px;background:linear-gradient(135deg,var(--panel),transparent)}
+h2{margin:0 0 8px;font-size:24px}.muted{color:var(--muted)}.banner{display:flex;align-items:center;gap:22px;margin-top:24px;padding:clamp(16px,4vw,28px);border:1px solid var(--line);border-radius:18px;background:linear-gradient(130deg,#17171f,#121218);color:inherit;min-height:160px;transition:border-color .2s,transform .2s}.banner:hover{border-color:#b9ff3677;background:linear-gradient(130deg,#20251a,#15151c);transform:translateY(-2px)}
+.avatar{width:112px;height:112px;flex:0 0 112px;object-fit:cover;border-radius:20px;background:#26262f}.copy{display:flex;flex-direction:column;gap:7px}.name{font-size:clamp(22px,4vw,30px);font-weight:850}.desc{color:var(--muted)}.cta{color:var(--accent);font-size:13px;font-weight:800;margin-top:4px}
 .dots{display:flex;gap:7px;justify-content:center;margin-top:16px}.dot{width:7px;height:7px;border-radius:20px;background:#ffffff35}.dot.active{width:22px;background:var(--accent)}
-.submit{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}a.inline{color:var(--accent);font-weight:800;text-decoration:none}.obs{margin-top:24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}button{border:1px solid #ffffff2b;border-radius:12px;padding:11px 16px;background:#ffffff0b;color:var(--text);font:inherit;font-weight:800;cursor:pointer}button:hover{border-color:var(--accent)}#status{color:var(--muted);font-size:13px}
-footer{margin-top:34px;color:#81758d;font-size:12px}
-.topnav{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;margin:0 0 34px;padding:5px;border:1px solid var(--line);border-radius:13px;background:#1a1424}.topnav a{padding:9px 14px;border-radius:9px;color:var(--muted);font-size:12px;font-weight:850;white-space:nowrap;text-decoration:none}.topnav a:hover,.topnav a[aria-current="page"]{background:var(--accent);color:#171020}@media(max-width:420px){.topnav{gap:2px}.topnav a{flex:1;text-align:center;padding:8px 5px;font-size:10px}}
-@media(max-width:560px){main{padding-top:40px}.banner{align-items:flex-start;gap:14px}.avatar{width:76px;height:76px;flex-basis:76px;border-radius:15px}.panel{border-radius:18px}}
+.submit{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}a.inline{color:var(--accent);font-weight:800;text-decoration:none}.obs{margin-top:24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}button{border:1px solid #ffffff2b;border-radius:12px;padding:11px 16px;background:var(--panel);color:var(--text);font:inherit;font-weight:800;cursor:pointer}button:hover{border-color:var(--accent)}#status{color:var(--muted);font-size:13px}
+.site-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 0 24px;margin-bottom:48px;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:12px;color:var(--text);font-size:13px;line-height:1.15;font-weight:950;letter-spacing:.04em;text-decoration:none}.brand-logo{width:42px;height:42px;display:grid;place-items:center;border-radius:11px;background:var(--accent);color:#111;font-size:17px;font-weight:1000;letter-spacing:-.08em;box-shadow:0 0 30px #b9ff3622}.topnav{margin:0}.banner{cursor:default}.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.direct-link{display:inline-flex;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:10px;color:var(--text);background:var(--panel);font-size:13px;font-weight:800;text-decoration:none;transition:border-color .18s,color .18s}.direct-link:hover{border-color:var(--accent);color:var(--accent)}.banner{cursor:default}.avatar{box-shadow:0 0 0 1px #ffffff12}footer{margin-top:34px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);padding-top:18px}
+.topnav{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;margin:0 0 34px;padding:5px;border:1px solid var(--line);border-radius:13px;background:var(--panel)}.topnav a{padding:9px 14px;border-radius:9px;color:var(--muted);font-size:12px;font-weight:850;white-space:nowrap;text-decoration:none}.topnav a:hover,.topnav a[aria-current="page"]{background:var(--accent);color:#111}@media(max-width:420px){.topnav{gap:2px}.topnav a{flex:1;text-align:center;padding:8px 5px;font-size:10px}}
+@media(max-width:680px){.site-header{align-items:flex-start;flex-direction:column;gap:16px;margin-bottom:32px}.topnav{width:100%}}@media(max-width:560px){main{padding-top:24px}.banner{align-items:flex-start;gap:14px}.avatar{width:76px;height:76px;flex-basis:76px;border-radius:15px}.panel{border-radius:18px}}
 </style></head><body><main>
-<nav class="topnav" aria-label="Навигация по сайту"><a href="/">ГЛАВНАЯ</a><a href="/widgets">ВИДЖЕТЫ</a><a href="/ad" aria-current="page">РЕКЛАМА</a></nav>
+<header class="site-header"><a class="brand" href="/" aria-label="Стримерское комьюнити — главная"><span class="brand-logo">1°6</span><span>СТРИМЕРСКОЕ<br>КОМЬЮНИТИ</span></a><nav class="topnav" aria-label="Навигация по сайту"><a href="/">ГЛАВНАЯ</a><a href="/widgets">ВИДЖЕТЫ</a><a href="/ad" aria-current="page">РЕКЛАМА</a></nav></header>
 <div class="eyebrow">Стримерское комьюнити</div><h1>Реклама</h1>
 <p class="lead">Здесь размещаются рекламные баннеры стримеров и сообществ. Они автоматически сменяют друг друга — выбери интересный канал и загляни в гости.</p>
 <section class="panel" aria-label="Рекламные баннеры">
 <h2>Сейчас рекомендуем</h2><p class="muted">Баннеры участников и партнёров сообщества</p>
-<a class="banner" id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer">
-<img class="avatar" id="avatar" src="/api/avatar?login=brill1antt" alt="Аватар brill1antt">
-<span class="copy"><span class="name" id="name">brill1antt</span><span class="desc" id="description">Стример сообщества</span><span class="cta" id="cta">Открыть Twitch ↗</span></span></a>
+<div class="banner" id="banner">
+<img class="avatar" id="avatar" src="/api/avatar?login=brill1antt" alt="Аватар brill1antt" onerror="this.onerror=null;this.src='/favicon.svg'">
+<span class="copy"><span class="name" id="name">brill1antt</span><span class="desc" id="description">Стример сообщества</span><span class="links" id="links"><a class="direct-link" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer">Twitch</a></span></span></div>
 <div class="dots" id="dots" aria-hidden="true"></div>
 <div class="submit"><strong>Хотите разместить свою рекламу?</strong><p class="muted">Отправьте заявку через нашего бота: <a class="inline" href="https://t.me/Mobyarik_bot" target="_blank" rel="noopener noreferrer">@Mobyarik_bot</a>. Укажите ссылку, аватарку и короткое описание.</p></div>
 <div class="obs"><button id="copy" type="button">Скопировать ссылку для OBS</button><span id="status" role="status" aria-live="polite"></span></div>
 </section><footer>Стримерское комьюнити · Рекламная площадка</footer>
 </main><script>
 const ads=[
-{name:"brill1antt",description:"18,5cm (яйца). По вопросам рекламы и предложениям: brilliantt300@gmail.com.",url:"https://www.twitch.tv/brill1antt",image:"/api/avatar?login=brill1antt",cta:"Открыть Twitch ↗"},
-{name:"mob_nadziratel",description:"Создатель Стримерского комьюнити. Стримы, игры и общение с сообществом.",url:"https://www.twitch.tv/mob_nadziratel",image:"/api/avatar?login=mob_nadziratel",cta:"Открыть Twitch ↗"},
-{name:"Низина Твича",description:"Telegram-канал Низины Твича — подписывайся на сообщество и следи за новостями.",url:"https://t.me/Ntwich",image:"https://i.ibb.co/67sHc76S/panel-1263981823-image-1a71f377-cc88-45c3-9ae2-800a963cfe80.png",cta:"Открыть Telegram ↗"}
+{name:"brill1antt",description:"18,5cm (яйца). По вопросам рекламы и предложениям: brilliantt300@gmail.com.",image:"/api/avatar?login=brill1antt",links:[["Twitch","https://www.twitch.tv/brill1antt"]]},
+{name:"mob_nadziratel",description:"Создатель Стримерского комьюнити. Стримы, игры и общение с сообществом.",image:"/api/avatar?login=mob_nadziratel",links:[["Twitch","https://www.twitch.tv/mob_nadziratel"]]},
+{name:"Низина Твича",description:"Telegram-канал Низины Твича — подписывайся на сообщество и следи за новостями.",image:"https://i.ibb.co/67sHc76S/panel-1263981823-image-1a71f377-cc88-45c3-9ae2-800a963cfe80.png",links:[["Telegram","https://t.me/Ntwich"]]}
 ];
 let current=0;const $=id=>document.getElementById(id);
-function show(i){current=i;const a=ads[i];$("banner").href=a.url;$("name").textContent=a.name;$("description").textContent=a.description;$("avatar").src=a.image;$("avatar").alt="Изображение: "+a.name;$("cta").textContent=a.cta;$("dots").innerHTML=ads.map((_,n)=>'<span class="dot '+(n===i?'active':'')+'"></span>').join("");}
+function show(i){current=i;const a=ads[i];$("name").textContent=a.name;$("description").textContent=a.description;$("avatar").src=a.image;$("avatar").alt="Изображение: "+a.name;$("links").innerHTML=a.links.map(([label,url])=>`<a class="direct-link" href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`).join("");$("dots").innerHTML=ads.map((_,n)=>'<span class="dot '+(n===i?'active':'')+'"></span>').join("");}
 show(0);setInterval(()=>show((current+1)%ads.length),10000);
 $("copy").addEventListener("click",async()=>{const url=location.origin+"/ad/widget";try{await navigator.clipboard.writeText(url);$("status").textContent="Ссылка скопирована!";}catch(e){$("status").textContent=url;}});
 </script></body></html>

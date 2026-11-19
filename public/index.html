@@ -3768,7 +3768,7 @@ function render(filter="") {
     }
     const moderationTags = modData ? `<div class="moderates"><span class="moderates-label">${modData.tagLabel}</span> ${modData.channels.map(channel => `<button type="button" class="moderates-tag" data-streamer-target="${String(channel).replace(/&/g, "&amp;").replace(/\"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}" aria-label="Найти стримера ${channel}">@${channel}</button>`).join(" ")}</div>` : "";
     card.innerHTML = `<div class="avatar"><img src="${avatarSvg(name,i)}" alt="Аватар ${name}" loading="eager" referrerpolicy="no-referrer"></div>
-      <div class="info"><div class="name">${cardLabel}</div>${moderator ? "" : ``}${moderator ? moderationTags : `<div class="status-line"><div class="live-status is-loading" data-status="${name}">Проверяем эфир…</div></div><div class="stream-meta" data-meta="${name}"></div><div class="card-followers" data-followers="${name}">Фолловеры: загружаем…</div><div class="collab-badge-wrap" data-collab="${name}"></div>`}</div>
+      <div class="info"><div class="name">${cardLabel}</div>${moderator ? "" : ``}${moderator ? moderationTags : `<div class="status-line"><div class="live-status is-loading" data-status="${name}">Проверяем эфир…</div></div><div class="stream-meta" data-meta="${name}"></div><div class="collab-badge-wrap" data-collab="${name}"></div>`}</div>
       <svg class="arrow" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>`;
 
     // Put each profile's social destinations directly on its directory card.
@@ -4098,57 +4098,28 @@ async function refreshSchedules() {
     const payload = await response.json();
     if (!payload || typeof payload.schedules !== "object") throw new Error("invalid schedules");
     latestSchedules = payload.schedules;
-    applyLiveStatuses(latestStreamData || {});
+    if (latestStreamData && Object.keys(latestStreamData).length) applyLiveStatuses(latestStreamData);
   } catch (error) { console.warn("Could not load Twitch schedules:", error); }
-}
-const cardFollowerCountCache = new Map();
-const cardFollowerRequests = new Map();
-async function loadCardFollowerCount(login) {
-  const key = String(login || "").toLowerCase();
-  if (!key) return;
-  const targets = () => [...document.querySelectorAll("[data-followers]")].filter(el => el.dataset.followers.toLowerCase() === key);
-  const paint = (value, stale=false) => targets().forEach(el => {
-    el.textContent = value == null ? "Фолловеры: недоступны" : `Фолловеры: ${formatFollowerCount(value)}${stale ? " · сохранённые данные" : ""}`;
-  });
-  const cached = cardFollowerCountCache.get(key);
-  if (cached && Date.now() - cached.fetchedAt < 2 * 60_000) { paint(cached.total, cached.stale); return; }
-  if (cardFollowerRequests.has(key)) { await cardFollowerRequests.get(key); return; }
-  const request = (async () => {
-    try {
-      const response = await fetch(`/api/followers?login=${encodeURIComponent(key)}`, { cache: "no-store", signal: AbortSignal.timeout(12000) });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok || !Number.isFinite(Number(payload.total))) throw new Error(payload.error || "followers unavailable");
-      const value = { total: Number(payload.total), stale: Boolean(payload.stale), fetchedAt: Date.now() };
-      cardFollowerCountCache.set(key, value);
-      paint(value.total, value.stale);
-    } catch (error) {
-      paint(null);
-      console.warn(`Could not load card follower count for ${key}:`, error);
-    } finally { cardFollowerRequests.delete(key); }
-  })();
-  cardFollowerRequests.set(key, request);
-  await request;
 }
 function applyLiveStatuses(streams) {
   streamers.forEach(({name}) => {
-    const statuses = [...document.querySelectorAll("[data-status]")].filter(el => el.dataset.status.toLowerCase() === name.toLowerCase());
-    const metas = [...document.querySelectorAll("[data-meta]")].filter(el => el.dataset.meta.toLowerCase() === name.toLowerCase());
-    if (!statuses.length || !metas.length) return;
+    const status = document.querySelector(`[data-status="${name}"]`);
+    const meta = document.querySelector(`[data-meta="${name}"]`);
+    if (!status || !meta) return;
     const item = getStreamState(streams, name);
-    statuses.forEach(status => {
-      status.classList.remove("is-loading", "is-live");
-      if (item && item.isLive) { status.classList.add("is-live"); status.textContent = "В ЭФИРЕ"; }
-      else if (!item || item.error) status.textContent = "СТАТУС НЕДОСТУПЕН";
-      else status.textContent = "НЕ В СЕТИ";
-    });
-    metas.forEach(meta => {
-      if (item && item.isLive) {
-        const viewers = Number.isFinite(item.viewerCount) ? ` · ${item.viewerCount.toLocaleString("ru-RU")} зрителей` : "";
-        meta.textContent = `${item.title || "Прямой эфир"}${viewers}`;
-      } else if (!item || item.error) meta.textContent = "Не удалось проверить эфир. Данные Twitch неполные.";
-      else meta.replaceChildren(...scheduleLines(name));
-    });
-    loadCardFollowerCount(name);
+    status.classList.remove("is-loading", "is-live");
+    if (item && item.isLive) {
+      status.classList.add("is-live");
+      status.textContent = "В ЭФИРЕ";
+      const viewers = Number.isFinite(item.viewerCount) ? ` · ${item.viewerCount.toLocaleString("ru-RU")} зрителей` : "";
+      meta.textContent = `${item.title || "Прямой эфир"}${viewers}`;
+    } else if (!item || item.error) {
+      status.textContent = "СТАТУС НЕДОСТУПЕН";
+      meta.textContent = "Не удалось проверить эфир. Данные Twitch неполные.";
+    } else {
+      status.textContent = "НЕ В СЕТИ";
+      meta.replaceChildren(...scheduleLines(name));
+    }
   });
 }
 

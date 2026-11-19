@@ -3943,9 +3943,12 @@ function reorderCategoryCards() {
     cards.sort((a, b) => {
       const nameA = a.querySelector(".name")?.textContent || "";
       const nameB = b.querySelector(".name")?.textContent || "";
+      // Sort by the canonical Twitch login, not a potentially formatted display label.
+      const loginA = a.querySelector(".live-status")?.dataset.status || nameA;
+      const loginB = b.querySelector(".live-status")?.dataset.status || nameB;
       if (prioritizeLive) {
-        const liveA = Boolean(getStreamState(latestStreamData, nameA)?.isLive);
-        const liveB = Boolean(getStreamState(latestStreamData, nameB)?.isLive);
+        const liveA = getStreamState(latestStreamData, loginA)?.isLive === true;
+        const liveB = getStreamState(latestStreamData, loginB)?.isLive === true;
         if (liveA !== liveB) return liveA ? -1 : 1;
       }
       return nameA.localeCompare(nameB, "ru", { sensitivity: "base", numeric: true });
@@ -4132,8 +4135,9 @@ async function refreshLiveStatuses() {
       // The user may have switched tabs while the request was in flight. Update any
       // streamer cards that currently exist, without touching moderator/editor cards.
       applyLiveStatuses(latestStreamData);
+      // Re-sort immediately after every successful status poll.
+      reorderCategoryCards();
       refreshCollaborations();
-      // Keep directory cards in a stable order when live statuses refresh.
     } catch (error) {
       // Keep failures distinct from offline. If streamer cards are recreated later,
       // render() will retry after the throttle window rather than leaving them loading.

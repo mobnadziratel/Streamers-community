@@ -5014,3 +5014,25 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
 <script src="/ticker-fit.js" defer></script>
 </body>
 </html>
+
+<style id="site-nav-single-row-fix">
+/* Keep the three site destinations together on one horizontal line. */
+header .nav{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:12px!important}
+header .brand{flex:0 1 auto;min-width:0}
+header .site-switch{order:initial!important;grid-column:auto!important;grid-row:auto!important;width:auto!important;flex:0 1 auto!important;display:flex!important;flex-wrap:nowrap!important;justify-content:center;gap:3px;white-space:nowrap}
+header .site-switch a{flex:0 0 auto!important;min-width:0;padding:8px 10px!important;font-size:12px!important}
+header .theme-toggle{flex:0 0 auto}
+@media(max-width:680px){
+ header .nav{gap:6px!important}
+ header .brand{gap:6px;font-size:15px}
+ header .brand .logo{width:34px;height:34px;flex:0 0 34px}
+ header .site-switch{gap:2px!important;padding:3px!important}
+ header .site-switch a{padding:7px 6px!important;font-size:10px!important}
+ header .theme-toggle{padding:7px!important}
+ header .theme-toggle #themeLabel{display:none}
+}
+@media(max-width:390px){
+ header .brand-wordmark{max-width:90px}
+ header .site-switch a{font-size:9px!important;padding:6px 4px!important}
+}
+</style>

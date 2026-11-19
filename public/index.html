@@ -2685,6 +2685,22 @@ img,video,iframe{max-width:100%}
 .sched-line{display:block;margin-top:3px;font-size:12px;line-height:1.35;font-weight:650;color:var(--muted)}
 .stream-meta .sched-line:first-child{margin-top:0}
 @media (min-width: 651px){#wallPanel .wanted-poster-second{margin-top:30px!important;margin-right:12%!important;transform:rotate(-1.8deg)}}
+
+/* ───── Предложка ───── */
+#suggestionsPanel{margin-top:4px}
+.suggest-intro{margin:0 0 16px}.suggest-intro h2{margin:0 0 6px;font-size:24px;letter-spacing:-.03em}.suggest-intro p{max-width:70ch;line-height:1.5}
+.suggest-cats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 18px}
+.suggest-cat{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;cursor:pointer;transition:transform .18s,border-color .18s,box-shadow .18s,background .18s}
+.suggest-cat .ico{font-size:28px;line-height:1}.suggest-cat b{font-size:15px;line-height:1.25}.suggest-cat small{color:var(--muted);font-size:12px;line-height:1.4;font-weight:600}
+.suggest-cat:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.suggest-cat.is-active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--panel));box-shadow:0 0 0 1px var(--accent) inset,0 12px 30px rgba(0,0,0,.16)}
+.suggest-form{max-width:760px;margin:0 0 18px}
+.suggestion-message{min-height:1.3em;margin:10px 0 0;font-weight:700}.suggestion-message.is-success{color:#46c26f}.suggestion-message.is-error{color:#ff7b86}
+.wall-action-button.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+#moderatorSummary:empty{display:none}
+#suggestionsTab{position:relative}
+@media(max-width:900px){.suggest-cats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.tabs .tab-button#suggestionsTab{grid-column:1/-1}.suggest-cat{padding:13px}.suggest-cat .ico{font-size:24px}.suggest-intro h2{font-size:20px}}
 </style>
 </head>
 <body>
@@ -2709,6 +2725,7 @@ img,video,iframe{max-width:100%}
     <button class="tab-button" id="moderatorsTab" role="tab" aria-selected="false" type="button">МОДЕРАТОРЫ</button>
     <button class="tab-button" id="clipsTab" role="tab" aria-selected="false" type="button">КЛИПЫ</button>
     <button class="tab-button" id="wallTab" role="tab" aria-selected="false" aria-controls="wallPanel" type="button">СТЕНА</button>
+    <button class="tab-button" id="suggestionsTab" role="tab" aria-selected="false" aria-controls="suggestionsPanel" type="button">ПРЕДЛОЖКА</button>
   </div>
   <section id="streamersPanel" aria-label="Список стримеров">
     <div class="toolbar">
@@ -2828,6 +2845,75 @@ LEGENDS</div>
       <div class="wall-posts-grid wall-posts-on-mural" id="communityWallFeed" aria-label="Публикации сообщества"></div>
     </div>
     <p class="wall-contact-note">Хотите что-то добавить? Пишите <a href="https://t.me/MNIVPI" target="_blank" rel="noopener noreferrer">@MNIVPI</a> в ТГ!</p>
+  </section>
+
+  <section id="suggestionsPanel" class="community-submission-area" aria-label="Предложка" hidden>
+    <div class="suggest-intro">
+      <h2>Что хочешь предложить?</h2>
+      <p class="wall-muted">Выбери категорию и заполни форму. Стримеры, модераторы и публикации на стену появляются на сайте после одобрения модератором и остаются там. Идеи по улучшению видят только модераторы.</p>
+    </div>
+    <div class="suggest-cats" role="radiogroup" aria-label="Категория предложения">
+      <button type="button" class="suggest-cat is-active" data-kind="streamer" role="radio" aria-checked="true"><span class="ico" aria-hidden="true">🎙</span><b>Стример на сайт</b><small>Канал появится в списке стримеров</small></button>
+      <button type="button" class="suggest-cat" data-kind="moderator" role="radio" aria-checked="false"><span class="ico" aria-hidden="true">🛡</span><b>Модератор на сайт</b><small>Появится во вкладке «Модераторы»</small></button>
+      <button type="button" class="suggest-cat" data-kind="wall" role="radio" aria-checked="false"><span class="ico" aria-hidden="true">🧱</span><b>Публикация на стену</b><small>Картинка и/или текст для стены</small></button>
+      <button type="button" class="suggest-cat" data-kind="site" role="radio" aria-checked="false"><span class="ico" aria-hidden="true">💡</span><b>Предложение по улучшению</b><small>Идея для сайта — прочитают модераторы</small></button>
+    </div>
+    <form id="communitySuggestionForm" class="wall-submit-card suggest-form" autocomplete="off">
+      <select id="suggestionKind" hidden aria-hidden="true" tabindex="-1">
+        <option value="streamer" selected>Стример на сайт</option><option value="moderator">Модератор на сайт</option><option value="wall">Публикация на стену</option><option value="site">Предложение по улучшению</option>
+      </select>
+      <label for="suggestionNickname">Твой ник</label>
+      <input id="suggestionNickname" type="text" maxlength="32" minlength="2" required autocomplete="nickname" placeholder="Как к тебе обращаться">
+      <div id="suggestionStreamerFields">
+        <label for="suggestionTwitch">Twitch-канал (ссылка или ник)</label>
+        <input id="suggestionTwitch" type="text" maxlength="300" required placeholder="twitch.tv/nickname или просто nickname">
+        <label for="suggestionStreamerText">Пара слов о стримере (необязательно)</label>
+        <textarea id="suggestionStreamerText" rows="3" maxlength="1200" placeholder="Чем занимается, во что играет…"></textarea>
+      </div>
+      <div id="suggestionModeratorFields" hidden>
+        <label for="suggestionModeratorName">Ник модератора</label>
+        <input id="suggestionModeratorName" type="text" maxlength="32" placeholder="Ник человека, которого предлагаешь">
+        <label for="suggestionModeratorOf">Где он модератор (Twitch-ники каналов через запятую)</label>
+        <input id="suggestionModeratorOf" type="text" maxlength="300" placeholder="например: d1unizi, charakoi">
+      </div>
+      <div id="suggestionWallFields" hidden>
+        <label for="suggestionWallText">Текст публикации</label>
+        <textarea id="suggestionWallText" rows="4" maxlength="1200" placeholder="Подпись, мем, шутка…"></textarea>
+        <label for="suggestionImage">Картинка (JPG, PNG, WEBP или GIF до 2 МБ)</label>
+        <input id="suggestionImage" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+        <img id="suggestionImagePreview" alt="Предпросмотр картинки" hidden>
+      </div>
+      <div id="suggestionSiteFields" hidden>
+        <label for="suggestionSiteText">Что стоит улучшить или добавить?</label>
+        <textarea id="suggestionSiteText" rows="5" maxlength="1200" placeholder="Опиши идею как можно подробнее"></textarea>
+      </div>
+      <button class="wall-action-button" type="submit">Отправить на модерацию</button>
+      <p id="suggestionFormMessage" class="wall-muted suggestion-message" role="status" aria-live="polite"></p>
+    </form>
+    <details class="wall-moderator-login" id="wallModeratorDetails">
+      <summary>Вход для модераторов</summary>
+      <div class="wall-moderator-login-inner">
+        <form id="communityModeratorLogin" autocomplete="on">
+          <h2>Панель модератора</h2>
+          <p class="wall-muted">Логин и пароль выдаёт владелец сайта.</p>
+          <label for="moderatorUsername">Логин</label>
+          <input id="moderatorUsername" type="text" autocomplete="username" required>
+          <label for="moderatorPassword">Пароль</label>
+          <input id="moderatorPassword" type="password" autocomplete="current-password" required>
+          <button class="wall-action-button" type="submit">Войти</button>
+        </form>
+        <div id="communityModeratorPanel" hidden>
+          <p id="moderatorSessionLabel" class="wall-muted"></p>
+          <p id="moderatorSummary" class="wall-muted"></p>
+          <div class="community-pending-actions">
+            <button class="wall-action-button secondary" id="communityModeratorRefresh" type="button">Обновить список</button>
+            <button class="wall-action-button secondary" id="communityModeratorLogout" type="button">Выйти</button>
+          </div>
+          <div id="communityPendingList" class="community-pending-list"></div>
+        </div>
+        <p id="moderatorFormMessage" class="wall-muted" role="status" aria-live="polite"></p>
+      </div>
+    </details>
   </section>
 
 </main>
@@ -3162,7 +3248,7 @@ const editors = [
 let activeTab = "streamers";
 try {
   const savedTab = sessionStorage.getItem("small-streamers-active-tab");
-  if (["streamers", "moderators", "clips", "wall"].includes(savedTab)) activeTab = savedTab;
+  if (["streamers", "moderators", "clips", "wall", "suggestions"].includes(savedTab)) activeTab = savedTab;
 } catch (_) {}
 (function startAtTopOnReload() {
   let isReload = false;
@@ -4178,6 +4264,7 @@ const tabButtons = {
   moderators: "moderatorsTab",
   clips: "clipsTab",
   wall: "wallTab",
+  suggestions: "suggestionsTab",
 };
 function activateTab(nextTab) {
   activeTab = nextTab;
@@ -4187,12 +4274,14 @@ function activateTab(nextTab) {
     moderators: ["МОДЕРАТОРЫ", "Команда, которая помогает сообществу и поддерживает порядок на каналах."],
     clips: ["КЛИПЫ", "Лучшие моменты со стримов — выбирай период, сортировку и смотри подборку."],
     wall: ["СТЕНА", "Общие мемы, картинки и подписи — всё, что делает наше комьюнити живым."],
+    suggestions: ["ПРЕДЛОЖКА", "Предложи стримера, модератора, публикацию на стену или идею для сайта — модераторы всё прочитают."],
   };
   const [heading, description] = sectionCopy[nextTab] || sectionCopy.streamers;
   document.getElementById("streamersPanel").hidden = nextTab !== "streamers";
   document.getElementById("moderatorsPanel").hidden = nextTab !== "moderators";
   document.getElementById("clipsPanel").hidden = nextTab !== "clips";
   document.getElementById("wallPanel").hidden = nextTab !== "wall";
+  document.getElementById("suggestionsPanel").hidden = nextTab !== "suggestions";
   const brandWordmark = document.getElementById("brandWordmark");
   const brandTop = document.getElementById("brandTop");
   const brandMainLead = document.getElementById("brandMainLead");
@@ -4639,6 +4728,11 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
     byId("suggestionWallText").required=false;
     byId("suggestionSiteText").required=site;
   });
+  const cats=[...document.querySelectorAll(".suggest-cat")];
+  const syncCats=()=>cats.forEach(btn=>{const on=btn.dataset.kind===kind.value;btn.classList.toggle("is-active",on);btn.setAttribute("aria-checked",String(on));});
+  cats.forEach(btn=>btn.addEventListener("click",()=>{kind.value=btn.dataset.kind;kind.dispatchEvent(new Event("change"));}));
+  kind.addEventListener("change",syncCats);
+  kind.dispatchEvent(new Event("change"));
   imageInput.addEventListener("change",()=>{
     selectedImage=""; imagePreview.hidden=true; imagePreview.removeAttribute("src");
     const file=imageInput.files&&imageInput.files[0]; if(!file)return;
@@ -4665,8 +4759,8 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
       })});
       const data=await response.json();if(!response.ok)throw new Error(data.error||"Не удалось отправить заявку.");
       form.reset();selectedImage="";imagePreview.hidden=true;imagePreview.removeAttribute("src");
-      kind.dispatchEvent(new Event("change"));message.classList.remove("is-error");message.classList.add("is-success");message.textContent="Отправлено!";
-    }catch(error){message.classList.remove("is-success");message.classList.add("is-error");message.textContent="Ошибка!";}
+      kind.dispatchEvent(new Event("change"));message.classList.remove("is-error");message.classList.add("is-success");message.textContent=data.message||"Спасибо! Отправлено на модерацию.";
+    }catch(error){message.classList.remove("is-success");message.classList.add("is-error");message.textContent=error.message||"Не удалось отправить. Попробуйте позже.";}
     finally{button.disabled=false;}
   });
 
@@ -4676,8 +4770,16 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
     try{
       const response=await fetch("/api/community/posts",{cache:"no-store"}),data=await response.json();
       if(!response.ok)throw new Error(data.error||"Не удалось загрузить публикации.");
-      if(wallFeed)wallFeed.replaceChildren();
       const allApproved=data.submissions||[];
+      // Одобренные публикации сразу появляются на стене и остаются там после перезагрузки.
+      const wallPosts=allApproved.filter(item=>item.kind==="wall").sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+      if(wallFeed)wallFeed.replaceChildren(...wallPosts.map(item=>{
+        const card=makeText("article","","wall-post-card");
+        if(item.imageUrl){const img=document.createElement("img");img.src=item.imageUrl;img.alt="Картинка от "+item.nickname;img.loading="lazy";card.append(img);}
+        if(item.text)card.append(makeText("div",item.text,"wall-post-copy"));
+        card.append(makeText("span","Автор: "+item.nickname+" · "+new Date(item.createdAt).toLocaleDateString("ru-RU"),"wall-post-date"));
+        return card;
+      }));
       const suggested=allApproved.filter(item=>item.kind==="streamer");
       communityModerators.splice(0, communityModerators.length, ...allApproved.filter(item=>item.kind==="moderator").map((item,index)=>({
         name:String(item.moderatorName||item.nickname||"Модератор"),
@@ -4701,10 +4803,7 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
       if(directoryChanged || activeTab==="streamers"){render();initClipStreamerPicker();}
       if(latestStreamData) applyLiveStatuses(latestStreamData);
       refreshLiveStatuses();
-      // Wall suggestions are not published automatically; they can be downloaded from moderation instead.
-      if(wallFeed)wallFeed.replaceChildren();
     }catch(error){
-      if(wallFeed)wallFeed.replaceChildren();
       console.error("Не удалось загрузить публикации сообщества:",error);
     }
   }
@@ -4746,9 +4845,9 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
       return lines;
     };
     let sourceImage=null;
-    if(item.imageData){
+    if(item.imageUrl){
       sourceImage=new Image();
-      sourceImage.src=item.imageData;
+      sourceImage.src=item.imageUrl;
       await new Promise((resolve,reject)=>{sourceImage.onload=resolve;sourceImage.onerror=()=>reject(new Error("Не удалось загрузить прикреплённую картинку."));});
     }
     const imageHeight=sourceImage?Math.round(contentWidth*Math.min(1,(sourceImage.naturalHeight||1)/(sourceImage.naturalWidth||1))):0;
@@ -4785,6 +4884,8 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
       const data=await apiJson("/api/community/moderation");
       byId("moderatorSessionLabel").textContent="Вошёл: "+data.moderator+" ("+(data.role==="admin"?"владелец":"модератор")+")";
       pending.replaceChildren();
+      const counts={streamer:0,moderator:0,wall:0,site:0};data.submissions.forEach(item=>{if(item.kind in counts)counts[item.kind]++;});
+      byId("moderatorSummary").textContent=data.submissions.length?"Ждут решения: "+data.submissions.length+" · стримеры "+counts.streamer+" · модераторы "+counts.moderator+" · стена "+counts.wall+" · идеи "+counts.site:"";
       if(!data.submissions.length)pending.append(makeText("p","Новых заявок нет.","wall-muted"));
       data.submissions.forEach(item=>{
         const card=makeText("article","","community-pending-item");
@@ -4793,7 +4894,7 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
         if(item.kind==="moderator"){card.append(makeText("p","Предлагаемый модератор: "+String(item.moderatorName||item.nickname)));card.append(makeText("p","Каналы: "+(Array.isArray(item.moderatorOf)?item.moderatorOf.map(login=>"@"+login).join(", "):"")));}
         if(item.twitchLogin){const link=document.createElement("a");link.href="https://www.twitch.tv/"+encodeURIComponent(item.twitchLogin);link.target="_blank";link.rel="noopener noreferrer";link.textContent="twitch.tv/"+item.twitchLogin;card.append(link);}
         if(item.text)card.append(makeText("p",item.text));
-        if(item.imageData){const img=document.createElement("img");img.src=item.imageData;img.alt="Изображение на проверке";img.loading="lazy";card.append(img);}
+        if(item.imageUrl){const img=document.createElement("img");img.src=item.imageUrl;img.alt="Изображение на проверке";img.loading="lazy";card.append(img);}
         if(item.kind==="wall"){
           const downloadButton=makeText("button","Скачать картинку с текстом","wall-action-button");
           downloadButton.type="button";
@@ -4833,6 +4934,8 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
   });
   // Restore the existing server-side login session after reload; loadPending checks the session cookie.
   loadPending();loadApproved();
+  setInterval(loadApproved,5*60_000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)loadApproved();});
 })();
 
 </script>

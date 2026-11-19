@@ -1206,7 +1206,15 @@ async function handleRequest(req, res) {
       }
       return readLocalDb();
     }
+    async function loadDbCached() {
+      const cached = globalThis.__communityDbCache;
+      if (cached && Date.now() - cached.at < 30_000) return cached.db;
+      const db = await loadDb();
+      globalThis.__communityDbCache = { db, at: Date.now() };
+      return db;
+    }
     async function saveDb(db) {
+      globalThis.__communityDbCache = null;
       const serialized = JSON.stringify(db, null, 2);
       if (r2Enabled) {
         await r2Client.send(new PutObjectCommand({
@@ -1309,10 +1317,21 @@ async function handleRequest(req, res) {
         return sendJson(201, { ok: true, message: "Отправлено на модерацию. Спасибо!" });
       }
       if (url.pathname === "/api/community/posts" && method === "GET") {
-        const db = await loadDb();
-        return sendJson(200, { submissions: db.submissions.filter(item => item.status === "approved").map(item => ({
-          id: item.id, kind: item.kind, nickname: item.nickname, text: item.text, twitchLogin: item.twitchLogin, imageData: item.imageData, moderatorName: item.moderatorName, moderatorOf: item.moderatorOf, createdAt: item.createdAt
+        const db = await loadDbCached();
+        // Идеи по улучшению сайта (kind "site") видят только модераторы — наружу не отдаются никогда.
+        return sendJson(200, { submissions: db.submissions.filter(item => item.status === "approved" && ["streamer", "moderator", "wall"].includes(item.kind)).map(item => ({
+          id: item.id, kind: item.kind, nickname: item.nickname, text: item.text, twitchLogin: item.twitchLogin, imageUrl: item.imageData ? "/api/community/image/" + item.id : "", moderatorName: item.moderatorName, moderatorOf: item.moderatorOf, createdAt: item.createdAt
         })) });
+      }
+      const imageMatch = url.pathname.match(/^\/api\/community\/image\/([a-f0-9-]+)$/i);
+      if (imageMatch && method === "GET") {
+        const db = await loadDbCached(), item = db.submissions.find(entry => entry.id === imageMatch[1]);
+        const parsed = item && item.imageData && item.imageData.match(/^data:(image\/(?:jpeg|png|webp|gif));base64,([A-Za-z0-9+/=]+)$/);
+        const published = item && item.status === "approved" && ["streamer", "moderator", "wall"].includes(item.kind);
+        if (!parsed || (!published && !getSession())) { res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" }); return res.end("Not found"); }
+        const bytes = Buffer.from(parsed[2], "base64");
+        res.writeHead(200, { "Content-Type": parsed[1], "Content-Length": bytes.length, "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "default-src 'none'", "Cache-Control": published ? "public, max-age=86400" : "private, no-store" });
+        return res.end(bytes);
       }
       if (url.pathname === "/api/community/login" && method === "POST") {
         if (!process.env.WALL_ADMIN_PASSWORD && !Object.keys(moderatorsConfig()).length) return sendJson(503, { error: "Модерация ещё не настроена владельцем сайта." });
@@ -1334,7 +1353,7 @@ async function handleRequest(req, res) {
         const session = getSession(); if (!session) return sendJson(401, { error: "Нужен вход модератора." });
         const db = await loadDb();
         return sendJson(200, { submissions: db.submissions.filter(item => item.status === "pending").map(item => ({
-          id: item.id, kind: item.kind, nickname: item.nickname, text: item.text, twitchLogin: item.twitchLogin, imageData: item.imageData, moderatorName: item.moderatorName, moderatorOf: item.moderatorOf, createdAt: item.createdAt
+          id: item.id, kind: item.kind, nickname: item.nickname, text: item.text, twitchLogin: item.twitchLogin, imageUrl: item.imageData ? "/api/community/image/" + item.id : "", moderatorName: item.moderatorName, moderatorOf: item.moderatorOf, createdAt: item.createdAt
         })), moderator: session.username, role: session.role });
       }
       const actionMatch = url.pathname.match(/^\/api\/community\/moderation\/([a-f0-9-]+)$/i);
@@ -1344,8 +1363,8 @@ async function handleRequest(req, res) {
         if (!["approve", "reject", "delete"].includes(action)) return sendJson(400, { error: "Неизвестное действие." });
         const db = await loadDb(), item = db.submissions.find(entry => entry.id === actionMatch[1]);
         if (!item) return sendJson(404, { error: "Заявка не найдена." });
-        if (item.status === "approved" && ["wall", "streamer"].includes(item.kind) && action !== "approve") {
-          const typeLabel = item.kind === "streamer" ? "Одобренных стримеров" : "Одобренных публикаций на стене";
+        if (item.status === "approved" && ["wall", "streamer", "moderator"].includes(item.kind) && action !== "approve") {
+          const typeLabel = item.kind === "streamer" ? "Одобренных стримеров" : item.kind === "moderator" ? "Одобренных модераторов" : "Одобренных публикаций на стене";
           return sendJson(409, { error: typeLabel + " нельзя отклонить или удалить. Они остаются опубликованными после перезагрузки страницы." });
         }
         if (action === "delete") db.submissions = db.submissions.filter(entry => entry.id !== item.id);

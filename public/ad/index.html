@@ -31,7 +31,7 @@ footer{margin-top:34px;color:#81758d;font-size:12px}
 const ads=[
 {name:"brill1antt",description:"18,5cm (яйца). По вопросам рекламы и предложениям: brilliantt300@gmail.com.",url:"https://www.twitch.tv/brill1antt",image:"/api/avatar?login=brill1antt",cta:"Открыть Twitch ↗"},
 {name:"mob_nadziratel",description:"Создатель Стримерского комьюнити. Стримы, игры и общение с сообществом.",url:"https://www.twitch.tv/mob_nadziratel",image:"/api/avatar?login=mob_nadziratel",cta:"Открыть Twitch ↗"},
-{name:"Низина Твича",description:"Telegram-канал Низины Твича — подписывайся на сообщество и следи за новостями.",url:"https://t.me/Ntwich",image:"/lowlands-logo.png",cta:"Открыть Telegram ↗"}
+{name:"Низина Твича",description:"Telegram-канал Низины Твича — подписывайся на сообщество и следи за новостями.",url:"https://t.me/Ntwich",image:"https://i.ibb.co/67sHc76S/panel-1263981823-image-1a71f377-cc88-45c3-9ae2-800a963cfe80.png",cta:"Открыть Telegram ↗"}
 ];
 let current=0;const $=id=>document.getElementById(id);
 function show(i){current=i;const a=ads[i];$("banner").href=a.url;$("name").textContent=a.name;$("description").textContent=a.description;$("avatar").src=a.image;$("avatar").alt="Изображение: "+a.name;$("cta").textContent=a.cta;$("dots").innerHTML=ads.map((_,n)=>'<span class="dot '+(n===i?'active':'')+'"></span>').join("");}

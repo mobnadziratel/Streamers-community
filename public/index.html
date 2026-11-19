@@ -4428,7 +4428,7 @@ async function loadProfileFollowerCount(login, requestSequence) {
   const cached = followerCountCache.get(key);
   if (cached && Date.now() - cached.fetchedAt < 2 * 60_000) {
     if (requestSequence !== profileRequestSequence) return;
-    text.textContent = `${baseSubtitle} · ${formatFollowerCount(cached.count)}`;
+    text.textContent = `${baseSubtitle} · ${formatFollowerCount(cached.count)}${cached.stale ? " · сохранённые данные" : ""}`;
     return;
   }
 
@@ -4440,9 +4440,9 @@ async function loadProfileFollowerCount(login, requestSequence) {
       throw new Error(payload.error || "Follower count unavailable");
     }
     const count = Number(payload.total);
-    followerCountCache.set(key, { count, fetchedAt: Date.now() });
+    followerCountCache.set(key, { count, fetchedAt: Date.now(), stale: Boolean(payload.stale) });
     if (requestSequence !== profileRequestSequence) return;
-    text.textContent = `${baseSubtitle} · ${formatFollowerCount(count)}`;
+    text.textContent = `${baseSubtitle} · ${formatFollowerCount(count)}${payload.stale ? " · сохранённые данные" : ""}`;
   } catch (error) {
     if (requestSequence !== profileRequestSequence) return;
     text.textContent = `${baseSubtitle} · фолловеры недоступны`;

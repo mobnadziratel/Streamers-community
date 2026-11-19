@@ -2609,7 +2609,7 @@ body{padding-bottom:54px!important}
  .brand-wordmark{max-width:none;min-width:0}
  .brand-wordmark .brand-main{font-size:clamp(13px,3.7vw,16px)!important;white-space:normal;overflow-wrap:anywhere}
  .brand-wordmark .brand-top,.brand-wordmark .brand-bottom{font-size:9px!important}
- .site-switch{grid-column:1;grid-row:2;order:initial;width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:0}
+ .site-switch{grid-column:1/-1;grid-row:2;order:initial;width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0}
  .site-switch a{min-height:40px;display:flex;align-items:center;justify-content:center;padding:8px 6px;font-size:12px}
  .theme-toggle{grid-column:2;grid-row:2;align-self:stretch;min-height:40px;margin:0!important;padding:8px 10px!important;white-space:nowrap;font-size:11px!important}
  main.wrap{padding-top:0}
@@ -2718,7 +2718,7 @@ img,video,iframe{max-width:100%}
       <path d="M36.5 5.5v5M34 8h5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
     </svg>
   </span><span class="brand-wordmark" id="brandWordmark" data-brand-state="streamers" aria-label="Модераторское Стримерское комьюнити Наше"><span class="brand-top" id="brandTop">Модераторское</span><span class="brand-main" id="brandMain"><span id="brandMainLead">Стримерское</span> комьюнити</span><span class="brand-bottom" id="brandBottom">Наше</span></span></span>
-  <nav class="site-switch" aria-label="Страницы сайта"><a href="/" aria-current="page" class="current">Главная</a><a href="/widgets">Виджеты</a><a href="#promotionsPanel" id="promotionsNavLink">Реклама</a></nav>
+  <nav class="site-switch" aria-label="Страницы сайта"><a href="/" aria-current="page" class="current">Главная</a><a href="/widgets">Виджеты</a><a href="/ad">Реклама</a></nav>
   <button class="theme-toggle" id="themeToggle" type="button" aria-label="Переключить тему"><span class="theme-icon" id="themeIcon">☀️</span><span id="themeLabel">Светлая тема</span></button>
 </div></header>
 <main class="wrap">
@@ -2854,11 +2854,6 @@ LEGENDS</div>
       <div class="wall-posts-grid wall-posts-on-mural" id="communityWallFeed" aria-label="Публикации сообщества"></div>
     </div>
     <p class="wall-contact-note">Хотите что-то добавить на стену или предложить идею? Напишите нашему боту: <a href="https://t.me/Mobyarik_bot" target="_blank" rel="noopener noreferrer">@Mobyarik_bot</a>.</p>
-  </section>
-  <section id="promotionsPanel" class="promotions-panel" aria-label="Рекламные баннеры стримеров" hidden>
-    <div class="promotions-intro"><h2>Реклама стримеров</h2><p>Баннеры участников сообщества автоматически сменяют друг друга.</p><p class="promo-submit-note">Хотите разместить свой баннер? Отправьте заявку через <a href="https://t.me/Mobyarik_bot" target="_blank" rel="noopener noreferrer">@Mobyarik_bot</a>.</p><div class="promo-obs-link">Для OBS: <button class="promo-copy-link" id="copyPromoObsLink" type="button">Скопировать ссылку для OBS</button><span id="promoCopyStatus" role="status" aria-live="polite"></span></div></div>
-    <div class="promo-stage" aria-live="polite"><a class="promo-banner" id="promoBanner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer">
-      <img class="promo-avatar" id="promoAvatar" alt="Аватар стримера" src=""><span class="promo-copy"><strong id="promoName">brill1antt</strong><span id="promoDescription">Стример сообщества</span><span class="promo-cta">Открыть Twitch ↗</span></span></a></div>
   </section>
 
 
@@ -3254,7 +3249,7 @@ const editors = [
 let activeTab = "streamers";
 try {
   const savedTab = sessionStorage.getItem("small-streamers-active-tab");
-  if (["streamers", "moderators", "clips", "wall", "promotions"].includes(savedTab)) activeTab = savedTab;
+  if (["streamers", "moderators", "clips", "wall"].includes(savedTab)) activeTab = savedTab;
 } catch (_) {}
 (function startAtTopOnReload() {
   let isReload = false;
@@ -3454,11 +3449,6 @@ async function loadTwitchAvatar(name, img) {
   }
 }
 
-
-const streamerPromotions=[{name:"brill1antt",url:"https://www.twitch.tv/brill1antt",description:"18,5cm (яйца). По вопросам рекламы и предложениям: brilliantt300@gmail.com.",index:0},{name:"mob_nadziratel",url:"https://www.twitch.tv/mob_nadziratel",description:"Создатель Стримерского комьюнити. Стримы, игры и общение с сообществом.",index:1}];
-let activePromotion=0,promoRotationTimer=null;
-function showStreamerPromotion(index){activePromotion=(index+streamerPromotions.length)%streamerPromotions.length;const promo=streamerPromotions[activePromotion],banner=document.getElementById("promoBanner"),avatar=document.getElementById("promoAvatar");if(!banner||!avatar)return;banner.href=promo.url;document.getElementById("promoName").textContent=promo.name;document.getElementById("promoDescription").textContent=promo.description;avatar.alt="Аватар "+promo.name;avatar.src=avatarSvg(promo.name,promo.index);loadTwitchAvatar(promo.name,avatar);banner.style.animation="none";void banner.offsetWidth;banner.style.animation="";}
-showStreamerPromotion(0);promoRotationTimer=setInterval(()=>showStreamerPromotion(activePromotion+1),6500);
 
 // Replace the wall poster placeholder with cherrys_fox's current Twitch avatar when available.
 if (wantedCherryAvatar) loadTwitchAvatar("cherrys_fox", wantedCherryAvatar);
@@ -4285,8 +4275,6 @@ const tabButtons = {
   clips: "clipsTab",
   wall: "wallTab",
 };
-document.getElementById("promotionsNavLink")?.addEventListener("click",event=>{event.preventDefault();activateTab("promotions");});
-document.getElementById("copyPromoObsLink")?.addEventListener("click",async()=>{const url=location.origin+"/ad/widget";const status=document.getElementById("promoCopyStatus");const button=document.getElementById("copyPromoObsLink");try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(url);}else{const field=document.createElement("textarea");field.value=url;field.style.position="fixed";field.style.opacity="0";document.body.appendChild(field);field.select();const copied=document.execCommand("copy");field.remove();if(!copied)throw new Error("copy failed");}status.textContent="Ссылка скопирована!";button.textContent="Скопировано ✓";}catch(_){status.textContent=url;button.textContent="Скопируйте ссылку выше";}});
 function activateTab(nextTab) {
   activeTab = nextTab;
   try { sessionStorage.setItem("small-streamers-active-tab", nextTab); } catch (_) {}
@@ -4295,15 +4283,12 @@ function activateTab(nextTab) {
     moderators: ["МОДЕРАТОРЫ", "Команда, которая помогает сообществу и поддерживает порядок на каналах."],
     clips: ["КЛИПЫ", "Лучшие моменты со стримов — выбирай период, сортировку и смотри подборку."],
     wall: ["СТЕНА", "Общие мемы, картинки и подписи — всё, что делает наше комьюнити живым."],
-    promotions: ["РЕКЛАМА", "Небольшие рекламные баннеры стримеров сообщества."],
   };
   const [heading, description] = sectionCopy[nextTab] || sectionCopy.streamers;
-  const promoNav=document.getElementById("promotionsNavLink"); if(promoNav){if(nextTab==="promotions"){promoNav.classList.add("current");promoNav.setAttribute("aria-current","page");}else{promoNav.classList.remove("current");promoNav.removeAttribute("aria-current");}}
   document.getElementById("streamersPanel").hidden = nextTab !== "streamers";
   document.getElementById("moderatorsPanel").hidden = nextTab !== "moderators";
   document.getElementById("clipsPanel").hidden = nextTab !== "clips";
   document.getElementById("wallPanel").hidden = nextTab !== "wall";
-  document.getElementById("promotionsPanel").hidden = nextTab !== "promotions";
   const brandWordmark = document.getElementById("brandWordmark");
   const brandTop = document.getElementById("brandTop");
   const brandMainLead = document.getElementById("brandMainLead");
@@ -4354,7 +4339,6 @@ function activateTab(nextTab) {
     moderators: "moderatorsPanel",
     clips: "clipsPanel",
     wall: "wallPanel",
-    promotions: "promotionsPanel"
   }[nextTab]);
   [heroSection, activePanel].filter(Boolean).forEach(node => {
     node.classList.remove("tab-section-arrive");

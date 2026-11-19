@@ -4,8 +4,7 @@
   "private": true,
   "description": "Streamers Community — Twitch streamer directory and community tools",
   "scripts": {
-    "start": "node server.js",
-    "test": "node --test"
+    "start": "node server.js"
   },
   "engines": {
     "node": ">=18"

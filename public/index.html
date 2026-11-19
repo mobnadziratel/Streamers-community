@@ -2701,6 +2701,7 @@ img,video,iframe{max-width:100%}
 #suggestionsTab{position:relative}
 @media(max-width:900px){.suggest-cats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.tabs .tab-button#suggestionsTab{grid-column:1/-1}.suggest-cat{padding:13px}.suggest-cat .ico{font-size:24px}.suggest-intro h2{font-size:20px}}
+.lowlands-heading{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin:0 0 16px}.lowlands-logo-link{display:inline-flex;align-items:center;max-width:min(320px,72vw)}.lowlands-logo{display:block;width:100%;height:auto;max-height:120px;object-fit:contain;object-position:left center}.lowlands-channel-link{color:var(--muted);font-size:13px;font-weight:800;text-decoration:none;border:1px solid var(--line);border-radius:12px;padding:9px 12px}.lowlands-channel-link:hover{color:var(--text);border-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -2750,7 +2751,7 @@ img,video,iframe{max-width:100%}
       <div class="grid" id="mainGrid"></div>
     </div>
     <div class="category" id="lowlandsCategory">
-      <h2 class="category-title">Низина твича</h2>
+      <div class="lowlands-heading"><a class="lowlands-logo-link" href="https://t.me/Ntwich" target="_blank" rel="noopener noreferrer" aria-label="Канал Низина твича в Telegram"><img class="lowlands-logo" src="/lowlands-logo.png" alt="Низина твича"></a><a class="lowlands-channel-link" href="https://t.me/Ntwich" target="_blank" rel="noopener noreferrer">Telegram-канал Низина твича ↗</a></div>
       <div class="grid" id="lowlandsGrid"></div>
     </div>
     <div class="category" id="othersCategory">
@@ -2953,6 +2954,62 @@ LEGENDS</div>
 </button>
 <script>
 const streamers = [
+  {name:"kolplayyyyy", url:"https://www.twitch.tv/kolplayyyyy", group:"lowlands", description:"Я прикольный жоза. Сотрудничество — @kolplayyy", links:[{label:"DonationAlerts", url:"https://www.donationalerts.com/r/kolplayyyyy"}, {label:"Telegram", url:"https://t.me/kolplayyyyy"}, {label:"YouTube", url:"https://www.youtube.com/@kolplayyyyy_twitch"}, {label:"Discord", url:"https://discord.gg/72RSxSsU4y"}]},
+
+  {name:"kyper0kk", url:"https://www.twitch.tv/kyper0kk", group:"lowlands", description:"Здовбицка братва", links:[{label:"Telegram", url:"https://t.me/kyper0kk228"}, {label:"Instagram", url:"https://www.instagram.com/kyper.rr"}, {label:"TikTok", url:"https://www.tiktok.com/@kyper.rr"}, {label:"Steam", url:"https://steamcommunity.com/tradeoffer/new/?partner=932780403&token=MjJ3kKHZ"}, {label:"Donatello", url:"https://donatello.to/kyper0kk"}]},
+
+  {name:"ALMA3uk7", url:"https://www.twitch.tv/ALMA3uk7", group:"lowlands", links:[{label:"DonationAlerts", url:"https://www.donationalerts.com/r/alma3uk7"}, {label:"MemeAlerts", url:"https://memealerts.com/ALMA3uk7"}, {label:"DonatePay", url:"https://new.donatepay.ru/@ALMA3uk7"}]},
+
+  {name:"niavii_", url:"https://www.twitch.tv/niavii_", group:"lowlands", description:"Твоя интернет-подружка", links:[{label:"Telegram", url:"https://t.me/niaviitg"}, {label:"YouTube", url:"https://www.youtube.com/channel/UCGN744hYN8T57_ekInosp1A"}, {label:"Boosty", url:"https://boosty.to/niavii_"}, {label:"MemeAlerts", url:"https://memealerts.com/66a3a11ce904cc2377a418d5"}, {label:"Discord", url:"https://discord.gg/YFvQQVVaVv"}]},
+
+  {name:"tanggens", url:"https://www.twitch.tv/tanggens", group:"lowlands", links:[]},
+
+  {name:"naktri", url:"https://www.twitch.tv/naktri", group:"lowlands", links:[{label:"DonationAlerts", url:"https://www.donationalerts.com/r/naktri_"}, {label:"YouTube", url:"https://www.youtube.com/@naktri"}]},
+
+  {name:"artemillen", url:"https://www.twitch.tv/artemillen", group:"lowlands", description:"Обнял, брат, связь 😂", links:[{label:"DonationAlerts", url:"https://www.donationalerts.com/r/artemillen"}, {label:"Telegram", url:"https://t.me/artemillen"}, {label:"Instagram", url:"https://www.instagram.com/arte.mln"}, {label:"MemeAlerts", url:"https://memealerts.com/artemillen"}]},
+
+  {name:"refferency", url:"https://www.twitch.tv/refferency", group:"lowlands", links:[{label:"Telegram", url:"https://t.me/reffTG"}, {label:"MemeAlerts", url:"https://memealerts.com/refferency"}, {label:"DonationAlerts", url:"https://www.donationalerts.com/r/refferency"}, {label:"DonateX", url:"https://donatex.gg/donate/refferency"}, {label:"Steam", url:"http://steamcommunity.com/id/Refferency/"}, {label:"YouTube", url:"https://www.youtube.com/channel/UCXky08qni5KJMdvxgzA27mA"}]},
+
+  {name:"milseechka", url:"https://www.twitch.tv/milseechka", group:"lowlands", description:"Главный амбассадор драников и сгущёнки", links:[{label:"Telegram", url:"https://t.me/milseexx"}, {label:"DonationAlerts", url:"https://www.donationalerts.com/r/milseexx"}, {label:"TikTok", url:"https://www.tiktok.com/@milseexx"}, {label:"YouTube", url:"https://youtube.com/@milseexx"}]},
+
+  {name:"naomio404", url:"https://www.twitch.tv/naomio404", group:"lowlands", description:"NaoMio404", links:[{label:"DonateX", url:"https://donatex.gg/donate/naomio404"}, {label:"Telegram", url:"https://t.me/NaoMio404"}, {label:"MemeAlerts", url:"https://memealerts.com/6636d53b2bc296f7d8061d73"}, {label:"YouTube", url:"https://www.youtube.com/@nao44rezki"}, {label:"TikTok", url:"https://www.tiktok.com/@naomio404"}]},
+
+  {name:"prosto_debzik", url:"https://www.twitch.tv/prosto_debzik", group:"lowlands", description:"Молодой гений", links:[{label:"DonationAlerts", url:"https://www.donationalerts.com/r/prosto_debzik"}, {label:"VK", url:"https://vk.com/egorstepanishin"}, {label:"Telegram", url:"https://t.me/prosto_debzik"}, {label:"MemeAlerts", url:"https://memealerts.com/prosto_debzik"}, {label:"Discord", url:"https://discord.gg/jByaRJYhkt"}]},
+
+  {name:"q1yuqva", url:"https://www.twitch.tv/q1yuqva", group:"lowlands", description:"Приве, я клюква!", links:[{label:"Telegram", url:"https://t.me/q1yuqva"}, {label:"DonateX", url:"https://donatex.gg/donate/q1yuqva"}, {label:"DonationAlerts", url:"https://www.donationalerts.com/r/q1yuqva"}]},
+
+  {name:"shatlman_", url:"https://www.twitch.tv/shatlman_", group:"lowlands", description:"Начинающий стример, делаю всего по чуть-чуть", links:[{label:"Telegram", url:"https://t.me/konroratigrov"}, {label:"DonationAlerts", url:"https://www.donationalerts.com/r/shatlman_"}, {label:"Telegram 2", url:"https://t.me/Shatlman"}]},
+
+  {name:"gileness", url:"https://www.twitch.tv/gileness", group:"lowlands", description:"Глеб, 17 лет, молодец =)", links:[{label:"DonationAlerts", url:"https://www.donationalerts.com/r/gilines"}, {label:"YouTube", url:"https://www.youtube.com/@gilines"}, {label:"Telegram", url:"https://t.me/gilines"}, {label:"Discord", url:"https://discord.gg/DE3PwTsWsd"}]},
+
+  {name:"bambaleila45", url:"https://www.twitch.tv/bambaleila45", group:"lowlands", description:"опооооссум", links:[{label:"Telegram", url:"https://t.me/bAmBl45"}, {label:"DonationAlerts", url:"https://www.donationalerts.com/r/bambaleila45"}, {label:"Instagram", url:"https://www.instagram.com/bambaleila45_"}]},
+
+  {name:"arollelay", url:"https://www.twitch.tv/arollelay", group:"lowlands", description:"Искренность — это красиво", links:[{label:"DonationAlerts", url:"https://www.donationalerts.com/r/arollelay"}, {label:"Telegram", url:"https://t.me/arollelay"}, {label:"TikTok", url:"https://www.tiktok.com/@qwessys"}]},
+
+  {name:"maestroveniamin", url:"https://www.twitch.tv/maestroveniamin", group:"lowlands", links:[{label:"DonationAlerts", url:"https://www.donationalerts.com/r/maestroveniamin"}, {label:"Telegram", url:"https://t.me/MaestroVeniamin"}, {label:"YouTube", url:"https://www.youtube.com/@MaestroVeniamin?sub_confirmation=1"}, {label:"TikTok", url:"https://www.tiktok.com/@maestroveniamin"}]},
+
+  {name:"kinaroff", url:"https://www.twitch.tv/kinaroff", group:"lowlands", description:"Лысый, свин, любитель бургеров", links:[{label:"Steam", url:"https://steamcommunity.com/profiles/76561198089408967/"}, {label:"Telegram", url:"https://telegram.me/kinaroffxleb"}, {label:"Discord", url:"https://discord.gg/4HgZxJfwcy"}, {label:"Boosty", url:"https://boosty.to/kinaroff"}, {label:"DonationAlerts", url:"http://www.donationalerts.ru/r/kinaroff"}, {label:"MemeAlerts", url:"https://memealerts.com/kinaroff"}]},
+
+  {name:"skybinka", url:"https://www.twitch.tv/skybinka", group:"lowlands", description:"Надеюсь тебе будет интересно ❤️", links:[{label:"Telegram", url:"https://t.me/zoomer4mo"}, {label:"DonationAlerts", url:"https://www.donationalerts.com/r/wwzoomerww"}, {label:"MemeAlerts", url:"https://memealerts.com/6726878c1135f4340ab8b72c"}, {label:"Website", url:"http://last-smp.fun/"}]},
+
+  {name:"artempencil", url:"https://www.twitch.tv/artempencil", group:"lowlands", description:"Грустно. Весёлый стример. А взглянешь поглубже — трагедия.", links:[{label:"DonationAlerts", url:"https://www.donationalerts.com/r/artempencil"}, {label:"DonatePay", url:"https://donatepay.ru/don/1433055"}, {label:"DonateX", url:"https://donatex.gg/donate/artempencil"}, {label:"MemeAlerts", url:"https://memealerts.com/artempencil"}, {label:"Telegram", url:"https://t.me/artempencilok"}]},
+
+  {name:"yaTOMAL", url:"https://www.twitch.tv/yaTOMAL", group:"lowlands", description:"Общение, IRL, шоу, интерактивы и фильмы", links:[{label:"Telegram", url:"https://t.me/yaTOMAL"}, {label:"DonationAlerts", url:"https://donationalerts.com/r/yaTOMAL"}, {label:"Steam", url:"https://steamcommunity.com/id/tom4l"}, {label:"Instagram", url:"https://www.instagram.com/tom4l/"}, {label:"DonatePay", url:"https://donatepay.ru/don/yaTOMAL"}]},
+
+  {name:"omchaaa", url:"https://www.twitch.tv/omchaaa", group:"lowlands", description:"блин чеж делать ччеж делаать", links:[{label:"TikTok", url:"https://www.tiktok.com/@omachannn"}, {label:"DonationAlerts", url:"https://www.donationalerts.com/r/omchaaa"}]},
+
+  {name:"nef0rb0y", url:"https://www.twitch.tv/nef0rb0y", group:"lowlands", description:"Самый перспективный стример 2025 года!", links:[{label:"DonationAlerts", url:"https://www.donationalerts.com/r/nef0rb0y"}, {label:"Telegram", url:"https://t.me/neforboy"}, {label:"Discord", url:"https://discord.gg/3bpVsRr2Tg"}]},
+
+  {name:"so0olnce", url:"https://www.twitch.tv/so0olnce", group:"lowlands", description:"Общение, IRL и интерактивы", links:[{label:"DonationAlerts", url:"https://www.donationalerts.com/r/so0olnce"}, {label:"Telegram", url:"https://t.me/so0olncepub"}, {label:"MemeAlerts", url:"https://memealerts.com/so0olnce"}, {label:"YouTube", url:"https://www.youtube.com/channel/UCxhUeq2FlsxxNYc9wmzw7CQ?view_as=subscriber"}, {label:"Discord", url:"https://discord.gg/tpmwBtW3hf"}, {label:"DonatePay", url:"https://new.donatepay.ru/@1236788"}]},
+
+  {name:"yura_reilly", url:"https://www.twitch.tv/yura_reilly", group:"lowlands", links:[{label:"Telegram", url:"https://t.me/yura_reilly"}, {label:"YouTube", url:"https://www.youtube.com/channel/UCk_PPKB358LRiptEjZxISAg"}, {label:"TikTok", url:"https://www.tiktok.com/@yura_reilly?lang=ru-RU"}, {label:"Instagram", url:"https://www.instagram.com/yura_reilly/"}, {label:"Discord", url:"https://discord.gg/mFJr8ZDNzd"}, {label:"DonationAlerts", url:"https://www.donationalerts.com/r/yura_reilly"}, {label:"MemeAlerts", url:"https://memealerts.com/yura_reilly"}]},
+
+  {name:"hak1den", url:"https://www.twitch.tv/hak1den", group:"lowlands", description:"Как настоящий эгоист играю в кс", links:[{label:"Telegram", url:"https://t.me/hakiden"}]},
+
+  {name:"reppka_", url:"https://www.twitch.tv/reppka_", group:"lowlands", description:"Егор, легенда, о которой пока мало кто знает. P.S. Свага тут", links:[{label:"Telegram", url:"https://t.me/ReppkaHouse"}, {label:"DonationAlerts", url:"https://www.donationalerts.com/r/ava_channel_live"}, {label:"MemeAlerts", url:"https://memealerts.com/66db4d9716a0e02e2752e780"}]},
+
+  {name:"tostik_ilya", url:"https://www.twitch.tv/tostik_ilya", group:"lowlands", description:"Я есть хлеб", links:[{label:"Steam", url:"https://steamcommunity.com/tradeoffer/new/?partner=840738152&token=4UiaKX-u"}, {label:"DonationAlerts", url:"https://www.donationalerts.com/r/tostik_ilya"}, {label:"VK", url:"https://vk.com/tost1kgroup"}, {label:"Discord", url:"https://discord.gg/g8kuhJ4dfd"}, {label:"Telegram", url:"https://t.me/ilya_tostik"}, {label:"YouTube", url:"https://www.youtube.com/channel/UCSxx4ypgm8voLX8LZr7tIaA"}]},
+
   {name:"vanaya_sigma", url:"https://www.twitch.tv/vanaya_sigma", group:"others",
    links:[{label:"Telegram", url:"https://t.me/+ok0A-s-ZAMoyMDIy"}]},
   {name:"knaz_52", url:"https://www.twitch.tv/knaz_52", group:"others",
@@ -3103,7 +3160,7 @@ const streamers = [
     {label:"Telegram", url:"https://t.me/pepepepepepepe1"},
     {label:"MemeAlerts", url:"https://memealerts.com/6a1dc32b372e694e840eee9f"}
    ]},
-  {name:"slavabraze", url:"https://www.twitch.tv/slavabraze", group:"others",
+  {name:"slavabraze", url:"https://www.twitch.tv/slavabraze", group:"lowlands",
    links:[
     {label:"DonationAlerts", url:"https://www.donationalerts.com/r/slavabraze"},
     {label:"Telegram", url:"https://t.me/SecretBraze"},
@@ -3131,7 +3188,7 @@ const streamers = [
     {label:"Telegram", url:"https://t.me/zavryziel_art"},
     {label:"YouTube", url:"https://www.youtube.com/@ZAVRYZIEL"}
    ]},
-  {name:"ilyuhalakee", url:"https://www.twitch.tv/ilyuhalakee", group:"others",
+  {name:"ilyuhalakee", url:"https://www.twitch.tv/ilyuhalakee", group:"lowlands",
    description:"По деловым вопросам писать сюда: lak33ebisnessdeals@gmail.com",
    links:[
     {label:"Instagram", url:"https://www.instagram.com/ilyuha_lak33e?igsh=MTB4cXFxcnR5c3VrOQ=="},
@@ -3139,7 +3196,7 @@ const streamers = [
     {label:"Spotify", url:"https://open.spotify.com/playlist/4s87jYrKltCSjDAfiwd2Qx?si=d003867019a74954"},
     {label:"DonatePay", url:"https://new.donatepay.ru/@1448667"}
    ]},
-  {name:"brill1antt", url:"https://www.twitch.tv/brill1antt", group:"others",
+  {name:"brill1antt", url:"https://www.twitch.tv/brill1antt", group:"lowlands",
    description:"18,5cm (яйца). По вопросам рекламы и предложениям: brilliantt300@gmail.com. Telegram: t.me/BRILL1ANTT.",
    links:[
     {label:"Telegram", url:"https://t.me/BRILL1ANTT"},

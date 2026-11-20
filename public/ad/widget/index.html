@@ -66,6 +66,24 @@ body.hide-qr #banner{grid-template-columns:var(--platform-size,40px) minmax(0,1f
   font-weight:950;
 }
 
+
+/* Reference-inspired typography: bold italic display lettering, transparent background. */
+#nickname{
+  display:inline-block;
+  width:fit-content;max-width:100%;
+  color:#fff!important;
+  font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif!important;
+  font-style:italic!important;font-weight:1000!important;
+  font-size:clamp(24px,4.4vw,48px)!important;
+  line-height:1.02!important;letter-spacing:-.045em!important;
+  text-transform:uppercase!important;
+  -webkit-text-stroke:.35px rgba(255,255,255,.7);
+  -webkit-font-smoothing:antialiased;
+  text-shadow:0 1px 0 #d9c7df,0 3px 0 #8c245f,0 6px 0 #5d123f,0 10px 15px rgba(70,5,45,.38)!important;
+  transform:skewX(-7deg);transform-origin:left center;
+}
+#nickname:after{display:none!important}
+
 </style></head><body>
 <a id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer" aria-label="Открыть канал Twitch">
 <span id="platform" aria-label="Twitch"><svg viewBox="0 0 24 24" role="img" aria-label="Twitch"><path fill="currentColor" d="M4 2 2 6v14h5v4l4-4h4l7-7V2H4zm16 10-4 4h-4l-3 3v-3H5V4h15v8zM10 6h2v6h-2zm5 0h2v6h-2z"/></svg></span>

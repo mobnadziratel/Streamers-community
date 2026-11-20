@@ -3941,11 +3941,15 @@ function reorderCategoryCards() {
     }
 
     cards.sort((a, b) => {
-      const nameA = a.querySelector(".name")?.textContent || "";
-      const nameB = b.querySelector(".name")?.textContent || "";
+      // Prefer stable Twitch login (data-streamer-login) over display label so
+      // live lookup matches /api/streams keys even when displayName differs.
+      const loginA = a.dataset.streamerLogin || a.querySelector(".name")?.textContent || "";
+      const loginB = b.dataset.streamerLogin || b.querySelector(".name")?.textContent || "";
+      const nameA = a.querySelector(".name")?.textContent || loginA;
+      const nameB = b.querySelector(".name")?.textContent || loginB;
       if (prioritizeLive) {
-        const liveA = Boolean(getStreamState(latestStreamData, nameA)?.isLive);
-        const liveB = Boolean(getStreamState(latestStreamData, nameB)?.isLive);
+        const liveA = Boolean(getStreamState(latestStreamData, loginA)?.isLive);
+        const liveB = Boolean(getStreamState(latestStreamData, loginB)?.isLive);
         if (liveA !== liveB) return liveA ? -1 : 1;
       }
       return nameA.localeCompare(nameB, "ru", { sensitivity: "base", numeric: true });
@@ -4110,6 +4114,9 @@ function applyLiveStatuses(streams) {
       meta.replaceChildren(...scheduleLines(name));
     }
   });
+  // After status updates, push live streamers to the top of their category.
+  // Previously order stayed frozen until a full re-render (tab switch etc.).
+  if (activeTab === "streamers") reorderCategoryCards();
 }
 
 refreshSchedules();
@@ -4133,7 +4140,7 @@ async function refreshLiveStatuses() {
       // streamer cards that currently exist, without touching moderator/editor cards.
       applyLiveStatuses(latestStreamData);
       refreshCollaborations();
-      // Keep directory cards in a stable order when live statuses refresh.
+      // applyLiveStatuses reorders live channels to the top of their category.
     } catch (error) {
       // Keep failures distinct from offline. If streamer cards are recreated later,
       // render() will retry after the throttle window rather than leaving them loading.

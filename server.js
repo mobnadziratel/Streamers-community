@@ -181,9 +181,6 @@ async function getTwitchDiagnostics() {
 
 async function getAppToken() {
   if (token && Date.now() < tokenExpiresAt - 60_000) return token;
-  if (!CLIENT_ID || !CLIENT_SECRET) {
-    throw new Error("Set TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET in the environment.");
-  }
   const body = new URLSearchParams({
     client_id: CLIENT_ID,
     client_secret: CLIENT_SECRET,
@@ -195,26 +192,11 @@ async function getAppToken() {
     body,
     signal: AbortSignal.timeout(12000)
   });
-  if (!response.ok) {
-    let detail = "";
-    try {
-      const errBody = await response.json();
-      detail = errBody.message || errBody.status || "";
-    } catch (_) {}
-    throw new Error(`Twitch token request failed (${response.status})${detail ? ": " + detail : ""}`);
-  }
+  if (!response.ok) throw new Error(`Twitch token request failed (${response.status})`);
   const data = await response.json();
-  if (!data.access_token) throw new Error("Twitch token response did not include access_token");
   token = data.access_token;
   tokenExpiresAt = Date.now() + (data.expires_in || 3600) * 1000;
   return token;
-}
-
-/** Split array into chunks of at most `size` items (Helix allows ≤100 user_login per request). */
-function chunkArray(items, size) {
-  const chunks = [];
-  for (let i = 0; i < items.length; i += size) chunks.push(items.slice(i, i + size));
-  return chunks;
 }
 
 async function fetchStreams() {
@@ -222,49 +204,42 @@ async function fetchStreams() {
     throw new Error("Set TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET in the environment.");
   }
   const accessToken = await getAppToken();
+  const params = new URLSearchParams();
+  LOGINS.forEach(login => params.append("user_login", login));
+  const response = await fetch(`https://api.twitch.tv/helix/streams?${params}`, {
+    headers: {
+      "Client-Id": CLIENT_ID,
+      "Authorization": `Bearer ${accessToken}`
+    },
+    signal: AbortSignal.timeout(12000)
+  });
+  if (!response.ok) {
+    if (response.status === 401) {
+      token = null;
+      tokenExpiresAt = 0;
+    }
+    throw new Error(`Twitch streams request failed (${response.status})`);
+  }
+  const data = await response.json();
   const result = {};
   LOGINS.forEach(login => {
     result[login] = { isLive: false, viewerCount: null, title: null };
   });
-
-  const batches = chunkArray(LOGINS, 100);
-  for (const batch of batches) {
-    const params = new URLSearchParams();
-    batch.forEach(login => params.append("user_login", login));
-    const response = await fetch(`https://api.twitch.tv/helix/streams?${params}`, {
-      headers: {
-        "Client-Id": CLIENT_ID,
-        "Authorization": `Bearer ${accessToken}`
-      },
-      signal: AbortSignal.timeout(12000)
-    });
-    if (!response.ok) {
-      if (response.status === 401) {
-        token = null;
-        tokenExpiresAt = 0;
-      }
-      let detail = "";
-      try {
-        const errBody = await response.json();
-        detail = errBody.message || "";
-      } catch (_) {}
-      throw new Error(`Twitch streams request failed (${response.status})${detail ? ": " + detail : ""}`);
+  (data.data || []).forEach(stream => {
+    const login = String(stream.user_login || "").toLowerCase();
+    if (result[login]) {
+      result[login] = {
+        isLive: true,
+        viewerCount: Number(stream.viewer_count || 0),
+        title: String(stream.title || ""),
+        startedAt: String(stream.started_at || "")
+      };
     }
-    const data = await response.json();
-    (data.data || []).forEach(stream => {
-      const login = String(stream.user_login || "").toLowerCase();
-      if (Object.prototype.hasOwnProperty.call(result, login)) {
-        result[login] = {
-          isLive: true,
-          viewerCount: Number(stream.viewer_count || 0),
-          title: String(stream.title || ""),
-          startedAt: String(stream.started_at || "")
-        };
-      }
-    });
-  }
+  });
 
-  // Optional single-channel recheck for z3kat (kept light; Helix is authoritative).
+  // Focused fallback for Z3KAT. Resolve the canonical Twitch user first, then
+  // verify the stream by both login and stable user ID. A missing stream entry
+  // in Helix means offline; a failed lookup is logged and never treated as proof.
   if (!result.z3kat?.isLive) {
     try {
       const userParams = new URLSearchParams({ login: "z3kat" });
@@ -272,31 +247,49 @@ async function fetchStreams() {
         headers: { "Client-Id": CLIENT_ID, "Authorization": `Bearer ${accessToken}` },
         signal: AbortSignal.timeout(8000)
       });
-      if (userResponse.ok) {
-        const userData = await userResponse.json();
-        const twitchUser = (userData.data || [])[0];
-        if (twitchUser) {
-          const byId = new URLSearchParams({ user_id: String(twitchUser.id) });
-          const streamResponse = await fetch(`https://api.twitch.tv/helix/streams?${byId}`, {
+      if (!userResponse.ok) throw new Error(`users lookup HTTP ${userResponse.status}`);
+      const userData = await userResponse.json();
+      const twitchUser = (userData.data || [])[0];
+
+      if (!twitchUser) {
+        console.warn("Twitch users lookup did not resolve login z3kat; check whether the channel username changed.");
+      } else {
+        const canonicalLogin = String(twitchUser.login || "z3kat").toLowerCase();
+        const singleQueries = [
+          { label: "login", params: new URLSearchParams({ user_login: canonicalLogin }) },
+          { label: "user_id", params: new URLSearchParams({ user_id: String(twitchUser.id) }) }
+        ];
+        for (const query of singleQueries) {
+          const singleResponse = await fetch(`https://api.twitch.tv/helix/streams?${query.params}`, {
             headers: { "Client-Id": CLIENT_ID, "Authorization": `Bearer ${accessToken}` },
             signal: AbortSignal.timeout(8000)
           });
-          if (streamResponse.ok) {
-            const streamData = await streamResponse.json();
-            const stream = (streamData.data || [])[0];
-            if (stream) {
-              result.z3kat = {
-                isLive: true,
-                viewerCount: Number(stream.viewer_count || 0),
-                title: String(stream.title || ""),
-                startedAt: String(stream.started_at || ""),
-                userLogin: String(twitchUser.login || "z3kat").toLowerCase()
-              };
-            }
+          if (!singleResponse.ok) {
+            console.error(`Focused Z3KAT ${query.label} lookup failed (HTTP ${singleResponse.status})`);
+            continue;
           }
+          const singleData = await singleResponse.json();
+          const stream = (singleData.data || []).find(item =>
+            String(item.user_id || "") === String(twitchUser.id) ||
+            String(item.user_login || "").toLowerCase() === canonicalLogin
+          );
+          if (stream) {
+            result.z3kat = {
+              isLive: true,
+              viewerCount: Number(stream.viewer_count || 0),
+              title: String(stream.title || ""),
+              startedAt: String(stream.started_at || ""),
+              userLogin: canonicalLogin
+            };
+            break;
+          }
+        }
+        if (!result.z3kat?.isLive) {
+          console.info(`Twitch confirms no live stream for Z3KAT (${canonicalLogin}, user id ${twitchUser.id}) at ${new Date().toISOString()}.`);
         }
       }
     } catch (error) {
+      // Do not silently assume that a failed fallback means the channel is offline.
       console.error(`Focused Z3KAT status lookup failed: ${error.message}`);
     }
   }
@@ -369,7 +362,7 @@ const avatarCache = new Map();
 const followerCountCache = new Map();
 const followerCountInFlight = new Map();
 async function helix(pathname, params) {
-  if (!CLIENT_ID || !CLIENT_SECRET) throw new Error("Set TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET in the environment.");
+  if (!CLIENT_ID || !CLIENT_SECRET) throw new Error("Set TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET in Render environment.");
   const accessToken = await getAppToken();
   const response = await fetch(`https://api.twitch.tv/helix/${pathname}?${params.toString()}`, {
     headers: { "Client-Id": CLIENT_ID, "Authorization": `Bearer ${accessToken}` },
@@ -377,12 +370,7 @@ async function helix(pathname, params) {
   });
   if (!response.ok) {
     if (response.status === 401) { token = null; tokenExpiresAt = 0; }
-    let detail = "";
-    try {
-      const errBody = await response.json();
-      detail = errBody.message || "";
-    } catch (_) {}
-    throw new Error(`Twitch ${pathname} request failed (${response.status})${detail ? ": " + detail : ""}`);
+    throw new Error(`Twitch ${pathname} request failed (${response.status})`);
   }
   return response.json();
 }
@@ -393,13 +381,9 @@ const parseTwitchDuration = value => {
   return m ? (((+m[1] || 0) * 3600) + ((+m[2] || 0) * 60) + (+m[3] || 0)) * 1000 : 0;
 };
 async function fetchSchedules() {
-  const users = [];
-  for (const batch of chunkArray(LOGINS, 100)) {
-    const params = new URLSearchParams();
-    batch.forEach(login => params.append("login", login));
-    const payload = await helix("users", params);
-    users.push(...(payload.data || []));
-  }
+  const params = new URLSearchParams();
+  LOGINS.forEach(login => params.append("login", login));
+  const users = (await helix("users", params)).data || [];
   const result = {}, queue = users.map(u => [String(u.login).toLowerCase(), u.id]);
   const worker = async () => {
     while (queue.length) {
@@ -423,8 +407,7 @@ async function fetchSchedules() {
       result[login] = entry; // 404 «расписания нет» — обычная ситуация, не ошибка
     }
   };
-  // Lower concurrency to stay comfortably under Helix rate limits.
-  await Promise.all(Array.from({ length: 4 }, worker));
+  await Promise.all(Array.from({ length: 6 }, worker));
   return result;
 }
 async function getSchedules() {
@@ -472,13 +455,10 @@ async function fetchClips(period) {
   const cached = clipsCache.get(cacheKey);
   if (cached && now - cached.time < 5 * 60_000) return cached.clips;
 
-  const users = [];
-  for (const batch of chunkArray(LOGINS, 100)) {
-    const userParams = new URLSearchParams();
-    batch.forEach(login => userParams.append("login", login));
-    const usersPayload = await helix("users", userParams);
-    users.push(...(usersPayload.data || []));
-  }
+  const userParams = new URLSearchParams();
+  LOGINS.forEach(login => userParams.append("login", login));
+  const usersPayload = await helix("users", userParams);
+  const users = usersPayload.data || [];
   if (!users.length) throw new Error("Twitch API не вернул ни одного канала для списка клипов.");
 
   const hoursByPeriod = { "24h": 24, "7d": 24 * 7, "30d": 24 * 30, "365d": 24 * 365 };

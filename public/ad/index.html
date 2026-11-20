@@ -1,282 +1,132 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b0b0f">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0812">
 <meta name="description" content="Реклама стримеров и сообществ в Стримерском комьюнити.">
-<title>Реклама — Стримерское комьюнити</title>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Small Streamers Community">
+<meta property="og:title" content="Реклама — Streamers Community">
+<meta property="og:description" content="Рекламные баннеры стримеров и сообществ. Размести свою рекламу через бота.">
+<meta property="og:url" content="https://small-streamers.onrender.com/ad">
+<meta property="og:image" content="https://small-streamers.onrender.com/og-image.svg">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
+<link rel="shortcut icon" href="/favicon.svg?v=5">
+<title>Реклама — Streamers Community</title>
 <style>
-:root {
-  color-scheme: dark;
-  --bg: #0b0b0f;
-  --panel: #14141b;
-  --panel2: #1a1a23;
-  --text: #f5f5f7;
-  --muted: #9a9aa8;
-  --accent: #b9ff36;
-  --line: rgba(255, 255, 255, .09);
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: radial-gradient(ellipse at 50% -15%, #292b20 0, transparent 42%), var(--bg);
-  color: var(--text);
-  font: 16px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-a { color: inherit; text-decoration: none; }
-.wrap { width: min(920px, calc(100% - 36px)); margin: 0 auto; }
-header {
-  padding: 28px 0 24px;
-  border-bottom: 1px solid var(--line);
-  margin-bottom: 40px;
-}
-.nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 900;
-  letter-spacing: -.06em;
-  font-size: 21px;
-}
-.logo {
-  width: 42px;
-  height: 42px;
-  background: var(--accent);
-  color: #111;
-  display: grid;
-  place-items: center;
-  font-size: 21px;
-  font-weight: 1000;
-  letter-spacing: -.09em;
-  border-radius: 11px;
-  box-shadow: 0 0 30px #b9ff3622;
-}
-.site-switch {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px;
-  border: 1px solid var(--line);
-  border-radius: 13px;
-  background: var(--panel);
-  flex: 0 0 auto;
-}
-.site-switch a {
-  display: block;
-  padding: 9px 12px;
-  border-radius: 9px;
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 850;
-  white-space: nowrap;
-  transition: background .18s, color .18s;
-}
-.site-switch a:hover { color: var(--text); }
-.site-switch a.current {
-  background: var(--accent);
-  color: #111;
-}
-.site-switch a:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-.eyebrow {
-  color: var(--accent);
-  font-weight: 800;
-  font-size: 12px;
-  letter-spacing: .19em;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-.eyebrow:before {
-  content: "";
-  width: 22px;
-  height: 2px;
-  background: var(--accent);
-}
-h1 {
-  font-size: clamp(36px, 7vw, 64px);
-  line-height: 1.02;
-  letter-spacing: -.055em;
-  margin: 14px 0 14px;
-  font-weight: 950;
-}
-.lead {
-  color: var(--muted);
-  max-width: 620px;
-  font-size: 16px;
-  line-height: 1.7;
-  margin: 0;
-}
-.panel {
-  margin-top: 34px;
-  padding: clamp(20px, 4vw, 34px);
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  background: linear-gradient(135deg, var(--panel), transparent);
-  box-shadow: 0 24px 80px #0005;
-}
-h2 {
-  margin: 0 0 8px;
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: -.03em;
-}
-.muted { color: var(--muted); }
-.banner {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  margin-top: 24px;
-  padding: clamp(16px, 4vw, 28px);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: linear-gradient(130deg, #17171f, #121218);
-  color: inherit;
-  text-decoration: none;
-  min-height: 160px;
-  transition: border-color .2s, transform .2s, background .2s;
-}
-.banner:hover {
-  border-color: #b9ff3677;
-  transform: translateY(-2px);
-  background: linear-gradient(130deg, #20251a, #15151c);
-}
-.avatar {
-  width: 112px;
-  height: 112px;
-  flex: 0 0 112px;
-  object-fit: cover;
-  border-radius: 20px;
-  background: #26262f;
-  box-shadow: 0 0 0 1px #ffffff12;
-}
-.copy {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  min-width: 0;
-}
-.name {
-  font-size: clamp(22px, 4vw, 30px);
-  font-weight: 900;
-  letter-spacing: -.04em;
-}
-.desc { color: var(--muted); line-height: 1.45; }
-.cta {
-  color: var(--accent);
-  font-size: 13px;
-  font-weight: 800;
-  margin-top: 4px;
-}
-.dots {
-  display: flex;
-  gap: 7px;
-  justify-content: center;
-  margin-top: 16px;
-}
-.dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 20px;
-  background: #ffffff35;
-  transition: width .2s, background .2s;
-}
-.dot.active {
-  width: 22px;
-  background: var(--accent);
-}
-.submit {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid var(--line);
-}
-a.inline {
-  color: var(--accent);
-  font-weight: 800;
-  text-decoration: none;
-}
-a.inline:hover { text-decoration: underline; }
-.obs {
-  margin-top: 24px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-button {
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 11px 16px;
-  background: var(--panel2);
-  color: var(--text);
-  font: inherit;
-  font-weight: 800;
-  cursor: pointer;
-  transition: border-color .18s, background .18s;
-}
-button:hover {
-  border-color: #b9ff3677;
-  background: #1c2414;
-}
-#status { color: var(--muted); font-size: 13px; }
-footer {
-  margin-top: 40px;
-  padding-bottom: 40px;
-  color: #6f6f7c;
-  font-size: 12px;
-}
-@media (max-width: 650px) {
-  .nav { gap: 12px; }
-  .site-switch { width: 100%; justify-content: center; }
-  .site-switch a { flex: 1; text-align: center; padding: 8px 6px; font-size: 12px; }
-}
-@media (max-width: 560px) {
-  header { margin-bottom: 28px; }
-  .banner { align-items: flex-start; gap: 14px; }
-  .avatar { width: 76px; height: 76px; flex-basis: 76px; border-radius: 15px; }
-  .panel { border-radius: 18px; }
+:root{--bg:#0b0b0f;--panel:#14141b;--panel2:#1a1a23;--text:#f5f5f7;--muted:#9a9aa8;--accent:#b9ff36;--line:rgba(255,255,255,.09)}
+@keyframes theme-circle-reveal{from{clip-path:circle(0 at var(--theme-x,50%) var(--theme-y,50%))}to{clip-path:circle(var(--theme-radius,150vmax) at var(--theme-x,50%) var(--theme-y,50%))}}
+::view-transition-old(root){animation:none;z-index:1}
+::view-transition-new(root){animation:theme-circle-reveal 1.5s cubic-bezier(.22,.75,.25,1) both;z-index:2}
+@media(prefers-reduced-motion:reduce){::view-transition-new(root){animation-duration:.01ms}}
+*{box-sizing:border-box}
+.site-switch{display:flex;align-items:center;gap:4px;padding:4px;border:1px solid var(--line);border-radius:13px;background:var(--panel);flex:0 0 auto}
+.site-switch a{display:block;padding:9px 12px;border-radius:9px;color:var(--muted);font-size:13px;font-weight:850;white-space:nowrap;transition:background .18s,color .18s}
+.site-switch a:hover{color:var(--text)}
+.site-switch a.current{background:var(--accent);color:#111}
+.site-switch a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(max-width:650px){.nav{flex-wrap:wrap}.site-switch{order:3;width:100%;justify-content:center}.site-switch a{flex:1;text-align:center}.theme-toggle{margin-left:auto}}
+body{margin:0;background:radial-gradient(ellipse at 50% -15%,#292b20 0,transparent 42%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.wrap{width:min(920px,calc(100% - 36px));margin:auto}
+header{padding:28px 0 24px;border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:-.06em;font-size:21px}
+.logo{width:42px;height:42px;background:var(--accent);color:#111;display:grid;place-items:center;font-size:21px;font-weight:1000;letter-spacing:-.09em;border-radius:11px;box-shadow:0 0 30px #b9ff3622;flex:0 0 42px}
+.logo svg{width:26px;height:26px;display:block}
+.brand-wordmark{display:flex;flex-direction:column;line-height:1.05;gap:1px}
+.brand-top,.brand-bottom{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.brand-main{font-size:15px;font-weight:950;letter-spacing:-.04em}
+.theme-toggle{display:flex;align-items:center;gap:8px;padding:11px 14px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--text);font:inherit;font-size:13px;font-weight:850;cursor:pointer;transition:background .2s,border-color .2s}
+.theme-toggle:hover{border-color:var(--accent)}
+.theme-toggle .theme-icon{font-size:16px;line-height:1}
+.hero{padding:48px 0 18px;max-width:760px}
+.eyebrow{color:var(--accent);font-weight:800;font-size:12px;letter-spacing:.19em;text-transform:uppercase;display:flex;align-items:center;gap:9px}
+.eyebrow:before{content:"";width:22px;height:2px;background:var(--accent)}
+h1{font-size:clamp(36px,7vw,64px);line-height:1.02;letter-spacing:-.055em;margin:14px 0 14px;font-weight:950}
+h1 span{color:var(--accent)}
+.lead{font-size:16px;line-height:1.7;color:var(--muted);max-width:620px;margin:0}
+.panel{margin:28px 0 40px;padding:clamp(20px,4vw,34px);border:1px solid var(--line);border-radius:24px;background:linear-gradient(145deg,var(--panel),#101015);box-shadow:0 24px 80px #0005}
+h2{margin:0 0 6px;font-size:22px;font-weight:900;letter-spacing:-.03em}
+.muted{color:var(--muted);font-size:14px;margin:0 0 4px}
+.banner{display:flex;align-items:center;gap:22px;margin-top:22px;padding:clamp(16px,4vw,28px);border:1px solid var(--line);border-radius:18px;background:linear-gradient(130deg,#17171f,#121218);color:inherit;text-decoration:none;min-height:150px;transition:border-color .2s,transform .2s,background .2s}
+.banner:hover{border-color:#b9ff3677;transform:translateY(-3px);background:linear-gradient(130deg,#20251a,#15151c)}
+.avatar{width:112px;height:112px;flex:0 0 112px;object-fit:cover;border-radius:20px;background:#26262f;box-shadow:0 0 0 1px #ffffff12}
+.copy{display:flex;flex-direction:column;gap:7px;min-width:0}
+.name{font-size:clamp(22px,4vw,30px);font-weight:900;letter-spacing:-.03em;overflow-wrap:anywhere}
+.desc{color:var(--muted);font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+.cta{color:var(--accent);font-size:13px;font-weight:800;margin-top:2px}
+.dots{display:flex;gap:7px;justify-content:center;margin-top:16px}
+.dot{width:7px;height:7px;border-radius:20px;background:#ffffff35;transition:width .2s,background .2s}
+.dot.active{width:22px;background:var(--accent)}
+.submit{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.submit strong{font-size:15px}
+.submit p{margin:8px 0 0}
+a.inline{color:var(--accent);font-weight:800;text-decoration:none}
+a.inline:hover{text-decoration:underline}
+.obs{margin-top:22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+button{border:1px solid var(--line);border-radius:12px;padding:11px 16px;background:var(--panel2);color:var(--text);font:inherit;font-weight:800;cursor:pointer;transition:border-color .18s,background .18s}
+button:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--panel2))}
+#status{color:var(--muted);font-size:13px}
+footer{padding:0 0 48px;color:var(--muted);font-size:13px}
+html[data-theme="light"]{--bg:#f4f5f7;--panel:#ffffff;--panel2:#eceef2;--text:#20212a;--muted:#656978;--accent:#6a9e00;--line:rgba(25,30,45,.14);color-scheme:light}
+html[data-theme="light"] body{background:radial-gradient(ellipse at 50% -15%,#e4edcf 0,transparent 42%),var(--bg)}
+html[data-theme="light"] .logo{background:#29450d;color:#fff;box-shadow:0 5px 18px #29450d30}
+html[data-theme="light"] .banner{background:linear-gradient(130deg,#f8faf5,#f0f2ec)}
+html[data-theme="light"] .banner:hover{border-color:#6a9e0077;background:linear-gradient(130deg,#eef5e0,#f4f6f0)}
+html[data-theme="light"] .avatar{background:#dfe3d8}
+html[data-theme="light"] .panel{background:linear-gradient(145deg,#fff,#f4f5f7);box-shadow:0 16px 50px #0001}
+html[data-theme="light"] .site-switch a.current{background:var(--accent);color:#fff}
+@media(max-width:560px){
+  .banner{flex-direction:column;align-items:flex-start;gap:14px;min-height:0}
+  .avatar{width:88px;height:88px;flex-basis:88px}
+  .name{font-size:22px}
 }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <nav class="nav" aria-label="Навигация">
-      <a class="brand" href="/">
-        <span class="logo" aria-hidden="true">1°6</span>
-        <span>Streamers Community</span>
-      </a>
-      <div class="site-switch" aria-label="Страницы сайта">
-        <a href="/">Главная</a>
-        <a href="/widgets">Виджеты</a>
-        <a href="/ad" class="current" aria-current="page">Реклама</a>
-      </div>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="/" aria-label="На главную">
+      <span class="logo">
+        <svg viewBox="0 0 48 48" role="presentation" focusable="false">
+          <path d="M11 10.5h23.5a5 5 0 0 1 5 5v13a5 5 0 0 1-5 5H23l-8.2 5.7a1.5 1.5 0 0 1-2.35-1.23v-4.8A5 5 0 0 1 7 28.2V15.5a5 5 0 0 1 4-5Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="m20 17.5 10 6-10 6z" fill="currentColor"/>
+          <path d="M36.5 5.5v5M34 8h5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-wordmark">
+        <span class="brand-top">Модераторское</span>
+        <span class="brand-main">Стримерское комьюнити</span>
+        <span class="brand-bottom">Наше</span>
+      </span>
+    </a>
+    <nav class="site-switch" aria-label="Страницы сайта">
+      <a href="/">Главная</a>
+      <a href="/widgets">Виджеты</a>
+      <a href="/ad" aria-current="page" class="current">Реклама</a>
     </nav>
-  </header>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Переключить тему">
+      <span class="theme-icon" id="themeIcon">☀️</span>
+      <span id="themeLabel">Светлая тема</span>
+    </button>
+  </div>
+</header>
 
-  <div class="eyebrow">Стримерское комьюнити</div>
-  <h1>Реклама</h1>
-  <p class="lead">Здесь размещаются рекламные баннеры стримеров и сообществ. Они автоматически сменяют друг друга — выбери интересный канал и загляни в гости.</p>
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Стримерское комьюнити</div>
+    <h1>Реклама</h1>
+    <p class="lead">Здесь размещаются рекламные баннеры стримеров и сообществ. Они автоматически сменяют друг друга — выбери интересный канал и загляни в гости.</p>
+  </section>
 
   <section class="panel" aria-label="Рекламные баннеры">
     <h2>Сейчас рекомендуем</h2>
     <p class="muted">Баннеры участников и партнёров сообщества</p>
 
     <a class="banner" id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer">
-      <img class="avatar" id="avatar" src="" alt="Аватар brill1antt">
+      <img class="avatar" id="avatar" src="" alt="">
       <span class="copy">
         <span class="name" id="name">brill1antt</span>
         <span class="desc" id="description">Стример сообщества</span>
@@ -297,7 +147,7 @@ footer {
   </section>
 
   <footer>Стримерское комьюнити · Рекламная площадка</footer>
-</div>
+</main>
 
 <script>
 const ads = [
@@ -319,39 +169,33 @@ const ads = [
     name: "Низина Твича",
     description: "Telegram-канал Низины Твича — подписывайся на сообщество и следи за новостями.",
     url: "https://t.me/Ntwich",
-    image: "/lowlands-logo.png",
+    image: "https://i.ibb.co/67sHc76S/panel-1263981823-image-1a71f377-cc88-45c3-9ae2-800a963cfe80.png",
     cta: "Открыть Telegram ↗"
   }
 ];
 
-const placeholder = (label) =>
-  "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" rx="22" fill="#26262f"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="42" font-weight="bold" fill="#b9ff36">${String(label || "?").slice(0, 2).toUpperCase()}</text></svg>`
-  );
-
+const $ = id => document.getElementById(id);
 let current = 0;
-const $ = (id) => document.getElementById(id);
-const avatarCache = new Map();
+let timer = null;
+
+function placeholderSvg(name) {
+  const initials = (name || "?").slice(0, 2).toUpperCase();
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" rx="22" fill="#26262f"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="48" font-weight="bold" fill="#b9ff36">' + initials + '</text></svg>'
+  );
+}
 
 async function resolveAvatar(item) {
   if (item.image) return item.image;
-  const login = String(item.login || item.name || "").toLowerCase().trim();
-  if (!login) return placeholder(item.name);
-  if (avatarCache.has(login)) return avatarCache.get(login);
-
-  const fallback = placeholder(item.name || login);
-  avatarCache.set(login, fallback);
-
+  if (!item.login) return placeholderSvg(item.name);
   try {
-    const response = await fetch("/api/avatar?login=" + encodeURIComponent(login), { cache: "no-store" });
-    if (!response.ok) return fallback;
-    const data = await response.json();
-    if (data && data.avatarUrl && /^https:\/\//i.test(data.avatarUrl)) {
-      avatarCache.set(login, data.avatarUrl);
-      return data.avatarUrl;
+    const response = await fetch("/api/avatar?login=" + encodeURIComponent(item.login), { cache: "no-store" });
+    if (response.ok) {
+      const data = await response.json();
+      if (data.avatarUrl && /^https:\/\//i.test(data.avatarUrl)) return data.avatarUrl;
     }
   } catch (_) {}
-  return fallback;
+  return placeholderSvg(item.name);
 }
 
 async function show(i) {
@@ -362,29 +206,75 @@ async function show(i) {
   $("description").textContent = a.description;
   $("cta").textContent = a.cta || "Открыть ↗";
   $("avatar").alt = "Изображение: " + a.name;
-  $("avatar").src = placeholder(a.name);
+  $("avatar").src = placeholderSvg(a.name);
   $("dots").innerHTML = ads.map((_, n) =>
-    `<span class="dot${n === current ? " active" : ""}"></span>`
+    '<span class="dot' + (n === current ? " active" : "") + '"></span>'
   ).join("");
-
-  const src = await resolveAvatar(a);
-  if (current === i || current === ((i % ads.length) + ads.length) % ads.length) {
-    $("avatar").src = src;
+  const url = await resolveAvatar(a);
+  if (((i % ads.length) + ads.length) % ads.length === current) {
+    $("avatar").src = url;
   }
 }
 
+function startRotation() {
+  clearInterval(timer);
+  timer = setInterval(() => show(current + 1), 10000);
+}
+
 show(0);
-setInterval(() => show(current + 1), 10000);
+startRotation();
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) startRotation();
+});
 
 $("copy").addEventListener("click", async () => {
   const url = location.origin + "/ad/widget";
   try {
     await navigator.clipboard.writeText(url);
     $("status").textContent = "Ссылка скопирована!";
-  } catch (_) {
+  } catch (e) {
     $("status").textContent = url;
   }
 });
+
+/* Theme toggle — same as main */
+(function () {
+  const root = document.documentElement;
+  const toggle = $("themeToggle");
+  const icon = $("themeIcon");
+  const label = $("themeLabel");
+  const KEY = "ssc-theme";
+
+  function apply(theme, withTransition) {
+    const isLight = theme === "light";
+    const set = () => {
+      if (isLight) root.setAttribute("data-theme", "light");
+      else root.removeAttribute("data-theme");
+      icon.textContent = isLight ? "🌙" : "☀️";
+      label.textContent = isLight ? "Тёмная тема" : "Светлая тема";
+      try { localStorage.setItem(KEY, isLight ? "light" : "dark"); } catch (_) {}
+    };
+    if (withTransition && document.startViewTransition) {
+      document.startViewTransition(set);
+    } else {
+      set();
+    }
+  }
+
+  let saved = "dark";
+  try { saved = localStorage.getItem(KEY) || "dark"; } catch (_) {}
+  apply(saved, false);
+
+  toggle.addEventListener("click", () => {
+    const rect = toggle.getBoundingClientRect();
+    root.style.setProperty("--theme-x", (rect.left + rect.width / 2) + "px");
+    root.style.setProperty("--theme-y", (rect.top + rect.height / 2) + "px");
+    root.style.setProperty("--theme-radius", Math.hypot(window.innerWidth, window.innerHeight) + "px");
+    const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+    apply(next, true);
+  });
+})();
 </script>
 </body>
 </html>

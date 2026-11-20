@@ -777,12 +777,11 @@ async function handleMusicApi(req, res, url) {
         if (route === "/api/music/request" && method === "POST") {
           const ch = musicChannel(body.channel), nick = musicClean(body.nickname, 32) || "Аноним";
           if (!ch) return json(400, { error: "Укажи корректный Twitch-канал." });
+          let chatRequester = "";
           if (body.source === "chat") {
-            const requester = ch + ":" + nick.toLowerCase(), last = musicChatCooldown.get(requester) || 0;
+            chatRequester = ch + ":" + nick.toLowerCase();
+            const last = musicChatCooldown.get(chatRequester) || 0;
             if (Date.now() - last < 30000) return json(429, { error: "Подожди 30 секунд перед следующим заказом." });
-            if (!takeRateSlot(musicChatRequestRate, requester, 5, 3600000)) return json(429, { error: "Можно заказать не более 5 видео в час." });
-            musicChatCooldown.set(requester, Date.now());
-            if (musicChatCooldown.size > 5000) for (const [key, at] of musicChatCooldown) if (Date.now() - at > 3600000) musicChatCooldown.delete(key);
           } else if (!takeRateSlot(musicRequestRate, clientIp(req), 8, 3600000)) {
             return json(429, { error: "Слишком много заявок. Попробуй позже." });
           }
@@ -792,6 +791,11 @@ async function handleMusicApi(req, res, url) {
           const info = await youtubeLookup(vid);
           if (info.status === "missing") return json(404, { error: "Это видео не найдено, удалено или закрыто." });
           if (info.status === "blocked") return json(422, { error: "Автор запретил воспроизведение этого видео на других сайтах. Выбери другой ролик." });
+          if (chatRequester) {
+            if (!takeRateSlot(musicChatRequestRate, chatRequester, 5, 3600000)) return json(429, { error: "Можно заказать не более 5 видео в час." });
+            musicChatCooldown.set(chatRequester, Date.now());
+            if (musicChatCooldown.size > 5000) for (const [key, at] of musicChatCooldown) if (Date.now() - at > 3600000) musicChatCooldown.delete(key);
+          }
           const db = await musicLoad();
           musicNormalize(db, ch, false);
           const active = musicActiveItems(db, ch);

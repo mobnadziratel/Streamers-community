@@ -600,7 +600,7 @@ html[data-theme="light"] .qr-label{
   padding:0!important;border:0!important;border-radius:0!important;
   background:transparent!important;box-shadow:none!important;
 }
-.ad-qr{image-rendering:auto;border-radius:10px!important;overflow:hidden}.ad-qr svg{display:block;width:100%;height:100%}
+.ad-qr-wrap{box-sizing:border-box!important;padding:5px!important;border-radius:10px!important;background:#fff!important;overflow:hidden!important}.ad-qr{width:100%;height:100%;border-radius:0!important;overflow:hidden!important}.ad-qr svg{display:block;width:100%;height:100%;shape-rendering:crispEdges}
 
 
 /* Reference-inspired typography: bold italic display lettering, transparent background. */
@@ -664,8 +664,8 @@ html[data-theme="light"] .qr-label{
 
 
 /* Rounded QR corners while preserving a clean, scannable code. */
-.ad-qr-wrap{border-radius:12px!important;overflow:hidden!important}
-.ad-qr{border-radius:10px!important;overflow:hidden}.ad-qr svg{display:block;width:100%;height:100%}
+.ad-qr-wrap{box-sizing:border-box!important;padding:5px!important;border-radius:10px!important;background:#fff!important;overflow:hidden!important}
+.ad-qr{width:100%;height:100%;border-radius:0!important;overflow:hidden!important}.ad-qr svg{display:block;width:100%;height:100%;shape-rendering:crispEdges}
 </style>
 </head>
 <body>
@@ -742,9 +742,9 @@ function drawRoundedQR(target, value) {
     const count = code.getModuleCount(), quiet = 4, total = count + quiet * 2;
     let modules = "";
     for (let row = 0; row < count; row++) for (let col = 0; col < count; col++) {
-      if (code.isDark(row, col)) modules += '<rect x="' + (col + quiet + .035) + '" y="' + (row + quiet + .035) + '" width=".93" height=".93" rx=".19" fill="#111"/>';
+      if (code.isDark(row, col)) modules += '<rect x="' + (col + quiet) + '" y="' + (row + quiet) + '" width="1" height="1" fill="#000"/>';
     }
-    target.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + total + ' ' + total + '" shape-rendering="geometricPrecision" aria-hidden="true"><rect width="' + total + '" height="' + total + '" fill="#fff"/>' + modules + '</svg>';
+    target.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + total + ' ' + total + '" shape-rendering="crispEdges" aria-hidden="true"><rect width="' + total + '" height="' + total + '" fill="#fff"/>' + modules + '</svg>';
   } catch (_) { target.textContent = ""; }
 }
 

@@ -108,6 +108,29 @@ header{
 h1{font-size:clamp(36px,7vw,64px);line-height:1.02;letter-spacing:-.055em;margin:14px 0 14px;font-weight:950;color:#f1fbff}
 .lead{font-size:16px;line-height:1.7;color:var(--muted);max-width:620px;margin:0}
 
+.banner{
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  margin-top:22px;padding:16px;min-height:0;
+  border:1px solid var(--line);border-radius:18px;
+  background:transparent;
+  overflow:hidden;
+  text-decoration:none;color:inherit;
+  transition:border-color .2s,transform .35s,opacity .35s,filter .35s;
+}
+.banner:hover{border-color:rgba(121,216,238,.55);transform:translateY(-2px)}
+.avatar,.qr{
+  width:112px;height:112px;flex:0 0 112px;
+  border-radius:16px;object-fit:cover;
+  display:block;background:transparent;
+  max-width:100%;max-height:100%;
+}
+.qr{background:#fff}
+.ad-art,.copy,.name,.desc,.cta,.qr-wrap,.qr-frame,.qr-frame-inner,.qr-label{display:none!important}
+@media(max-width:560px){
+  .avatar,.qr{width:88px;height:88px;flex-basis:88px;border-radius:14px}
+}
+
+
 .panel{
   margin:28px 0 40px;padding:clamp(20px,4vw,34px);
   border:1px solid var(--line);border-radius:24px;
@@ -378,18 +401,8 @@ html[data-theme="light"] .qr-label{
     <p class="muted">Баннеры участников и партнёров сообщества</p>
 
     <a class="banner" id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer">
-      <img class="ad-art" id="art" src="/ad-brill1antt.jpg" alt="brill1antt">
-      <span class="qr-wrap" title="QR-код ссылки">
-        <span class="qr-frame">
-          <span class="qr-frame-inner">
-            <img class="qr" id="qr" src="" alt="QR-код" width="100" height="100" decoding="async">
-          </span>
-        </span>
-        <span class="qr-label" id="qrLabel">
-          <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1 1h5v5H1zm1.5 1.5v2h2v-2zm7.5-1.5h5v5h-5zm1.5 1.5v2h2v-2zM1 10h5v5H1zm1.5 1.5v2h2v-2zM10 10h2v2h-2zm3 0h2v2h-2zm-3 3h2v2h-2zm3 0h2v2h-2z"/></svg>
-          <span id="qrLabelText">Twitch</span>
-        </span>
-      </span>
+      <img class="avatar" id="avatar" src="" alt="">
+      <img class="qr" id="qr" src="" alt="QR-код" width="112" height="112" decoding="async">
     </a>
     <div class="dots" id="dots" aria-hidden="true"></div>
 
@@ -412,13 +425,13 @@ const ads = [
   {
     name: "brill1antt",
     url: "https://www.twitch.tv/brill1antt",
-    image: "/ad-brill1antt.jpg",
+    login: "brill1antt",
     cta: "Twitch"
   },
   {
     name: "mob_nadziratel",
     url: "https://www.twitch.tv/mob_nadziratel",
-    image: "/ad-mob_nadziratel.jpg",
+    login: "mob_nadziratel",
     cta: "Twitch"
   },
   {
@@ -467,27 +480,31 @@ async function show(i) {
 
   current = next;
   banner.href = a.url;
-  const art = $("art");
-  if (art) {
-    art.src = a.image;
-    art.alt = a.name;
+
+  const avatar = $("avatar");
+  if (avatar) {
+    avatar.alt = a.name;
+    avatar.src = placeholderSvg(a.name);
+    if (a.image) {
+      avatar.src = a.image;
+    } else if (a.login) {
+      try {
+        const response = await fetch("/api/avatar?login=" + encodeURIComponent(a.login), { cache: "no-store" });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.avatarUrl && /^https:\/\//i.test(data.avatarUrl)) avatar.src = data.avatarUrl;
+        }
+      } catch (_) {}
+    }
   }
 
   const qr = $("qr");
   if (qr) {
-    const bg = "e8f6fb";
-    const fg = "0b1726";
     qr.style.opacity = "0";
-    qr.style.transform = "scale(.92)";
-    qr.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=12&color=" + fg + "&bgcolor=" + bg + "&data=" + encodeURIComponent(a.url);
+    qr.src = "https://api.qrserver.com/v1/create-qr-code/?size=224x224&margin=10&color=0b1726&bgcolor=ffffff&data=" + encodeURIComponent(a.url);
     qr.alt = "QR-код: " + a.name;
-    qr.onload = () => {
-      qr.style.opacity = "1";
-      qr.style.transform = "scale(1)";
-    };
+    qr.onload = () => { qr.style.opacity = "1"; };
   }
-  const qrLabelText = $("qrLabelText");
-  if (qrLabelText) qrLabelText.textContent = a.cta || "QR";
 
   $("dots").innerHTML = ads.map((_, n) =>
     '<span class="dot' + (n === current ? " active" : "") + '"></span>'

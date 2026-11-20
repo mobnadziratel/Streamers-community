@@ -4146,7 +4146,15 @@ async function refreshLiveStatuses() {
   lastStatusAttemptAt = Date.now();
   statusRequestInFlight = (async () => {
     try {
-      const response = await fetch("/api/streams", { cache: "no-store", signal: AbortSignal.timeout(15000) });
+      // Hard deadline covers both the request and a stalled proxy/browser fetch.
+      // AbortSignal alone is not enough on every embedded browser/webview.
+      let statusTimeoutId;
+      const response = await Promise.race([
+        fetch("/api/streams", { cache: "no-store", signal: AbortSignal.timeout(15000) }),
+        new Promise((_, reject) => {
+          statusTimeoutId = setTimeout(() => reject(new Error("Status request timed out after 18 seconds")), 18000);
+        })
+      ]).finally(() => clearTimeout(statusTimeoutId));
       if (!response.ok) throw new Error(`Status endpoint unavailable (${response.status})`);
       const payload = await response.json();
       if (!payload || !payload.streams || typeof payload.streams !== "object" || Array.isArray(payload.streams) || Object.keys(payload.streams).length === 0) {
@@ -4174,6 +4182,9 @@ async function refreshLiveStatuses() {
         document.querySelectorAll("#streamersPanel .stream-meta").forEach(el => {
           if (!el.textContent.trim()) el.textContent = "Не удалось проверить эфир. Повторная проверка будет выполнена автоматически.";
         });
+      } else {
+        // Never leave newly rendered cards in the loading state if refresh failed.
+        applyLiveStatuses(latestStreamData);
       }
       console.warn("Live status refresh failed; keeping last confirmed statuses:", error);
     } finally {

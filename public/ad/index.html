@@ -401,6 +401,56 @@ html[data-theme="light"] .qr-label{
   .ad-avatar-orbit,.ad-spark,.ad-scene:before,.ad-scene:after{animation:none!important}
 }
 
+/* Clean transparent ad: platform, nickname, streamer logo and QR only. */
+.banner{
+  display:block!important;position:relative;height:auto!important;min-height:112px!important;
+  padding:8px 0!important;margin-top:22px;border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;overflow:visible!important;
+}
+.banner:hover{background:transparent!important;box-shadow:none!important;transform:none!important}
+.ad-clean-layout{
+  display:grid;width:100%;min-height:112px;
+  grid-template-columns:42px minmax(0,1fr) 84px 104px;
+  align-items:center;column-gap:clamp(10px,2vw,22px);
+}
+.ad-platform{display:grid;place-items:center;width:40px;height:40px;color:#9147ff}
+.ad-platform svg{display:block;width:36px;height:36px}
+.ad-name{
+  display:block!important;position:static!important;width:auto!important;min-width:0;
+  padding:0!important;margin:0!important;text-align:left!important;
+  color:var(--text,#f1fbff)!important;font-size:clamp(20px,4vw,38px)!important;
+  font-weight:950!important;line-height:1.12!important;letter-spacing:-.04em!important;
+  text-transform:none!important;overflow-wrap:anywhere;word-break:break-word;
+  text-shadow:none!important;transform:none!important;
+}
+.ad-avatar-orbit{
+  position:relative!important;inset:auto!important;display:block;width:76px;height:76px;
+  padding:3px!important;border-radius:50%;transform:none!important;
+  background:transparent!important;box-shadow:none!important;
+  animation:ad-avatar-float 3.8s ease-in-out infinite;
+}
+.ad-avatar{
+  display:block!important;width:100%!important;height:100%!important;
+  max-width:none!important;max-height:none!important;object-fit:cover;
+  border-radius:50%;border:1px solid rgba(145,71,255,.55)!important;
+  background:transparent!important;box-shadow:none!important;
+}
+.ad-qr-wrap{display:grid;place-items:center;width:104px;height:104px}
+.ad-qr{
+  display:block;width:100%;height:100%;object-fit:contain;
+  border:0;border-radius:4px;background:#fff;
+}
+.ad-clean-layout .ad-platform,.ad-clean-layout .ad-name,
+.ad-clean-layout .ad-avatar-orbit,.ad-clean-layout .ad-qr-wrap{z-index:1}
+@media(max-width:560px){
+ .ad-clean-layout{grid-template-columns:30px minmax(0,1fr) 58px 72px;column-gap:8px;min-height:76px}
+ .ad-platform{width:28px;height:28px}.ad-platform svg{width:26px;height:26px}
+ .ad-name{font-size:clamp(16px,5vw,24px)!important}
+ .ad-avatar-orbit{width:54px;height:54px}
+ .ad-qr-wrap{width:68px;height:68px}
+}
+@media(prefers-reduced-motion:reduce){.ad-avatar-orbit{animation:none!important}}
+
 /* Banner switch animation */
 .banner.is-leaving{
   opacity:0;transform:translateY(10px) scale(.985);
@@ -495,18 +545,13 @@ html[data-theme="light"] .qr-label{
     <p class="muted">Баннеры участников и партнёров сообщества</p>
 
     <a class="banner" id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer" aria-label="Открыть канал стримера">
-      <div class="ad-scene" aria-hidden="true">
-        <span class="ad-spark ad-spark-one"></span>
-        <span class="ad-spark ad-spark-two"></span>
-        <span class="ad-spark ad-spark-three"></span>
-        <span class="ad-twitch-mark">
-          <svg viewBox="0 0 24 24" role="presentation"><path fill="currentColor" d="M4 2 2 6v14h5v4l4-4h4l7-7V2H4zm16 10-4 4h-4l-3 3v-3H5V4h15v8zM10 6h2v6h-2zm5 0h2v6h-2z"/></svg>
+      <div class="ad-clean-layout">
+        <span class="ad-platform" aria-label="Twitch">
+          <svg viewBox="0 0 24 24" role="img" aria-label="Twitch"><path fill="currentColor" d="M4 2 2 6v14h5v4l4-4h4l7-7V2H4zm16 10-4 4h-4l-3 3v-3H5V4h15v8zM10 6h2v6h-2zm5 0h2v6h-2z"/></svg>
         </span>
         <span class="ad-name" id="adName">brill1antt</span>
-        <span class="ad-subtitle">ЗАЛЕТАЙ НА СТРИМ</span>
-        <span class="ad-avatar-orbit">
-          <img class="ad-avatar" id="avatar" src="" alt="">
-        </span>
+        <span class="ad-avatar-orbit"><img class="ad-avatar" id="avatar" src="" alt=""></span>
+        <span class="ad-qr-wrap"><img class="ad-qr" id="adQr" alt="QR-код канала" width="112" height="112" decoding="async"></span>
       </div>
     </a>
     <div class="dots" id="dots" aria-hidden="true"></div>
@@ -597,6 +642,11 @@ async function show(i) {
   }
 
   if (sequence !== showSequence) return;
+  const qr = $("adQr");
+  if (qr) {
+    qr.alt = "QR-код канала " + a.name;
+    qr.src = "https://api.qrserver.com/v1/create-qr-code/?size=224x224&margin=4&color=111111&bgcolor=ffffff&data=" + encodeURIComponent(a.url);
+  }
   $("dots").innerHTML = ads.map((_, n) =>
     '<span class="dot' + (n === current ? " active" : "") + '"></span>'
   ).join("");

@@ -154,7 +154,7 @@ function connectChat(){
       const messageMatch=line.match(/ :([^! ]+)!.* PRIVMSG #[^ ]+ :(.*)$/);
       if(!messageMatch)continue;
       const nickname=messageMatch[1],message=messageMatch[2].trim();
-      const command=message.match(/^!(?:sr|song|песни|музыка)\s+(.+)$/iu);
+      const command=message.match(/^!(?:sr|song|песня|песни|музыка)\s+(.+)$/iu);
       if(!command)continue;
       const urlMatch=command[1].match(/https?:\/\/\S+/i);
       const videoUrl=urlMatch?urlMatch[0].replace(/[),.!?]+$/,''):'';

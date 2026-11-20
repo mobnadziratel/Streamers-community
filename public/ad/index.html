@@ -602,6 +602,25 @@ html[data-theme="light"] .qr-label{
 }
 .ad-qr{image-rendering:pixelated;border-radius:0!important}
 
+
+/* Reference-inspired typography: bold italic display lettering, transparent background. */
+.ad-name{
+  display:inline-block!important;
+  width:fit-content;max-width:100%;
+  color:#fff!important;
+  font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif!important;
+  font-style:italic!important;font-weight:1000!important;
+  font-size:clamp(24px,4.4vw,48px)!important;
+  line-height:1.02!important;letter-spacing:-.045em!important;
+  text-transform:uppercase!important;
+  -webkit-text-stroke:.35px rgba(255,255,255,.7);
+  -webkit-font-smoothing:antialiased;
+  text-shadow:0 1px 0 #d9c7df,0 3px 0 #8c245f,0 6px 0 #5d123f,0 10px 15px rgba(70,5,45,.38)!important;
+  transform:skewX(-7deg)!important;transform-origin:left center!important;
+}
+.ad-name:after{display:none!important}
+.ad-clean-layout{background:transparent!important;border:0!important;box-shadow:none!important}
+
 </style>
 </head>
 <body>

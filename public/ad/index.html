@@ -238,6 +238,24 @@ html[data-theme="light"] button:hover{
 }
 html[data-theme="light"] footer{color:#6a8799}
 
+
+.qr-wrap{
+  margin-left:auto;flex:0 0 auto;display:grid;place-items:center;
+  padding:8px;border-radius:14px;
+  background:rgba(255,255,255,.96);
+  border:1px solid rgba(164,218,239,.22);
+  box-shadow:0 4px 16px rgba(0,0,0,.18);
+}
+.qr{width:72px;height:72px;display:block;border-radius:6px}
+html[data-theme="light"] .qr-wrap{
+  background:#fff;border-color:rgba(32,91,117,.16);
+  box-shadow:0 4px 14px rgba(35,78,99,.1);
+}
+@media(max-width:560px){
+  .qr-wrap{margin-left:0;align-self:flex-end}
+  .qr{width:64px;height:64px}
+}
+
 @media(max-width:560px){
   .banner{flex-direction:column;align-items:flex-start;gap:14px;min-height:0}
   .avatar{width:88px;height:88px;flex-basis:88px}
@@ -305,6 +323,9 @@ html[data-theme="light"] footer{color:#6a8799}
         <span class="name" id="name">brill1antt</span>
         <span class="desc" id="description">Стример сообщества</span>
         <span class="cta" id="cta">Twitch</span>
+      </span>
+      <span class="qr-wrap" title="QR-код ссылки">
+        <img class="qr" id="qr" src="" alt="QR-код" width="72" height="72" decoding="async">
       </span>
     </a>
     <div class="dots" id="dots" aria-hidden="true"></div>
@@ -381,6 +402,11 @@ async function show(i) {
   $("cta").textContent = a.cta || "Ссылка";
   $("avatar").alt = "Изображение: " + a.name;
   $("avatar").src = placeholderSvg(a.name);
+  const qr = $("qr");
+  if (qr) {
+    qr.src = "https://api.qrserver.com/v1/create-qr-code/?size=144x144&margin=8&color=0b1726&bgcolor=ffffff&data=" + encodeURIComponent(a.url);
+    qr.alt = "QR-код: " + a.name;
+  }
   $("dots").innerHTML = ads.map((_, n) =>
     '<span class="dot' + (n === current ? " active" : "") + '"></span>'
   ).join("");

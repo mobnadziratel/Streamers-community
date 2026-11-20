@@ -3932,11 +3932,10 @@ function reorderCategoryCards() {
   // existing hover/filter transform intact.
   // Keep live-first ordering for streamer categories even while another tab is active.
   // Rendering the wall, clips or moderator panel must never reset streamer cards to alphabetical order.
-  const prioritizeLive = ["creator", "main", "others", "lowlands"].includes(group) && Object.keys(latestStreamData).length > 0;
-  const canAnimate = prioritizeLive &&
-    !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
   Object.entries(grids).forEach(([group, grid]) => {
+    const prioritizeLive = ["creator", "main", "others", "lowlands"].includes(group) && Object.keys(latestStreamData).length > 0;
+    const canAnimate = prioritizeLive &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const cards = Array.from(grid.querySelectorAll(".streamer"));
     const firstRects = new Map();
 

@@ -568,6 +568,40 @@ html[data-theme="light"] .qr-label{
 }
 @media(prefers-reduced-motion:reduce){.ad-clean-layout{transition:none}.banner:hover .ad-clean-layout{transform:none}}
 
+
+/* Final polish: remove the outer card/frame; keep only crisp ad elements. */
+.ad-clean-layout{
+  border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+  padding:10px 12px!important;transform:none;
+}
+.ad-clean-layout:before{display:none!important}
+.banner:hover .ad-clean-layout{border:0!important;box-shadow:none!important;transform:none!important}
+.ad-platform{
+  border:0!important;background:transparent!important;box-shadow:none!important;
+  color:#a879ff!important;
+}
+.ad-platform:after{display:none!important}
+.ad-name{
+  color:#f7f7ff!important;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  font-weight:950!important;
+}
+.ad-avatar-orbit{
+  border:0!important;padding:0!important;
+  background:transparent!important;box-shadow:none!important;
+}
+.ad-avatar{
+  border:2px solid rgba(169,121,255,.82)!important;
+  box-shadow:0 0 0 3px rgba(145,71,255,.12),0 3px 14px rgba(145,71,255,.18)!important;
+  image-rendering:auto;
+}
+.ad-qr-wrap{
+  padding:0!important;border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+}
+.ad-qr{image-rendering:pixelated;border-radius:0!important}
+
 </style>
 </head>
 <body>

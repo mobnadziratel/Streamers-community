@@ -655,6 +655,13 @@ html[data-theme="light"] .qr-label{
 @media(max-width:600px){.ad-clean-layout{grid-template-columns:minmax(74px,100px) 54px minmax(0,1fr) 66px!important;column-gap:7px!important}.nizina-wordmark{font-size:clamp(14px,3.5vw,21px)}.nizina-wordmark span:last-child{margin-left:7px}.ad-avatar-orbit{width:52px!important;height:52px!important}}
 @media(max-width:390px){.ad-clean-layout{grid-template-columns:64px 44px minmax(0,1fr) 54px!important;column-gap:5px!important}.nizina-wordmark{font-size:13px}.ad-avatar-orbit{width:42px!important;height:42px!important}}
 
+
+/* Use the exact supplied Nizina logo artwork, with its original letterforms. */
+.nizina-wordmark{display:none!important}
+.nizina-logo{display:block;width:100%;max-width:150px;height:auto;object-fit:contain;filter:drop-shadow(0 3px 0 #a52b72) drop-shadow(0 6px 0 #5d003b) drop-shadow(0 9px 7px rgba(90,0,55,.28))}
+@media(max-width:600px){.nizina-logo{max-width:96px}}
+@media(max-width:390px){.nizina-logo{max-width:62px}}
+
 </style>
 </head>
 <body>
@@ -700,7 +707,7 @@ html[data-theme="light"] .qr-label{
 
     <a class="banner" id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer" aria-label="Открыть канал стримера">
       <div class="ad-clean-layout">
-        <span class="nizina-wordmark" aria-label="Низина Твича"><span>НИЗИНА</span><span>ТВИЧА</span></span>
+        <img class="nizina-logo" src="/assets/nizina-logo.svg" alt="Логотип Низина Твича">
         <span class="ad-avatar-orbit"><img class="ad-avatar" id="avatar" src="" alt=""></span>
         <span class="ad-copy"><span class="ad-name" id="adName">brill1antt</span><span class="ad-description" id="adDescription">Стример сообщества</span></span>
         <span class="ad-qr-wrap"><img class="ad-qr" id="adQr" alt="QR-код канала" width="112" height="112" decoding="async"></span>

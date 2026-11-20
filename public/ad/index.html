@@ -665,7 +665,7 @@ html[data-theme="light"] .qr-label{
 
 /* Rounded QR corners while preserving a clean, scannable code. */
 .ad-qr-wrap{border-radius:12px!important;overflow:hidden!important}
-.ad-qr{border-radius:10px!important;clip-path:inset(0 round 10px)}
+.ad-qr{border-radius:10px!important;overflow:hidden}.ad-qr svg{display:block;width:100%;height:100%}
 </style>
 </head>
 <body>
@@ -733,7 +733,21 @@ html[data-theme="light"] .qr-label{
   <footer>Стримерское комьюнити · Рекламная площадка</footer>
 </main>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
+function drawRoundedQR(target, value) {
+  try {
+    const code = window.qrcode(0, "M");
+    code.addData(String(value)); code.make();
+    const count = code.getModuleCount(), quiet = 4, total = count + quiet * 2;
+    let modules = "";
+    for (let row = 0; row < count; row++) for (let col = 0; col < count; col++) {
+      if (code.isDark(row, col)) modules += '<rect x="' + (col + quiet + .035) + '" y="' + (row + quiet + .035) + '" width=".93" height=".93" rx=".19" fill="#111"/>';
+    }
+    target.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + total + ' ' + total + '" shape-rendering="geometricPrecision" aria-hidden="true"><rect width="' + total + '" height="' + total + '" fill="#fff"/>' + modules + '</svg>';
+  } catch (_) { target.textContent = ""; }
+}
+
 const ads = [
   {
     name: "brill1antt",
@@ -810,8 +824,8 @@ async function show(i) {
   if (sequence !== showSequence) return;
   const qr = $("adQr");
   if (qr) {
-    qr.alt = "QR-код канала " + a.name;
-    qr.src = "https://api.qrserver.com/v1/create-qr-code/?size=224x224&margin=4&color=111111&bgcolor=ffffff&data=" + encodeURIComponent(a.url);
+    qr.setAttribute("aria-label", "QR-код канала " + a.name);
+    drawRoundedQR(qr, a.url);
   }
   $("dots").innerHTML = ads.map((_, n) =>
     '<span class="dot' + (n === current ? " active" : "") + '"></span>'

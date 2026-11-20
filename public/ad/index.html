@@ -258,10 +258,28 @@ html[data-theme="light"] footer{color:#6a8799}
   border-radius:20px;
   padding:3px;
   background:linear-gradient(145deg,#9ae8f8 0%,#4eb8d4 40%,#2a8fb0 70%,#7ad4ea 100%);
+  background-size:200% 200%;
   box-shadow:
     0 12px 32px rgba(0,40,60,.45),
     0 0 28px rgba(121,216,238,.22);
   transition:box-shadow .4s ease,transform .4s ease;
+  animation:qr-frame-glow 4s ease-in-out infinite, qr-frame-shift 8s ease-in-out infinite;
+}
+@keyframes qr-frame-glow{
+  0%,100%{box-shadow:0 12px 32px rgba(0,40,60,.45),0 0 22px rgba(121,216,238,.18)}
+  50%{box-shadow:0 14px 36px rgba(0,40,60,.5),0 0 36px rgba(121,216,238,.38)}
+}
+@keyframes qr-frame-shift{
+  0%,100%{background-position:0% 40%}
+  50%{background-position:100% 60%}
+}
+.qr-tick{animation:qr-tick-pulse 2.4s ease-in-out infinite}
+.qr-tick.r{animation-delay:.3s}
+.qr-tick.b{animation-delay:.6s}
+.qr-tick.l{animation-delay:.9s}
+@keyframes qr-tick-pulse{
+  0%,100%{opacity:.55}
+  50%{opacity:1}
 }
 .qr-frame-inner{
   width:100%;height:100%;
@@ -357,7 +375,7 @@ html[data-theme="light"] .qr-label{
 @media(prefers-reduced-motion:reduce){
   .banner.is-entering{animation:none}
   .banner.is-leaving{opacity:0;transform:none;filter:none}
-  .qr-wrap,.qr,.qr-frame{transition:none}
+  .qr-wrap,.qr,.qr-frame{transition:none}.qr-frame,.qr-tick{animation:none!important}
 }
 
 @media(max-width:560px){

@@ -10,30 +10,101 @@
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;min-height:100%;background:transparent;overflow:hidden}
 body{padding:8px;color:#edf7ff}
-#banner{display:flex;align-items:center;gap:15px;width:100%;min-height:112px;padding:14px 18px;border:1px solid rgba(121,216,238,.32);border-radius:18px;background:rgba(11,23,38,.94);color:#edf7ff;text-decoration:none;box-shadow:0 8px 28px rgba(0,0,0,.28);opacity:1;transition:opacity .35s ease,transform .35s ease}
-body.transparent #banner{background:transparent;border-color:transparent;box-shadow:none}
-body.no-bg #banner{background:transparent;border-color:transparent;box-shadow:none}
-#avatar{width:76px;height:76px;flex:0 0 76px;border-radius:16px;object-fit:cover;background:#1a3348}
-#copy{display:flex;flex-direction:column;gap:6px;min-width:0}
+#banner{
+  position:relative;display:flex;align-items:center;gap:14px;width:100%;min-height:112px;
+  padding:14px 16px;border:1px solid rgba(121,216,238,.34);border-radius:18px;
+  color:#edf7ff;text-decoration:none;overflow:hidden;
+  background:rgba(11,23,38,.94);
+  box-shadow:0 8px 28px rgba(0,0,0,.28);
+  opacity:1;transition:opacity .4s ease,transform .4s ease,border-color .3s ease;
+}
+/* animated winter background layers */
+#banner::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 70% at var(--gx,20%) var(--gy,30%),rgba(90,190,220,.22),transparent 55%),
+    radial-gradient(ellipse 60% 50% at 85% 80%,rgba(50,140,180,.14),transparent 50%),
+    linear-gradient(135deg,rgba(14,32,52,.4),transparent 60%);
+  animation:bg-drift 10s ease-in-out infinite;
+}
+#banner::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;z-index:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 40%,rgba(169,233,247,.07) 50%,transparent 60%);
+  background-size:220% 100%;
+  animation:bg-sheen 5.5s ease-in-out infinite;
+}
+@keyframes bg-drift{
+  0%,100%{opacity:1;filter:hue-rotate(0deg)}
+  50%{opacity:.85;filter:hue-rotate(12deg)}
+}
+@keyframes bg-sheen{
+  0%{background-position:120% 0}
+  100%{background-position:-40% 0}
+}
+body.transparent #banner,
+body.no-bg #banner{
+  background:transparent;border-color:transparent;box-shadow:none;
+}
+body.transparent #banner::before,
+body.transparent #banner::after,
+body.no-bg #banner::before,
+body.no-bg #banner::after{display:none}
+#banner > *{position:relative;z-index:1}
+#avatar{width:76px;height:76px;flex:0 0 76px;border-radius:16px;object-fit:cover;background:#1a3348;box-shadow:0 0 0 1px rgba(121,216,238,.2)}
+#copy{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
 #name{font-size:24px;font-weight:900;letter-spacing:-.04em;color:#ffffff;-webkit-font-smoothing:antialiased}
 #description{font-size:14px;line-height:1.35;color:#b7cddc;overflow-wrap:anywhere}
-#cta{display:inline-flex;align-self:flex-start;margin-top:2px;padding:4px 10px;border:1px solid rgba(121,216,238,.38);border-radius:999px;background:rgba(121,216,238,.12);font-size:11px;font-weight:850;letter-spacing:.04em;color:#c8eef8}
-body.hide-avatar #avatar,body.hide-name #name,body.hide-description #description,body.hide-cta #cta{display:none}
+#cta{
+  display:inline-flex;align-self:flex-start;margin-top:2px;padding:4px 10px;
+  border:1px solid rgba(121,216,238,.4);border-radius:999px;
+  background:rgba(121,216,238,.12);font-size:11px;font-weight:850;letter-spacing:.04em;color:#c8eef8;
+}
+/* mini QR in widget */
+#qrWrap{
+  flex:0 0 auto;position:relative;width:78px;height:78px;border-radius:14px;padding:2px;
+  background:linear-gradient(145deg,#9ae8f8,#2a8fb0,#7ad4ea);
+  background-size:200% 200%;
+  box-shadow:0 6px 18px rgba(0,30,50,.35),0 0 16px rgba(121,216,238,.2);
+  animation:qr-mini-glow 4s ease-in-out infinite, qr-mini-shift 7s ease-in-out infinite;
+}
+#qrInner{
+  width:100%;height:100%;border-radius:12px;background:#fff;display:grid;place-items:center;
+  overflow:hidden;
+}
+#qr{width:66px;height:66px;display:block;border-radius:6px;transition:opacity .3s ease,transform .3s ease}
+@keyframes qr-mini-glow{
+  0%,100%{box-shadow:0 6px 18px rgba(0,30,50,.35),0 0 12px rgba(121,216,238,.15)}
+  50%{box-shadow:0 8px 22px rgba(0,30,50,.4),0 0 24px rgba(121,216,238,.35)}
+}
+@keyframes qr-mini-shift{
+  0%,100%{background-position:0% 40%}
+  50%{background-position:100% 60%}
+}
+body.hide-avatar #avatar,body.hide-name #name,body.hide-description #description,body.hide-cta #cta,body.hide-qr #qrWrap{display:none}
 body.hide-name #copy{gap:4px}
-@media(max-width:500px){#banner{min-height:86px;padding:10px;gap:10px}#avatar{width:58px;height:58px;flex-basis:58px}#name{font-size:19px}#description{font-size:12px}}
+@media(max-width:500px){
+  #banner{min-height:86px;padding:10px;gap:10px}
+  #avatar{width:58px;height:58px;flex-basis:58px}
+  #name{font-size:19px}#description{font-size:12px}
+  #qrWrap{width:64px;height:64px}#qr{width:54px;height:54px}
+}
+@media(prefers-reduced-motion:reduce){
+  #banner::before,#banner::after,#qrWrap{animation:none!important}
+}
 </style>
 </head>
 <body>
 <a id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer">
 <img id="avatar" alt="">
 <span id="copy"><strong id="name">brill1antt</strong><span id="description">По вопросам рекламы и предложениям — brilliantt300@gmail.com.</span><span id="cta">Twitch</span></span>
+<span id="qrWrap" title="QR-код"><span id="qrInner"><img id="qr" alt="QR" width="66" height="66" decoding="async"></span></span>
 </a>
 <script>
 (()=>{
 const params=new URLSearchParams(location.search);
 const names=[
-{name:"brill1antt",description:"18,5cm (яйца). По вопросам рекламы и предложениям: brilliantt300@gmail.com.",url:"https://www.twitch.tv/brill1antt",login:"brill1antt"},
-{name:"mob_nadziratel",description:"Создатель Стримерского комьюнити. Стримы, игры и общение с сообществом.",url:"https://www.twitch.tv/mob_nadziratel",login:"mob_nadziratel"},
+{name:"brill1antt",description:"18,5cm (яйца). По вопросам рекламы и предложениям: brilliantt300@gmail.com.",url:"https://www.twitch.tv/brill1antt",login:"brill1antt",cta:"Twitch"},
+{name:"mob_nadziratel",description:"Создатель Стримерского комьюнити. Стримы, игры и общение с сообществом.",url:"https://www.twitch.tv/mob_nadziratel",login:"mob_nadziratel",cta:"Twitch"},
 {name:"Низина Твича",description:"Telegram-канал Низины Твича — подписывайся на сообщество и следи за новостями.",url:"https://t.me/Ntwich",image:"https://i.ibb.co/67sHc76S/panel-1263981823-image-1a71f377-cc88-45c3-9ae2-800a963cfe80.png",cta:"Telegram"}
 ];
 const body=document.body;
@@ -43,7 +114,8 @@ if(params.get("avatar")==="0")body.classList.add("hide-avatar");
 if(params.get("name")==="0")body.classList.add("hide-name");
 if(params.get("description")==="0")body.classList.add("hide-description");
 if(params.get("cta")==="0")body.classList.add("hide-cta");
-const banner=document.getElementById("banner"),avatar=document.getElementById("avatar"),name=document.getElementById("name"),description=document.getElementById("description"),ctaEl=document.getElementById("cta");
+if(params.get("qr")==="0")body.classList.add("hide-qr");
+const banner=document.getElementById("banner"),avatar=document.getElementById("avatar"),name=document.getElementById("name"),description=document.getElementById("description"),ctaEl=document.getElementById("cta"),qr=document.getElementById("qr");
 let index=0,timer;
 
 function placeholderSvg(n){
@@ -55,7 +127,8 @@ async function show(next){
  index=((next%names.length)+names.length)%names.length;
  const item=names[index];
  banner.style.opacity="0";
- await new Promise(resolve=>setTimeout(resolve,220));
+ banner.style.transform="translateY(6px)";
+ await new Promise(resolve=>setTimeout(resolve,240));
  banner.href=item.url;
  name.textContent=item.name;
  description.textContent=item.description;
@@ -73,7 +146,16 @@ async function show(next){
      }
    }catch(_){}
  }
+ if(qr){
+   qr.style.opacity="0";
+   qr.src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=10&color=0b1726&bgcolor=ffffff&data="+encodeURIComponent(item.url);
+   qr.onload=()=>{qr.style.opacity="1";};
+ }
+ // subtle bg spotlight shift per slide
+ banner.style.setProperty("--gx",(18+Math.random()*50)+"%");
+ banner.style.setProperty("--gy",(20+Math.random()*45)+"%");
  banner.style.opacity="1";
+ banner.style.transform="translateY(0)";
 }
 show(0);
 const seconds=Math.max(3,Math.min(120,Number(params.get("interval"))||7));

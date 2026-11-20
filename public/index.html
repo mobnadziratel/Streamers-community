@@ -3836,7 +3836,7 @@ function normalizeDirectorySearch(value="") {
   const transliteration = {
     а:"a", б:"b", в:"v", г:"g", д:"d", е:"e", ё:"yo", ж:"zh", з:"z",
     и:"i", й:"y", к:"k", л:"l", м:"m", н:"n", о:"o", п:"p", р:"r",
-    с:"s", т:"t", у:"u", ф:"f", х:"h", ц:"ts", ч:"ch", ш:"sh",
+    с:"c", т:"t", у:"u", ф:"f", х:"h", ц:"c", ч:"ch", ш:"sh",
     щ:"shch", ы:"y", э:"e", ю:"yu", я:"ya", ь:"", ъ:""
   };
   let normalized = String(value).toLocaleLowerCase("ru");
@@ -3861,7 +3861,8 @@ function normalizeDirectorySearch(value="") {
     .replace(/[а-яё]/g, char => transliteration[char] ?? char)
     .replace(/1/g, "i")
     .replace(/y/g, "u")
-    .replace(/[aэае]/g, "a")
+    .replace(/а/g, "a")
+    .replace(/[еэ]/g, "e")
     .replace(/[\s._*\\-]+/g, "")
     .trim();
 }
@@ -5003,6 +5004,12 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
 </script>
 
 <script src="/ticker-fit.js" defer></script>
+
+<style id="stable-brand-width">
+/* Reserve the wordmark's space so its changing words never push the page tabs. */
+header .brand-wordmark{width:220px!important;min-width:220px!important;max-width:220px!important;flex:0 0 220px!important}
+@media(max-width:680px){header .brand-wordmark{width:118px!important;min-width:118px!important;max-width:118px!important;flex:0 0 118px!important}}
+</style>
 </body>
 </html>
 

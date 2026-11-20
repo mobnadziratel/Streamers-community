@@ -538,6 +538,8 @@ const MUSIC_ACTIVE = ["pending", "playing"];
 const MUSIC_QUEUE_LIMIT = 50;
 const musicSessions = new Map();     // sessionId -> { channel, expiresAt }
 const musicRequestRate = new Map();  // ip -> [timestamps]
+const musicChatRequestRate = new Map(); // channel:nickname -> [timestamps]
+const musicChatCooldown = new Map(); // channel:nickname -> last request timestamp
 const musicLoginRate = new Map();    // ip -> [timestamps]
 const communityLoginRate = new Map();
 const musicMetaCache = new Map();    // videoId -> { meta, at }
@@ -773,9 +775,17 @@ async function handleMusicApi(req, res, url) {
           return json(200, { items: items.map(musicPublicItem), history: history.map(musicPublicItem), paused: Boolean(sync.state.paused), visible: current ? sync.state.visible !== false : false });
         }
         if (route === "/api/music/request" && method === "POST") {
-          if (!takeRateSlot(musicRequestRate, clientIp(req), 8, 3600000)) return json(429, { error: "Слишком много заявок. Попробуй позже." });
           const ch = musicChannel(body.channel), nick = musicClean(body.nickname, 32) || "Аноним";
           if (!ch) return json(400, { error: "Укажи корректный Twitch-канал." });
+          if (body.source === "chat") {
+            const requester = ch + ":" + nick.toLowerCase(), last = musicChatCooldown.get(requester) || 0;
+            if (Date.now() - last < 30000) return json(429, { error: "Подожди 30 секунд перед следующим заказом." });
+            if (!takeRateSlot(musicChatRequestRate, requester, 5, 3600000)) return json(429, { error: "Можно заказать не более 5 видео в час." });
+            musicChatCooldown.set(requester, Date.now());
+            if (musicChatCooldown.size > 5000) for (const [key, at] of musicChatCooldown) if (Date.now() - at > 3600000) musicChatCooldown.delete(key);
+          } else if (!takeRateSlot(musicRequestRate, clientIp(req), 8, 3600000)) {
+            return json(429, { error: "Слишком много заявок. Попробуй позже." });
+          }
           if (!/^[\p{L}\p{N}_ .-]{2,32}$/u.test(nick)) return json(400, { error: "Ник должен содержать от 2 до 32 символов." });
           const vid = parseYouTubeId(body.url);
           if (!vid) return json(400, { error: "Вставь корректную ссылку на видео YouTube." });

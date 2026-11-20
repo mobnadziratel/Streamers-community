@@ -636,6 +636,17 @@ html[data-theme="light"] .qr-label{
   overflow-wrap:anywhere;word-break:normal;white-space:normal;
 }
 
+
+/* Small supporting streamer description beneath the nickname. */
+.ad-copy{display:flex;min-width:0;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px}
+.ad-description{
+ display:block;max-width:100%;color:rgba(210,226,240,.78);
+ font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:clamp(11px,1.35vw,14px);
+ font-weight:550;line-height:1.35;letter-spacing:.005em;
+ text-transform:none;text-shadow:none;overflow-wrap:anywhere;
+}
+@media(max-width:560px){.ad-copy{gap:3px}.ad-description{font-size:10px;line-height:1.25}}
+
 </style>
 </head>
 <body>
@@ -684,7 +695,7 @@ html[data-theme="light"] .qr-label{
         <span class="ad-platform" aria-label="Twitch">
           <svg viewBox="0 0 24 24" role="img" aria-label="Twitch"><path fill="currentColor" d="M4 2 2 6v14h5v4l4-4h4l7-7V2H4zm16 10-4 4h-4l-3 3v-3H5V4h15v8zM10 6h2v6h-2zm5 0h2v6h-2z"/></svg>
         </span>
-        <span class="ad-name" id="adName">brill1antt</span>
+        <span class="ad-copy"><span class="ad-name" id="adName">brill1antt</span><span class="ad-description" id="adDescription">Стример сообщества</span></span>
         <span class="ad-avatar-orbit"><img class="ad-avatar" id="avatar" src="" alt=""></span>
         <span class="ad-qr-wrap"><img class="ad-qr" id="adQr" alt="QR-код канала" width="112" height="112" decoding="async"></span>
       </div>
@@ -709,11 +720,13 @@ html[data-theme="light"] .qr-label{
 const ads = [
   {
     name: "brill1antt",
+    description: "Стример сообщества",
     url: "https://www.twitch.tv/brill1antt",
     login: "brill1antt"
   },
   {
     name: "mob_nadziratel",
+    description: "Стример сообщества",
     url: "https://www.twitch.tv/mob_nadziratel",
     login: "mob_nadziratel"
   }
@@ -762,6 +775,7 @@ async function show(i) {
   banner.href = a.url;
   banner.setAttribute("aria-label", "Открыть Twitch-канал " + a.name);
   $("adName").textContent = a.name;
+  $("adDescription").textContent = a.description || "Стример сообщества";
 
   const avatar = $("avatar");
   if (avatar) {

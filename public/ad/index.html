@@ -119,6 +119,14 @@ h1{font-size:clamp(36px,7vw,64px);line-height:1.02;letter-spacing:-.055em;margin
 h2{margin:0 0 6px;font-size:22px;font-weight:900;letter-spacing:-.03em;color:#edf8ff}
 .muted{color:var(--muted);font-size:14px;margin:0 0 4px}
 
+.ad-art{
+  flex:1;min-width:0;width:100%;height:auto;max-height:200px;
+  object-fit:cover;object-position:center;
+  border-radius:16px;background:#1a1020;display:block;
+}
+.banner{gap:16px;align-items:center;min-height:0;padding:clamp(12px,3vw,18px)}
+.avatar,.copy,.name,.desc,.cta{display:none!important}
+
 .banner{
   display:flex;align-items:center;gap:22px;margin-top:22px;
   padding:clamp(16px,4vw,28px);
@@ -370,12 +378,7 @@ html[data-theme="light"] .qr-label{
     <p class="muted">Баннеры участников и партнёров сообщества</p>
 
     <a class="banner" id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer">
-      <img class="avatar" id="avatar" src="" alt="">
-      <span class="copy">
-        <span class="name" id="name">brill1antt</span>
-        <span class="desc" id="description">Стример сообщества</span>
-        <span class="cta" id="cta">Twitch</span>
-      </span>
+      <img class="ad-art" id="art" src="/ad-brill1antt.jpg" alt="brill1antt">
       <span class="qr-wrap" title="QR-код ссылки">
         <span class="qr-frame">
           <span class="qr-frame-inner">
@@ -408,21 +411,18 @@ html[data-theme="light"] .qr-label{
 const ads = [
   {
     name: "brill1antt",
-    description: "18,5cm (яйца). По вопросам рекламы и предложениям: brilliantt300@gmail.com.",
     url: "https://www.twitch.tv/brill1antt",
-    login: "brill1antt",
+    image: "/ad-brill1antt.jpg",
     cta: "Twitch"
   },
   {
     name: "mob_nadziratel",
-    description: "Создатель Стримерского комьюнити. Стримы, игры и общение с сообществом.",
     url: "https://www.twitch.tv/mob_nadziratel",
-    login: "mob_nadziratel",
+    image: "/ad-mob_nadziratel.jpg",
     cta: "Twitch"
   },
   {
     name: "Низина Твича",
-    description: "Telegram-канал Низины Твича — подписывайся на сообщество и следи за новостями.",
     url: "https://t.me/Ntwich",
     image: "/nizina-banner.png",
     cta: "Telegram"
@@ -467,16 +467,14 @@ async function show(i) {
 
   current = next;
   banner.href = a.url;
-  $("name").textContent = a.name;
-  $("description").textContent = a.description;
-  $("cta").textContent = a.cta || "Ссылка";
-  $("avatar").alt = "Изображение: " + a.name;
-  $("avatar").src = placeholderSvg(a.name);
+  const art = $("art");
+  if (art) {
+    art.src = a.image;
+    art.alt = a.name;
+  }
 
   const qr = $("qr");
-  const qrLabel = $("qrLabel");
   if (qr) {
-    // Winter-tinted QR: dark navy modules on soft ice background
     const bg = "e8f6fb";
     const fg = "0b1726";
     qr.style.opacity = "0";
@@ -498,13 +496,9 @@ async function show(i) {
   banner.classList.remove("is-leaving");
   if (!reduceMotion) {
     banner.classList.remove("is-entering");
-    // force reflow so animation restarts
     void banner.offsetWidth;
     banner.classList.add("is-entering");
   }
-
-  const url = await resolveAvatar(a);
-  if (current === next) $("avatar").src = url;
 }
 
 function startRotation() {

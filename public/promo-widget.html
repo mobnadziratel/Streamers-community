@@ -11,87 +11,45 @@
 html,body{margin:0;width:100%;min-height:100%;background:transparent;overflow:hidden}
 body{padding:6px;color:#fff}
 #banner{
-  position:relative;display:flex;align-items:center;gap:14px;width:100%;min-height:80px;
-  padding:8px 10px;border-radius:18px;
+  position:relative;display:flex;align-items:center;gap:12px;width:100%;
+  padding:0;border:none;background:transparent;box-shadow:none;
   color:#fff;text-decoration:none;overflow:visible;
-  background:transparent;border:none;box-shadow:none;
   opacity:1;transition:opacity .4s ease,transform .4s ease;
 }
-#banner > *{position:relative;z-index:1}
-
-#avatarWrap{
-  flex:0 0 auto;position:relative;width:72px;height:72px;
-  border-radius:14px;overflow:hidden;
-  background:transparent;padding:0;box-shadow:none;
+#art{
+  display:block;flex:1;min-width:0;width:100%;height:auto;
+  max-height:min(160px,28vw);
+  object-fit:cover;object-position:center;
+  border-radius:14px;background:#1a1020;
 }
-#avatar{
-  display:block;width:100%;height:100%;border-radius:14px;object-fit:cover;
-  background:#1a3348;
-}
-
-#name{
-  flex:1;min-width:0;
-  font-size:clamp(22px,3.6vw,32px);font-weight:950;letter-spacing:-.04em;
-  color:#fff;line-height:1.15;text-align:center;
-  text-shadow:
-    0 1px 0 rgba(0,0,0,.4),
-    0 2px 14px rgba(0,0,0,.55),
-    0 0 20px rgba(11,23,38,.55);
-  -webkit-font-smoothing:antialiased;
-  overflow-wrap:anywhere;
-}
-
 #qrWrap{
-  flex:0 0 auto;position:relative;width:68px;height:68px;border-radius:12px;
-  padding:0;background:#fff;overflow:hidden;box-shadow:none;
+  flex:0 0 auto;width:68px;height:68px;border-radius:12px;
+  overflow:hidden;background:#fff;
 }
-#qrInner{width:100%;height:100%;border-radius:12px;background:#fff;display:grid;place-items:center;overflow:hidden}
-#qr{width:68px;height:68px;display:block;border-radius:12px;transition:opacity .3s ease}
-
-body.hide-avatar #avatarWrap{display:none}
+#qr{display:block;width:68px;height:68px;border-radius:12px;transition:opacity .3s ease}
 body.hide-qr #qrWrap{display:none}
-body.solid #banner{
-  background:rgba(11,23,38,.92);
-  border:1px solid rgba(121,216,238,.28);
-  box-shadow:0 8px 28px rgba(0,0,0,.28);
-}
-
 @media(max-width:480px){
-  #banner{gap:10px;min-height:68px;padding:6px}
-  #avatarWrap{width:56px;height:56px}
-  #avatar{border-radius:12px}
-  #name{font-size:18px}
-  #qrWrap{width:54px;height:54px;border-radius:10px}
-  #qr{width:54px;height:54px;border-radius:10px}
+  #art{max-height:110px;border-radius:12px}
+  #qrWrap,#qr{width:54px;height:54px;border-radius:10px}
 }
-@media(prefers-reduced-motion:reduce){}
 </style>
 </head>
 <body>
 <a id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer">
-  <span id="avatarWrap"><img id="avatar" alt=""></span>
-  <strong id="name">brill1antt</strong>
-  <span id="qrWrap" title="QR-код"><span id="qrInner"><img id="qr" alt="QR" width="60" height="60" decoding="async"></span></span>
+  <img id="art" src="/ad-brill1antt.jpg" alt="brill1antt">
+  <span id="qrWrap" title="QR-код"><img id="qr" alt="QR" width="68" height="68" decoding="async"></span>
 </a>
 <script>
 (()=>{
 const params=new URLSearchParams(location.search);
 const names=[
-{name:"brill1antt",url:"https://www.twitch.tv/brill1antt",login:"brill1antt"},
-{name:"mob_nadziratel",url:"https://www.twitch.tv/mob_nadziratel",login:"mob_nadziratel"},
+{name:"brill1antt",url:"https://www.twitch.tv/brill1antt",image:"/ad-brill1antt.jpg"},
+{name:"mob_nadziratel",url:"https://www.twitch.tv/mob_nadziratel",image:"/ad-mob_nadziratel.jpg"},
 {name:"Низина Твича",url:"https://t.me/Ntwich",image:"/nizina-banner.png"}
 ];
-const body=document.body;
-if(params.get("solid")==="1"||params.get("bg")==="1")body.classList.add("solid");
-if(params.get("avatar")==="0")body.classList.add("hide-avatar");
-if(params.get("qr")==="0")body.classList.add("hide-qr");
-const banner=document.getElementById("banner"),avatar=document.getElementById("avatar"),name=document.getElementById("name"),qr=document.getElementById("qr");
+if(params.get("qr")==="0")document.body.classList.add("hide-qr");
+const banner=document.getElementById("banner"),art=document.getElementById("art"),qr=document.getElementById("qr");
 let index=0,timer;
-
-function placeholderSvg(n){
-  const initials=(n||"?").slice(0,2).toUpperCase();
-  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" rx="22" fill="#1a3348"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="48" font-weight="bold" fill="#79d8ee">'+initials+'</text></svg>');
-}
 
 async function show(next){
  index=((next%names.length)+names.length)%names.length;
@@ -100,20 +58,8 @@ async function show(next){
  banner.style.transform="translateY(6px)";
  await new Promise(r=>setTimeout(r,220));
  banner.href=item.url;
- name.textContent=item.name;
- avatar.alt=(item.image?"Логотип ":"Аватар ")+item.name;
- if(item.image){
-   avatar.src=item.image;
- }else{
-   avatar.src=placeholderSvg(item.name);
-   try{
-     const response=await fetch("/api/avatar?login="+encodeURIComponent(item.login||item.name),{cache:"no-store"});
-     if(response.ok){
-       const data=await response.json();
-       if(data.avatarUrl&&/^https:\/\//i.test(data.avatarUrl))avatar.src=data.avatarUrl;
-     }
-   }catch(_){}
- }
+ art.src=item.image;
+ art.alt=item.name;
  if(qr){
    qr.style.opacity="0";
    qr.src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=10&color=0b1726&bgcolor=ffffff&data="+encodeURIComponent(item.url);

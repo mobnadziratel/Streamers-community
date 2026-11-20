@@ -600,7 +600,7 @@ html[data-theme="light"] .qr-label{
   padding:0!important;border:0!important;border-radius:0!important;
   background:transparent!important;box-shadow:none!important;
 }
-.ad-qr{image-rendering:pixelated;border-radius:0!important}
+.ad-qr{image-rendering:auto;border-radius:10px!important;overflow:hidden}.ad-qr svg{display:block;width:100%;height:100%}
 
 
 /* Reference-inspired typography: bold italic display lettering, transparent background. */
@@ -714,7 +714,7 @@ html[data-theme="light"] .qr-label{
         <img class="nizina-logo" src="/assets/nizina-logo.svg" alt="Логотип Низина Твича">
         <span class="ad-avatar-orbit"><img class="ad-avatar" id="avatar" src="" alt=""></span>
         <span class="ad-copy"><span class="ad-name" id="adName">brill1antt</span><span class="ad-description" id="adDescription">Стример сообщества</span></span>
-        <span class="ad-qr-wrap"><img class="ad-qr" id="adQr" alt="QR-код канала" width="112" height="112" decoding="async"></span>
+        <span class="ad-qr-wrap"><div class="ad-qr" id="adQr" role="img" aria-label="QR-код канала"></div></span>
       </div>
     </a>
     <div class="dots" id="dots" aria-hidden="true"></div>

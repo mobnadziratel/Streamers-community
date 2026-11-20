@@ -84,6 +84,21 @@ body.hide-qr #banner{grid-template-columns:var(--platform-size,40px) minmax(0,1f
 }
 #nickname:after{display:none!important}
 
+
+/* Readability pass: restore the exact streamer nickname in a clean, sturdy sans-serif. */
+#nickname{
+  font-family:Inter,"Segoe UI",Arial,sans-serif!important;
+  font-style:normal!important;font-weight:900!important;
+  font-size:clamp(23px,3.7vw,39px)!important;
+  line-height:1.16!important;letter-spacing:-.035em!important;
+  text-transform:none!important;
+  -webkit-text-stroke:0!important;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  text-shadow:0 2px 0 rgba(102,35,90,.48),0 4px 12px rgba(60,20,70,.18)!important;
+  transform:none!important;
+  overflow-wrap:anywhere;word-break:normal;
+}
+
 </style></head><body>
 <a id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer" aria-label="Открыть канал Twitch">
 <span id="platform" aria-label="Twitch"><svg viewBox="0 0 24 24" role="img" aria-label="Twitch"><path fill="currentColor" d="M4 2 2 6v14h5v4l4-4h4l7-7V2H4zm16 10-4 4h-4l-3 3v-3H5V4h15v8zM10 6h2v6h-2zm5 0h2v6h-2z"/></svg></span>

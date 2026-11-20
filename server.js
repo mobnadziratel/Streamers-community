@@ -375,8 +375,8 @@ async function fetchFollowerCount(login) {
         signal: AbortSignal.timeout(8000)
       });
       const raw = (await response.text()).trim();
-      const normalized = raw.replace(/[\\s,]/g, "");
-      if (!response.ok || !/^\\d+$/.test(normalized)) {
+      const normalized = raw.replace(/[\s,]/g, "");
+      if (!response.ok || !/^\d+$/.test(normalized)) {
         throw new Error(`Follower count provider returned an invalid response (${response.status})`);
       }
       const total = Number(normalized);

@@ -240,20 +240,91 @@ html[data-theme="light"] footer{color:#6a8799}
 
 
 .qr-wrap{
-  margin-left:auto;flex:0 0 auto;display:grid;place-items:center;
-  padding:8px;border-radius:14px;
-  background:rgba(255,255,255,.96);
-  border:1px solid rgba(164,218,239,.22);
-  box-shadow:0 4px 16px rgba(0,0,0,.18);
+  margin-left:auto;flex:0 0 auto;position:relative;
+  display:grid;place-items:center;
+  padding:10px;border-radius:16px;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.98),rgba(230,246,252,.96));
+  border:1px solid rgba(121,216,238,.35);
+  box-shadow:
+    0 6px 22px rgba(0,20,40,.28),
+    0 0 0 1px rgba(255,255,255,.08) inset,
+    0 0 24px rgba(121,216,238,.12);
+  transition:transform .35s ease,box-shadow .35s ease;
 }
-.qr{width:72px;height:72px;display:block;border-radius:6px}
+.qr-wrap:before,.qr-wrap:after{
+  content:"";position:absolute;width:14px;height:14px;
+  border:2px solid #55c4e0;border-radius:3px;opacity:.85;pointer-events:none;
+}
+.qr-wrap:before{top:5px;left:5px;border-right:none;border-bottom:none}
+.qr-wrap:after{bottom:5px;right:5px;border-left:none;border-top:none}
+.qr-wrap .qr-corner-tr,.qr-wrap .qr-corner-bl{
+  position:absolute;width:14px;height:14px;
+  border:2px solid #79d8ee;border-radius:3px;opacity:.75;pointer-events:none;
+}
+.qr-wrap .qr-corner-tr{top:5px;right:5px;border-left:none;border-bottom:none}
+.qr-wrap .qr-corner-bl{bottom:5px;left:5px;border-right:none;border-top:none}
+.qr{
+  width:72px;height:72px;display:block;border-radius:8px;
+  position:relative;z-index:1;
+  transition:opacity .3s ease,transform .3s ease,filter .3s ease;
+}
+.qr-label{
+  position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);
+  padding:2px 8px;border-radius:999px;
+  background:linear-gradient(135deg,#75d7eb,#3b9dbb);
+  color:#082032;font-size:9px;font-weight:900;letter-spacing:.06em;
+  white-space:nowrap;box-shadow:0 3px 10px rgba(59,157,187,.35);
+  z-index:2;
+}
+.banner:hover .qr-wrap{
+  transform:translateY(-2px) scale(1.03);
+  box-shadow:
+    0 10px 28px rgba(0,20,40,.32),
+    0 0 0 1px rgba(255,255,255,.1) inset,
+    0 0 32px rgba(121,216,238,.22);
+}
 html[data-theme="light"] .qr-wrap{
-  background:#fff;border-color:rgba(32,91,117,.16);
-  box-shadow:0 4px 14px rgba(35,78,99,.1);
+  background:linear-gradient(145deg,#fff,#eef7fb);
+  border-color:rgba(37,142,174,.28);
+  box-shadow:0 6px 18px rgba(35,78,99,.12);
 }
+html[data-theme="light"] .qr-wrap:before,
+html[data-theme="light"] .qr-wrap:after,
+html[data-theme="light"] .qr-corner-tr,
+html[data-theme="light"] .qr-corner-bl{border-color:#258eae}
+html[data-theme="light"] .qr-label{
+  background:linear-gradient(135deg,#61c4dc,#258eae);color:#fff;
+}
+
+/* Banner switch animation */
+.banner.is-leaving{
+  opacity:0;transform:translateY(10px) scale(.985);
+  filter:blur(2px);
+  pointer-events:none;
+}
+.banner.is-entering{
+  animation:banner-in .55s cubic-bezier(.22,.75,.25,1) both;
+}
+@keyframes banner-in{
+  from{opacity:0;transform:translateY(-12px) scale(.97);filter:blur(3px)}
+  to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+.banner{
+  transition:border-color .2s,transform .35s cubic-bezier(.22,.75,.25,1),background .2s,box-shadow .2s,opacity .35s ease,filter .35s ease;
+}
+.dots .dot{transition:width .35s cubic-bezier(.22,.75,.25,1),background .35s ease,box-shadow .35s ease}
+.dot.active{box-shadow:0 0 12px rgba(121,216,238,.55)}
+
 @media(max-width:560px){
   .qr-wrap{margin-left:0;align-self:flex-end}
   .qr{width:64px;height:64px}
+  .qr-label{font-size:8px;padding:2px 7px}
+}
+@media(prefers-reduced-motion:reduce){
+  .banner.is-entering{animation:none}
+  .banner.is-leaving{opacity:0;transform:none;filter:none}
+  .qr-wrap,.qr{transition:none}
 }
 
 @media(max-width:560px){
@@ -324,8 +395,11 @@ html[data-theme="light"] .qr-wrap{
         <span class="desc" id="description">Стример сообщества</span>
         <span class="cta" id="cta">Twitch</span>
       </span>
-      <span class="qr-wrap" title="QR-код ссылки">
+      <span class="qr-wrap" title="QR-код ссылки" aria-hidden="false">
+        <span class="qr-corner-tr"></span>
+        <span class="qr-corner-bl"></span>
         <img class="qr" id="qr" src="" alt="QR-код" width="72" height="72" decoding="async">
+        <span class="qr-label" id="qrLabel">QR</span>
       </span>
     </a>
     <div class="dots" id="dots" aria-hidden="true"></div>
@@ -394,26 +468,56 @@ async function resolveAvatar(item) {
 }
 
 async function show(i) {
-  current = ((i % ads.length) + ads.length) % ads.length;
-  const a = ads[current];
-  $("banner").href = a.url;
+  const next = ((i % ads.length) + ads.length) % ads.length;
+  const a = ads[next];
+  const banner = $("banner");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (!reduceMotion && current !== next) {
+    banner.classList.remove("is-entering");
+    banner.classList.add("is-leaving");
+    await new Promise(r => setTimeout(r, 280));
+  }
+
+  current = next;
+  banner.href = a.url;
   $("name").textContent = a.name;
   $("description").textContent = a.description;
   $("cta").textContent = a.cta || "Ссылка";
   $("avatar").alt = "Изображение: " + a.name;
   $("avatar").src = placeholderSvg(a.name);
+
   const qr = $("qr");
+  const qrLabel = $("qrLabel");
   if (qr) {
-    qr.src = "https://api.qrserver.com/v1/create-qr-code/?size=144x144&margin=8&color=0b1726&bgcolor=ffffff&data=" + encodeURIComponent(a.url);
+    // Winter-tinted QR: dark navy modules on soft ice background
+    const bg = "e8f6fb";
+    const fg = "0b1726";
+    qr.style.opacity = "0";
+    qr.style.transform = "scale(.92)";
+    qr.src = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=10&color=" + fg + "&bgcolor=" + bg + "&data=" + encodeURIComponent(a.url);
     qr.alt = "QR-код: " + a.name;
+    qr.onload = () => {
+      qr.style.opacity = "1";
+      qr.style.transform = "scale(1)";
+    };
   }
+  if (qrLabel) qrLabel.textContent = a.cta || "QR";
+
   $("dots").innerHTML = ads.map((_, n) =>
     '<span class="dot' + (n === current ? " active" : "") + '"></span>'
   ).join("");
-  const url = await resolveAvatar(a);
-  if (((i % ads.length) + ads.length) % ads.length === current) {
-    $("avatar").src = url;
+
+  banner.classList.remove("is-leaving");
+  if (!reduceMotion) {
+    banner.classList.remove("is-entering");
+    // force reflow so animation restarts
+    void banner.offsetWidth;
+    banner.classList.add("is-entering");
   }
+
+  const url = await resolveAvatar(a);
+  if (current === next) $("avatar").src = url;
 }
 
 function startRotation() {

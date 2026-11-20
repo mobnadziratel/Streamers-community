@@ -9,95 +9,117 @@
 :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,Arial,sans-serif}
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;min-height:100%;background:transparent;overflow:hidden}
-body{padding:8px;color:#edf7ff}
+body{padding:6px;color:#fff}
 #banner{
-  position:relative;display:flex;align-items:center;gap:14px;width:100%;min-height:112px;
-  padding:14px 16px;border:1px solid rgba(121,216,238,.34);border-radius:18px;
-  color:#edf7ff;text-decoration:none;overflow:hidden;
-  background:rgba(11,23,38,.94);
-  box-shadow:0 8px 28px rgba(0,0,0,.28);
-  opacity:1;transition:opacity .4s ease,transform .4s ease,border-color .3s ease;
+  position:relative;display:flex;align-items:center;gap:14px;width:100%;min-height:88px;
+  padding:10px 12px 10px 10px;border-radius:18px;
+  color:#fff;text-decoration:none;overflow:visible;
+  background:transparent;border:none;box-shadow:none;
+  opacity:1;transition:opacity .4s ease,transform .4s ease;
 }
-/* animated winter background layers */
-#banner::before{
-  content:"";position:absolute;inset:0;border-radius:inherit;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(ellipse 80% 70% at var(--gx,20%) var(--gy,30%),rgba(90,190,220,.22),transparent 55%),
-    radial-gradient(ellipse 60% 50% at 85% 80%,rgba(50,140,180,.14),transparent 50%),
-    linear-gradient(135deg,rgba(14,32,52,.4),transparent 60%);
-  animation:bg-drift 10s ease-in-out infinite;
-}
-#banner::after{
-  content:"";position:absolute;inset:0;border-radius:inherit;z-index:0;pointer-events:none;
-  background:linear-gradient(105deg,transparent 40%,rgba(169,233,247,.07) 50%,transparent 60%);
-  background-size:220% 100%;
-  animation:bg-sheen 5.5s ease-in-out infinite;
-}
-@keyframes bg-drift{
-  0%,100%{opacity:1;filter:hue-rotate(0deg)}
-  50%{opacity:.85;filter:hue-rotate(12deg)}
-}
-@keyframes bg-sheen{
-  0%{background-position:120% 0}
-  100%{background-position:-40% 0}
-}
-body.transparent #banner,
-body.no-bg #banner{
-  background:transparent;border-color:transparent;box-shadow:none;
-}
-body.transparent #banner::before,
-body.transparent #banner::after,
-body.no-bg #banner::before,
-body.no-bg #banner::after{display:none}
 #banner > *{position:relative;z-index:1}
-#avatar{width:76px;height:76px;flex:0 0 76px;border-radius:16px;object-fit:cover;background:#1a3348;box-shadow:0 0 0 1px rgba(121,216,238,.2)}
-#copy{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
-#name{font-size:24px;font-weight:900;letter-spacing:-.04em;color:#ffffff;-webkit-font-smoothing:antialiased}
-#description{font-size:14px;line-height:1.35;color:#b7cddc;overflow-wrap:anywhere}
-#cta{
-  display:inline-flex;align-self:flex-start;margin-top:2px;padding:4px 10px;
-  border:1px solid rgba(121,216,238,.4);border-radius:999px;
-  background:rgba(121,216,238,.12);font-size:11px;font-weight:850;letter-spacing:.04em;color:#c8eef8;
-}
-/* mini QR in widget */
-#qrWrap{
-  flex:0 0 auto;position:relative;width:78px;height:78px;border-radius:14px;padding:2px;
+
+/* avatar side */
+#avatarWrap{
+  flex:0 0 auto;position:relative;width:72px;height:72px;border-radius:18px;
+  padding:2px;
   background:linear-gradient(145deg,#9ae8f8,#2a8fb0,#7ad4ea);
   background-size:200% 200%;
-  box-shadow:0 6px 18px rgba(0,30,50,.35),0 0 16px rgba(121,216,238,.2);
-  animation:qr-mini-glow 4s ease-in-out infinite, qr-mini-shift 7s ease-in-out infinite;
+  box-shadow:0 8px 22px rgba(0,20,40,.35),0 0 18px rgba(121,216,238,.22);
+  animation:avatar-ring 5s ease-in-out infinite;
 }
-#qrInner{
-  width:100%;height:100%;border-radius:12px;background:#fff;display:grid;place-items:center;
-  overflow:hidden;
+#avatar{
+  display:block;width:100%;height:100%;border-radius:16px;object-fit:cover;
+  background:#1a3348;
 }
-#qr{width:66px;height:66px;display:block;border-radius:6px;transition:opacity .3s ease,transform .3s ease}
-@keyframes qr-mini-glow{
-  0%,100%{box-shadow:0 6px 18px rgba(0,30,50,.35),0 0 12px rgba(121,216,238,.15)}
-  50%{box-shadow:0 8px 22px rgba(0,30,50,.4),0 0 24px rgba(121,216,238,.35)}
+@keyframes avatar-ring{
+  0%,100%{background-position:0% 40%;box-shadow:0 8px 22px rgba(0,20,40,.35),0 0 14px rgba(121,216,238,.18)}
+  50%{background-position:100% 60%;box-shadow:0 10px 26px rgba(0,20,40,.4),0 0 26px rgba(121,216,238,.32)}
 }
-@keyframes qr-mini-shift{
-  0%,100%{background-position:0% 40%}
-  50%{background-position:100% 60%}
+
+/* transparent middle: nick + meta */
+#copy{
+  display:flex;flex-direction:column;justify-content:center;gap:4px;
+  min-width:0;flex:1;
+  padding:8px 12px;
+  border-radius:14px;
+  background:transparent;
 }
-body.hide-avatar #avatar,body.hide-name #name,body.hide-description #description,body.hide-cta #cta,body.hide-qr #qrWrap{display:none}
-body.hide-name #copy{gap:4px}
-@media(max-width:500px){
-  #banner{min-height:86px;padding:10px;gap:10px}
-  #avatar{width:58px;height:58px;flex-basis:58px}
-  #name{font-size:19px}#description{font-size:12px}
-  #qrWrap{width:64px;height:64px}#qr{width:54px;height:54px}
+#name{
+  font-size:clamp(20px,3.2vw,28px);font-weight:950;letter-spacing:-.04em;
+  color:#fff;line-height:1.1;
+  text-shadow:
+    0 1px 0 rgba(0,0,0,.35),
+    0 2px 12px rgba(0,0,0,.45),
+    0 0 18px rgba(11,23,38,.5);
+  -webkit-font-smoothing:antialiased;
+  overflow-wrap:anywhere;
+}
+#description{
+  font-size:13px;line-height:1.35;color:rgba(230,245,255,.92);
+  text-shadow:0 1px 6px rgba(0,0,0,.5);
+  overflow-wrap:anywhere;
+  display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+#cta{
+  display:inline-flex;align-self:flex-start;margin-top:3px;padding:3px 9px;
+  border:1px solid rgba(255,255,255,.35);border-radius:999px;
+  background:rgba(11,23,38,.35);backdrop-filter:blur(6px);
+  font-size:10px;font-weight:850;letter-spacing:.05em;color:#e8f9ff;
+  text-shadow:none;
+}
+
+/* optional mini QR on far right */
+#qrWrap{
+  flex:0 0 auto;position:relative;width:70px;height:70px;border-radius:14px;padding:2px;
+  background:linear-gradient(145deg,#9ae8f8,#2a8fb0,#7ad4ea);
+  background-size:200% 200%;
+  box-shadow:0 6px 16px rgba(0,30,50,.3),0 0 14px rgba(121,216,238,.18);
+  animation:avatar-ring 5s ease-in-out infinite;
+  animation-delay:-2s;
+}
+#qrInner{width:100%;height:100%;border-radius:12px;background:#fff;display:grid;place-items:center;overflow:hidden}
+#qr{width:60px;height:60px;display:block;border-radius:6px;transition:opacity .3s ease}
+
+body.hide-avatar #avatarWrap{display:none}
+body.hide-name #name{display:none}
+body.hide-description #description{display:none}
+body.hide-cta #cta{display:none}
+body.hide-qr #qrWrap{display:none}
+body.hide-name #copy{gap:2px}
+
+/* solid panel mode if user wants background */
+body.solid #banner{
+  background:rgba(11,23,38,.92);
+  border:1px solid rgba(121,216,238,.28);
+  box-shadow:0 8px 28px rgba(0,0,0,.28);
+}
+body.solid #copy{background:transparent}
+body.solid #name{text-shadow:none}
+body.solid #description{color:#b7cddc;text-shadow:none}
+
+@media(max-width:480px){
+  #banner{gap:10px;min-height:72px;padding:8px}
+  #avatarWrap{width:58px;height:58px}
+  #avatar{border-radius:14px}
+  #name{font-size:18px}
+  #description{font-size:11px}
+  #qrWrap{width:56px;height:56px}#qr{width:48px;height:48px}
 }
 @media(prefers-reduced-motion:reduce){
-  #banner::before,#banner::after,#qrWrap{animation:none!important}
+  #avatarWrap,#qrWrap{animation:none!important}
 }
 </style>
 </head>
 <body>
 <a id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer">
-<img id="avatar" alt="">
-<span id="copy"><strong id="name">brill1antt</strong><span id="description">По вопросам рекламы и предложениям — brilliantt300@gmail.com.</span><span id="cta">Twitch</span></span>
-<span id="qrWrap" title="QR-код"><span id="qrInner"><img id="qr" alt="QR" width="66" height="66" decoding="async"></span></span>
+  <span id="avatarWrap"><img id="avatar" alt=""></span>
+  <span id="copy">
+    <strong id="name">brill1antt</strong>
+    <span id="description">По вопросам рекламы и предложениям — brilliantt300@gmail.com.</span>
+    <span id="cta">Twitch</span>
+  </span>
+  <span id="qrWrap" title="QR-код"><span id="qrInner"><img id="qr" alt="QR" width="60" height="60" decoding="async"></span></span>
 </a>
 <script>
 (()=>{
@@ -105,11 +127,11 @@ const params=new URLSearchParams(location.search);
 const names=[
 {name:"brill1antt",description:"18,5cm (яйца). По вопросам рекламы и предложениям: brilliantt300@gmail.com.",url:"https://www.twitch.tv/brill1antt",login:"brill1antt",cta:"Twitch"},
 {name:"mob_nadziratel",description:"Создатель Стримерского комьюнити. Стримы, игры и общение с сообществом.",url:"https://www.twitch.tv/mob_nadziratel",login:"mob_nadziratel",cta:"Twitch"},
-{name:"Низина Твича",description:"Telegram-канал Низины Твича — подписывайся на сообщество и следи за новостями.",url:"https://t.me/Ntwich",image:"https://i.ibb.co/67sHc76S/panel-1263981823-image-1a71f377-cc88-45c3-9ae2-800a963cfe80.png",cta:"Telegram"}
+{name:"Низина Твича",description:"Telegram-канал Низины Твича — подписывайся на сообщество и следи за новостями.",url:"https://t.me/Ntwich",image:"/nizina-banner.png",cta:"Telegram"}
 ];
 const body=document.body;
-if(params.get("bg")==="0"||params.get("transparent")==="1")body.classList.add("transparent");
-if(params.get("bg")==="none")body.classList.add("no-bg");
+// Default: transparent. solid=1 adds panel background.
+if(params.get("solid")==="1"||params.get("bg")==="1")body.classList.add("solid");
 if(params.get("avatar")==="0")body.classList.add("hide-avatar");
 if(params.get("name")==="0")body.classList.add("hide-name");
 if(params.get("description")==="0")body.classList.add("hide-description");
@@ -128,7 +150,7 @@ async function show(next){
  const item=names[index];
  banner.style.opacity="0";
  banner.style.transform="translateY(6px)";
- await new Promise(resolve=>setTimeout(resolve,240));
+ await new Promise(r=>setTimeout(r,220));
  banner.href=item.url;
  name.textContent=item.name;
  description.textContent=item.description;
@@ -151,9 +173,6 @@ async function show(next){
    qr.src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=10&color=0b1726&bgcolor=ffffff&data="+encodeURIComponent(item.url);
    qr.onload=()=>{qr.style.opacity="1";};
  }
- // subtle bg spotlight shift per slide
- banner.style.setProperty("--gx",(18+Math.random()*50)+"%");
- banner.style.setProperty("--gy",(20+Math.random()*45)+"%");
  banner.style.opacity="1";
  banner.style.transform="translateY(0)";
 }

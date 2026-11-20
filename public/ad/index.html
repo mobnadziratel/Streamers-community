@@ -239,62 +239,117 @@ html[data-theme="light"] button:hover{
 html[data-theme="light"] footer{color:#6a8799}
 
 
+
 .qr-wrap{
   margin-left:auto;flex:0 0 auto;position:relative;
   display:grid;place-items:center;
-  padding:10px;border-radius:16px;
+  width:108px;height:108px;
+  padding:0;
+  border-radius:22px;
   background:
-    linear-gradient(145deg,rgba(255,255,255,.98),rgba(230,246,252,.96));
-  border:1px solid rgba(121,216,238,.35);
+    radial-gradient(circle at 30% 20%,rgba(180,240,255,.55),transparent 45%),
+    linear-gradient(160deg,#f7fcff 0%,#dceef8 48%,#c5e4f4 100%);
   box-shadow:
-    0 6px 22px rgba(0,20,40,.28),
-    0 0 0 1px rgba(255,255,255,.08) inset,
-    0 0 24px rgba(121,216,238,.12);
-  transition:transform .35s ease,box-shadow .35s ease;
+    0 0 0 2px rgba(121,216,238,.45),
+    0 0 0 5px rgba(11,23,38,.55),
+    0 0 0 6px rgba(121,216,238,.25),
+    0 10px 28px rgba(0,30,50,.4),
+    0 0 40px rgba(121,216,238,.18);
+  transition:transform .4s cubic-bezier(.22,.75,.25,1),box-shadow .4s ease;
+  isolation:isolate;
 }
-.qr-wrap:before,.qr-wrap:after{
-  content:"";position:absolute;width:14px;height:14px;
-  border:2px solid #55c4e0;border-radius:3px;opacity:.85;pointer-events:none;
+/* animated gradient ring */
+.qr-wrap::before{
+  content:"";position:absolute;inset:-3px;border-radius:24px;z-index:0;
+  background:conic-gradient(from var(--qr-angle,0deg),#79d8ee,#3b9dbb,#a9e9f7,#79d8ee,#3b9dbb,#79d8ee);
+  animation:qr-spin 6s linear infinite;
+  opacity:.9;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  padding:2px;pointer-events:none;
 }
-.qr-wrap:before{top:5px;left:5px;border-right:none;border-bottom:none}
-.qr-wrap:after{bottom:5px;right:5px;border-left:none;border-top:none}
-.qr-wrap .qr-corner-tr,.qr-wrap .qr-corner-bl{
-  position:absolute;width:14px;height:14px;
-  border:2px solid #79d8ee;border-radius:3px;opacity:.75;pointer-events:none;
+@keyframes qr-spin{to{--qr-angle:360deg}}
+@property --qr-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
+/* soft frost overlay */
+.qr-wrap::after{
+  content:"";position:absolute;inset:0;border-radius:22px;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 18% 22%,rgba(255,255,255,.7),transparent 28%),
+    radial-gradient(circle at 82% 78%,rgba(255,255,255,.35),transparent 30%);
+  opacity:.9;
 }
-.qr-wrap .qr-corner-tr{top:5px;right:5px;border-left:none;border-bottom:none}
-.qr-wrap .qr-corner-bl{bottom:5px;left:5px;border-right:none;border-top:none}
-.qr{
-  width:72px;height:72px;display:block;border-radius:8px;
+.qr-inner{
   position:relative;z-index:1;
-  transition:opacity .3s ease,transform .3s ease,filter .3s ease;
+  display:grid;place-items:center;
+  width:84px;height:84px;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:
+    inset 0 0 0 1px rgba(11,23,38,.06),
+    0 2px 8px rgba(11,23,38,.08);
+  overflow:hidden;
+}
+.qr{
+  width:76px;height:76px;display:block;border-radius:10px;
+  transition:opacity .3s ease,transform .35s cubic-bezier(.22,.75,.25,1),filter .3s ease;
+}
+/* snowflake ornaments */
+.qr-flake{
+  position:absolute;z-index:2;font-size:11px;line-height:1;
+  color:#3b9dbb;opacity:.85;pointer-events:none;
+  text-shadow:0 0 8px rgba(169,233,247,.8);
+  animation:flake-twinkle 2.8s ease-in-out infinite;
+}
+.qr-flake.tl{top:4px;left:6px;animation-delay:0s}
+.qr-flake.tr{top:4px;right:6px;animation-delay:.7s}
+.qr-flake.bl{bottom:14px;left:6px;animation-delay:1.4s}
+.qr-flake.br{bottom:14px;right:6px;animation-delay:2.1s}
+@keyframes flake-twinkle{
+  0%,100%{opacity:.45;transform:scale(.9) rotate(0deg)}
+  50%{opacity:1;transform:scale(1.15) rotate(15deg)}
 }
 .qr-label{
-  position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);
-  padding:2px 8px;border-radius:999px;
-  background:linear-gradient(135deg,#75d7eb,#3b9dbb);
-  color:#082032;font-size:9px;font-weight:900;letter-spacing:.06em;
-  white-space:nowrap;box-shadow:0 3px 10px rgba(59,157,187,.35);
-  z-index:2;
-}
-.banner:hover .qr-wrap{
-  transform:translateY(-2px) scale(1.03);
+  position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);
+  z-index:3;
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:999px;
+  background:linear-gradient(135deg,#8ce2f2 0%,#3b9dbb 55%,#2a7a98 100%);
+  color:#041820;font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;
+  white-space:nowrap;
   box-shadow:
-    0 10px 28px rgba(0,20,40,.32),
-    0 0 0 1px rgba(255,255,255,.1) inset,
-    0 0 32px rgba(121,216,238,.22);
+    0 4px 14px rgba(59,157,187,.45),
+    inset 0 1px 0 rgba(255,255,255,.45);
+  border:1px solid rgba(255,255,255,.35);
 }
+.qr-label svg{width:10px;height:10px;flex:0 0 10px}
+.banner:hover .qr-wrap{
+  transform:translateY(-4px) scale(1.05);
+  box-shadow:
+    0 0 0 2px rgba(169,233,247,.6),
+    0 0 0 5px rgba(11,23,38,.5),
+    0 0 0 7px rgba(121,216,238,.35),
+    0 16px 36px rgba(0,30,50,.45),
+    0 0 50px rgba(121,216,238,.3);
+}
+.banner:hover .qr-flake{animation-duration:1.4s}
 html[data-theme="light"] .qr-wrap{
-  background:linear-gradient(145deg,#fff,#eef7fb);
-  border-color:rgba(37,142,174,.28);
-  box-shadow:0 6px 18px rgba(35,78,99,.12);
+  background:
+    radial-gradient(circle at 30% 20%,rgba(255,255,255,.9),transparent 45%),
+    linear-gradient(160deg,#fff 0%,#e8f5fb 50%,#d4ebf5 100%);
+  box-shadow:
+    0 0 0 2px rgba(37,142,174,.35),
+    0 0 0 5px rgba(255,255,255,.9),
+    0 0 0 6px rgba(37,142,174,.2),
+    0 10px 24px rgba(35,78,99,.15);
 }
-html[data-theme="light"] .qr-wrap:before,
-html[data-theme="light"] .qr-wrap:after,
-html[data-theme="light"] .qr-corner-tr,
-html[data-theme="light"] .qr-corner-bl{border-color:#258eae}
+html[data-theme="light"] .qr-wrap::before{
+  background:conic-gradient(from var(--qr-angle,0deg),#61c4dc,#258eae,#a9e9f7,#61c4dc,#258eae,#61c4dc);
+}
+html[data-theme="light"] .qr-flake{color:#258eae}
 html[data-theme="light"] .qr-label{
   background:linear-gradient(135deg,#61c4dc,#258eae);color:#fff;
+  border-color:rgba(255,255,255,.5);
 }
 
 /* Banner switch animation */
@@ -317,14 +372,17 @@ html[data-theme="light"] .qr-label{
 .dot.active{box-shadow:0 0 12px rgba(121,216,238,.55)}
 
 @media(max-width:560px){
-  .qr-wrap{margin-left:0;align-self:flex-end}
-  .qr{width:64px;height:64px}
-  .qr-label{font-size:8px;padding:2px 7px}
+  .qr-wrap{margin-left:0;align-self:flex-end;width:96px;height:96px;border-radius:18px}
+  .qr-inner{width:74px;height:74px}
+  .qr{width:66px;height:66px}
+  .qr-label{font-size:8px;padding:2px 8px}
+  .qr-flake{font-size:9px}
 }
 @media(prefers-reduced-motion:reduce){
   .banner.is-entering{animation:none}
   .banner.is-leaving{opacity:0;transform:none;filter:none}
   .qr-wrap,.qr{transition:none}
+  .qr-wrap::before,.qr-flake{animation:none!important}
 }
 
 @media(max-width:560px){
@@ -395,11 +453,18 @@ html[data-theme="light"] .qr-label{
         <span class="desc" id="description">Стример сообщества</span>
         <span class="cta" id="cta">Twitch</span>
       </span>
-      <span class="qr-wrap" title="QR-код ссылки" aria-hidden="false">
-        <span class="qr-corner-tr"></span>
-        <span class="qr-corner-bl"></span>
-        <img class="qr" id="qr" src="" alt="QR-код" width="72" height="72" decoding="async">
-        <span class="qr-label" id="qrLabel">QR</span>
+      <span class="qr-wrap" title="QR-код ссылки">
+        <span class="qr-flake tl" aria-hidden="true">❄</span>
+        <span class="qr-flake tr" aria-hidden="true">✦</span>
+        <span class="qr-flake bl" aria-hidden="true">✦</span>
+        <span class="qr-flake br" aria-hidden="true">❄</span>
+        <span class="qr-inner">
+          <img class="qr" id="qr" src="" alt="QR-код" width="76" height="76" decoding="async">
+        </span>
+        <span class="qr-label" id="qrLabel">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1 1h5v5H1zm1.5 1.5v2h2v-2zm7.5-1.5h5v5h-5zm1.5 1.5v2h2v-2zM1 10h5v5H1zm1.5 1.5v2h2v-2zM10 10h2v2h-2zm3 0h2v2h-2zm-3 3h2v2h-2zm3 0h2v2h-2z"/></svg>
+          <span id="qrLabelText">QR</span>
+        </span>
       </span>
     </a>
     <div class="dots" id="dots" aria-hidden="true"></div>
@@ -502,7 +567,8 @@ async function show(i) {
       qr.style.transform = "scale(1)";
     };
   }
-  if (qrLabel) qrLabel.textContent = a.cta || "QR";
+  const qrLabelText = $("qrLabelText");
+  if (qrLabelText) qrLabelText.textContent = a.cta || "QR";
 
   $("dots").innerHTML = ads.map((_, n) =>
     '<span class="dot' + (n === current ? " active" : "") + '"></span>'

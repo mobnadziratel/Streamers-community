@@ -9,15 +9,15 @@
 :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,Arial,sans-serif}
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;min-height:100%;background:transparent;overflow:hidden}
-body{padding:8px;color:#f5f5f7}
-#banner{display:flex;align-items:center;gap:15px;width:100%;min-height:112px;padding:14px 18px;border:1px solid rgba(185,255,54,.28);border-radius:18px;background:rgba(11,11,15,.94);color:#f5f5f7;text-decoration:none;box-shadow:0 8px 28px rgba(0,0,0,.28);opacity:1;transition:opacity .35s ease,transform .35s ease}
+body{padding:8px;color:#edf7ff}
+#banner{display:flex;align-items:center;gap:15px;width:100%;min-height:112px;padding:14px 18px;border:1px solid rgba(121,216,238,.32);border-radius:18px;background:rgba(11,23,38,.94);color:#edf7ff;text-decoration:none;box-shadow:0 8px 28px rgba(0,0,0,.28);opacity:1;transition:opacity .35s ease,transform .35s ease}
 body.transparent #banner{background:transparent;border-color:transparent;box-shadow:none}
 body.no-bg #banner{background:transparent;border-color:transparent;box-shadow:none}
-#avatar{width:76px;height:76px;flex:0 0 76px;border-radius:16px;object-fit:cover;background:#26262f}
+#avatar{width:76px;height:76px;flex:0 0 76px;border-radius:16px;object-fit:cover;background:#1a3348}
 #copy{display:flex;flex-direction:column;gap:6px;min-width:0}
 #name{font-size:24px;font-weight:900;letter-spacing:-.04em}
-#description{font-size:14px;line-height:1.35;color:#9a9aa8;overflow-wrap:anywhere}
-#cta{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#b9ff36}
+#description{font-size:14px;line-height:1.35;color:#a9bfd0;overflow-wrap:anywhere}
+#cta{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#79d8ee}
 body.hide-avatar #avatar,body.hide-name #name,body.hide-description #description,body.hide-cta #cta{display:none}
 body.hide-name #copy{gap:4px}
 @media(max-width:500px){#banner{min-height:86px;padding:10px;gap:10px}#avatar{width:58px;height:58px;flex-basis:58px}#name{font-size:19px}#description{font-size:12px}}
@@ -48,7 +48,7 @@ let index=0,timer;
 
 function placeholderSvg(n){
   const initials=(n||"?").slice(0,2).toUpperCase();
-  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" rx="22" fill="#26262f"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="48" font-weight="bold" fill="#b9ff36">'+initials+'</text></svg>');
+  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" rx="22" fill="#1a3348"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="48" font-weight="bold" fill="#79d8ee">'+initials+'</text></svg>');
 }
 
 async function show(next){

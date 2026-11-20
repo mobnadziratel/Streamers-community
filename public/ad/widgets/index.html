@@ -114,9 +114,15 @@ body.hide-qr #banner{grid-template-columns:minmax(90px,150px) var(--avatar-size,
 @media(max-width:480px){#banner{grid-template-columns:68px 50px minmax(0,1fr) 62px!important;column-gap:6px}#nizina-wordmark{font-size:13px}#nizina-wordmark span:last-child{margin-left:6px}body.hide-qr #banner{grid-template-columns:68px 50px minmax(0,1fr)!important}}
 @media(max-width:360px){#banner{grid-template-columns:58px 42px minmax(0,1fr) 52px!important;column-gap:4px}#nizina-wordmark{font-size:11px}body.hide-qr #banner{grid-template-columns:58px 42px minmax(0,1fr)!important}}
 
+
+/* Exact supplied Nizina logo artwork; no recreated text or background. */
+#nizina-wordmark{display:block;width:100%;max-width:142px;height:auto;object-fit:contain;filter:drop-shadow(0 3px 0 #a52b72) drop-shadow(0 6px 0 #5d003b) drop-shadow(0 9px 7px rgba(90,0,55,.28))}
+@media(max-width:480px){#nizina-wordmark{max-width:66px}}
+@media(max-width:360px){#nizina-wordmark{max-width:56px}}
+
 </style></head><body>
 <a id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer" aria-label="Открыть канал Twitch">
-<span id="nizina-wordmark" aria-label="Низина Твича"><span>НИЗИНА</span><span>ТВИЧА</span></span>
+<img id="nizina-wordmark" src="/assets/nizina-logo.svg" alt="Логотип Низина Твича">
 <span id="avatar-wrap"><img id="avatar" alt=""></span>
 <span id="copy"><span id="nickname">brill1antt</span><span id="description">Стример сообщества</span></span>
 <span id="qr-wrap"><img id="qr" alt="QR-код канала" width="96" height="96" decoding="async"></span>

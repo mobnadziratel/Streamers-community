@@ -307,6 +307,100 @@ html[data-theme="light"] .qr-label{
   background:#fff;color:#1a6a88;border-color:rgba(37,142,174,.3);
 }
 
+/* Dynamic streamer promo artwork: HTML/CSS, not a flattened image. */
+.banner{
+  position:relative;display:block;min-height:0;height:clamp(230px,30vw,330px);
+  padding:0;overflow:hidden;border:0;border-radius:20px;
+  background:#ff70c5;
+  box-shadow:0 18px 46px rgba(255,76,179,.22),inset 0 1px rgba(255,255,255,.5);
+}
+.banner:hover{
+  border-color:transparent;transform:translateY(-3px);
+  background:#ff70c5;box-shadow:0 24px 54px rgba(255,76,179,.3);
+}
+.ad-scene{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;isolation:isolate;
+  background:
+    radial-gradient(ellipse at 50% 46%,rgba(255,255,255,.34) 0 22%,transparent 57%),
+    radial-gradient(ellipse at 6% 15%,#ffb0d9 0 17%,transparent 40%),
+    radial-gradient(ellipse at 96% 85%,#ffb0d9 0 17%,transparent 42%),
+    linear-gradient(118deg,#ff91ce 0%,#ff55b6 48%,#f34cae 100%);
+}
+.ad-scene:before,.ad-scene:after{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  width:42%;height:150%;top:-25%;border-radius:50%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.24),transparent);
+  filter:blur(13px);transform:rotate(28deg);
+}
+.ad-scene:before{left:-15%;animation:ad-light-sweep 7s ease-in-out infinite}
+.ad-scene:after{right:-18%;animation:ad-light-sweep 8s ease-in-out -3s infinite reverse}
+.ad-twitch-mark{
+  position:absolute;top:clamp(14px,3vw,25px);left:50%;transform:translateX(-50%);
+  width:38px;height:38px;display:grid;place-items:center;color:#fff;
+  filter:drop-shadow(0 4px 12px rgba(105,0,68,.22));opacity:.96;
+}
+.ad-twitch-mark svg{width:100%;height:100%}
+.ad-name{
+  display:block;position:relative;z-index:2;width:min(76%,850px);
+  padding:30px 10px 0;text-align:center;
+  color:#fff;font-size:clamp(36px,7.2vw,86px);font-weight:1000;
+  line-height:.98;letter-spacing:-.065em;text-transform:uppercase;
+  overflow-wrap:anywhere;word-break:break-word;
+  text-shadow:0 5px 0 #a90068,0 9px 0 #850052,0 17px 24px rgba(92,0,54,.48);
+  transform:skew(-5deg);
+}
+.ad-subtitle{
+  position:absolute;z-index:2;left:50%;bottom:clamp(15px,3vw,25px);
+  transform:translateX(-50%);padding:7px 14px;border:1px solid rgba(255,255,255,.55);
+  border-radius:999px;background:rgba(132,0,82,.2);color:#fff;
+  font-size:clamp(9px,1.3vw,12px);font-weight:950;letter-spacing:.2em;
+  white-space:nowrap;text-shadow:0 2px 8px rgba(95,0,60,.35);
+}
+.ad-avatar-orbit{
+  position:absolute;z-index:3;right:clamp(14px,5vw,58px);top:50%;
+  width:clamp(76px,12vw,132px);aspect-ratio:1;border-radius:50%;
+  transform:translateY(-50%);padding:5px;
+  background:linear-gradient(145deg,#fff,#ffb7df 48%,#a90068);
+  box-shadow:0 12px 30px rgba(95,0,60,.32),0 0 0 7px rgba(255,255,255,.16);
+  animation:ad-avatar-float 3.8s ease-in-out infinite;
+}
+.ad-avatar{
+  display:block!important;width:100%;height:100%;max-width:none;max-height:none;
+  object-fit:cover;border-radius:50%;background:#7b1456;
+  border:3px solid rgba(255,255,255,.9);box-shadow:inset 0 0 0 1px #fff;
+}
+.ad-spark{
+  position:absolute;width:9px;height:9px;border-radius:50%;background:#fff;
+  box-shadow:0 0 14px 4px rgba(255,255,255,.75);opacity:.85;
+  animation:ad-sparkle 2.8s ease-in-out infinite;
+}
+.ad-spark-one{left:12%;top:25%}
+.ad-spark-two{right:18%;top:19%;animation-delay:-.9s}
+.ad-spark-three{left:23%;bottom:18%;width:6px;height:6px;animation-delay:-1.7s}
+@keyframes ad-avatar-float{
+  0%,100%{translate:0 0}
+  50%{translate:0 -15px}
+}
+@keyframes ad-sparkle{
+  0%,100%{opacity:.3;scale:.7}
+  50%{opacity:1;scale:1.25}
+}
+@keyframes ad-light-sweep{
+  0%,100%{translate:0 0;opacity:.5}
+  50%{translate:30px 0;opacity:1}
+}
+@media(max-width:560px){
+  .banner{height:220px;border-radius:16px}
+  .ad-name{width:82%;font-size:clamp(30px,9vw,52px);padding:24px 8px 0}
+  .ad-avatar-orbit{right:12px;top:auto;bottom:12px;width:68px;transform:none}
+  .ad-twitch-mark{top:12px;width:30px;height:30px}
+  .ad-subtitle{left:12px;bottom:16px;transform:none;font-size:8px;letter-spacing:.12em}
+}
+@media(prefers-reduced-motion:reduce){
+  .ad-avatar-orbit,.ad-spark,.ad-scene:before,.ad-scene:after{animation:none!important}
+}
+
 /* Banner switch animation */
 .banner.is-leaving{
   opacity:0;transform:translateY(10px) scale(.985);
@@ -400,9 +494,20 @@ html[data-theme="light"] .qr-label{
     <h2>Сейчас рекомендуем</h2>
     <p class="muted">Баннеры участников и партнёров сообщества</p>
 
-    <a class="banner" id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer">
-      <img class="avatar" id="avatar" src="" alt="">
-      <img class="qr" id="qr" src="" alt="QR-код" width="112" height="112" decoding="async">
+    <a class="banner" id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer" aria-label="Открыть канал стримера">
+      <div class="ad-scene" aria-hidden="true">
+        <span class="ad-spark ad-spark-one"></span>
+        <span class="ad-spark ad-spark-two"></span>
+        <span class="ad-spark ad-spark-three"></span>
+        <span class="ad-twitch-mark">
+          <svg viewBox="0 0 24 24" role="presentation"><path fill="currentColor" d="M4 2 2 6v14h5v4l4-4h4l7-7V2H4zm16 10-4 4h-4l-3 3v-3H5V4h15v8zM10 6h2v6h-2zm5 0h2v6h-2z"/></svg>
+        </span>
+        <span class="ad-name" id="adName">brill1antt</span>
+        <span class="ad-subtitle">ЗАЛЕТАЙ НА СТРИМ</span>
+        <span class="ad-avatar-orbit">
+          <img class="ad-avatar" id="avatar" src="" alt="">
+        </span>
+      </div>
     </a>
     <div class="dots" id="dots" aria-hidden="true"></div>
 
@@ -425,20 +530,12 @@ const ads = [
   {
     name: "brill1antt",
     url: "https://www.twitch.tv/brill1antt",
-    login: "brill1antt",
-    cta: "Twitch"
+    login: "brill1antt"
   },
   {
     name: "mob_nadziratel",
     url: "https://www.twitch.tv/mob_nadziratel",
-    login: "mob_nadziratel",
-    cta: "Twitch"
-  },
-  {
-    name: "Низина Твича",
-    url: "https://t.me/Ntwich",
-    image: "/nizina-banner.png",
-    cta: "Telegram"
+    login: "mob_nadziratel"
   }
 ];
 
@@ -466,46 +563,40 @@ async function resolveAvatar(item) {
   return placeholderSvg(item.name);
 }
 
+let showSequence = 0;
 async function show(i) {
   const next = ((i % ads.length) + ads.length) % ads.length;
   const a = ads[next];
   const banner = $("banner");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const sequence = ++showSequence;
 
   if (!reduceMotion && current !== next) {
     banner.classList.remove("is-entering");
     banner.classList.add("is-leaving");
-    await new Promise(r => setTimeout(r, 280));
+    await new Promise(resolve => setTimeout(resolve, 280));
+    if (sequence !== showSequence) return;
   }
 
   current = next;
   banner.href = a.url;
+  banner.setAttribute("aria-label", "Открыть Twitch-канал " + a.name);
+  $("adName").textContent = a.name;
 
   const avatar = $("avatar");
   if (avatar) {
-    avatar.alt = a.name;
+    avatar.alt = "Аватар " + a.name;
     avatar.src = placeholderSvg(a.name);
-    if (a.image) {
-      avatar.src = a.image;
-    } else if (a.login) {
-      try {
-        const response = await fetch("/api/avatar?login=" + encodeURIComponent(a.login), { cache: "no-store" });
-        if (response.ok) {
-          const data = await response.json();
-          if (data.avatarUrl && /^https:\/\//i.test(data.avatarUrl)) avatar.src = data.avatarUrl;
-        }
-      } catch (_) {}
+    try {
+      const avatarUrl = await resolveAvatar(a);
+      if (sequence !== showSequence) return;
+      avatar.src = avatarUrl;
+    } catch (_) {
+      // Оставляем SVG-заглушку с инициалами ника.
     }
   }
 
-  const qr = $("qr");
-  if (qr) {
-    qr.style.opacity = "0";
-    qr.src = "https://api.qrserver.com/v1/create-qr-code/?size=224x224&margin=10&color=0b1726&bgcolor=ffffff&data=" + encodeURIComponent(a.url);
-    qr.alt = "QR-код: " + a.name;
-    qr.onload = () => { qr.style.opacity = "1"; };
-  }
-
+  if (sequence !== showSequence) return;
   $("dots").innerHTML = ads.map((_, n) =>
     '<span class="dot' + (n === current ? " active" : "") + '"></span>'
   ).join("");

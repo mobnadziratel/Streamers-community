@@ -1,99 +1,64 @@
 <!doctype html>
-<html lang="ru">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Streamers Community — рекламный виджет OBS</title>
-<meta name="description" content="Рекламный виджет Streamers Community">
+<html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Streamers Community — рекламный виджет</title>
+<meta name="description" content="Прозрачный Twitch-виджет с ником, аватаром и QR-кодом">
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden}
-body{padding:0;font-family:Inter,ui-sans-serif,system-ui,Arial,sans-serif}
-#banner{
-  display:flex;align-items:stretch;gap:10px;width:100%;height:100%;
-  margin:0;padding:0;border:none;background:transparent;box-shadow:none;
-  text-decoration:none;overflow:hidden;
-  opacity:1;transition:opacity .35s ease;
-}
-#avatar,#qr{
-  display:block;flex:0 0 auto;
-  width:var(--size,96px);height:var(--size,96px);
-  max-width:100%;max-height:100%;
-  border-radius:14px;object-fit:cover;
-  background:transparent;
-}
-#qr{background:#fff}
-body.hide-qr #qr{display:none}
-@media(prefers-reduced-motion:reduce){#banner{transition:none}}
-</style>
-</head>
-<body>
-<a id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer">
-  <img id="avatar" alt="">
-  <img id="qr" alt="QR" width="96" height="96" decoding="async">
+html,body{margin:0;width:100%;height:100%;background:transparent!important;overflow:hidden}
+body{font-family:Inter,ui-sans-serif,system-ui,Arial,sans-serif;color:#f1fbff}
+#banner{display:grid;width:100%;height:100%;min-height:76px;grid-template-columns:var(--platform-size,40px) minmax(0,1fr) var(--avatar-size,76px) var(--qr-size,96px);align-items:center;column-gap:clamp(8px,1.5vw,18px);padding:0;margin:0;border:0;background:transparent!important;color:inherit;text-decoration:none;overflow:hidden;opacity:1;transition:opacity .25s ease}
+#platform{display:grid;place-items:center;width:100%;aspect-ratio:1;color:#9147ff}
+#platform svg{display:block;width:100%;height:100%}
+#nickname{min-width:0;overflow-wrap:anywhere;word-break:break-word;font-size:clamp(18px,4vw,38px);font-weight:950;line-height:1.08;letter-spacing:-.04em;text-shadow:none}
+#avatar-wrap{display:block;width:var(--avatar-size,76px);height:var(--avatar-size,76px);padding:2px;border-radius:50%;background:transparent;animation:float 3.8s ease-in-out infinite}
+#avatar{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;border:1px solid rgba(145,71,255,.6);background:transparent}
+#qr-wrap{width:var(--qr-size,96px);height:var(--qr-size,96px);display:grid;place-items:center}
+#qr{display:block;width:100%;height:100%;object-fit:contain;background:#fff;border-radius:3px}
+body.hide-qr #banner{grid-template-columns:var(--platform-size,40px) minmax(0,1fr) var(--avatar-size,76px)}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -9px}}
+@media(max-width:480px){#banner{grid-template-columns:28px minmax(0,1fr) 52px 64px;column-gap:7px}#nickname{font-size:clamp(15px,5vw,24px)}#avatar-wrap{width:50px;height:50px}#qr-wrap{width:62px;height:62px}body.hide-qr #banner{grid-template-columns:28px minmax(0,1fr) 50px}}
+@media(prefers-reduced-motion:reduce){#avatar-wrap{animation:none}}
+</style></head><body>
+<a id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer" aria-label="Открыть канал Twitch">
+<span id="platform" aria-label="Twitch"><svg viewBox="0 0 24 24" role="img" aria-label="Twitch"><path fill="currentColor" d="M4 2 2 6v14h5v4l4-4h4l7-7V2H4zm16 10-4 4h-4l-3 3v-3H5V4h15v8zM10 6h2v6h-2zm5 0h2v6h-2z"/></svg></span>
+<span id="nickname">brill1antt</span>
+<span id="avatar-wrap"><img id="avatar" alt=""></span>
+<span id="qr-wrap"><img id="qr" alt="QR-код канала" width="96" height="96" decoding="async"></span>
 </a>
 <script>
 (()=>{
-const params=new URLSearchParams(location.search);
-const items=[
+ const params=new URLSearchParams(location.search);
+ const items=[
   {name:"brill1antt",url:"https://www.twitch.tv/brill1antt",login:"brill1antt"},
-  {name:"mob_nadziratel",url:"https://www.twitch.tv/mob_nadziratel",login:"mob_nadziratel"},
-  {name:"Низина Твича",url:"https://t.me/Ntwich",login:null,image:"/nizina-banner.png"}
-];
-if(params.get("qr")==="0")document.body.classList.add("hide-qr");
-const size=Math.max(48,Math.min(256,Number(params.get("size"))||96));
-document.documentElement.style.setProperty("--size",size+"px");
-
-const banner=document.getElementById("banner");
-const avatar=document.getElementById("avatar");
-const qr=document.getElementById("qr");
-let index=0,timer;
-
-function placeholder(n){
-  const initials=(n||"?").slice(0,2).toUpperCase();
-  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" rx="22" fill="#1a3348"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="48" font-weight="bold" fill="#79d8ee">'+initials+'</text></svg>'
-  );
-}
-
-async function loadTwitchAvatar(login){
-  if(!login)return null;
-  try{
-    const r=await fetch("/api/avatar?login="+encodeURIComponent(login),{cache:"no-store"});
-    if(!r.ok)return null;
-    const data=await r.json();
-    if(data.avatarUrl&&/^https:\/\//i.test(data.avatarUrl))return data.avatarUrl;
-  }catch(_){}
-  return null;
-}
-
-async function show(next){
-  index=((next%items.length)+items.length)%items.length;
-  const item=items[index];
-  banner.style.opacity="0";
-  await new Promise(r=>setTimeout(r,180));
-  banner.href=item.url;
-  avatar.alt=item.name;
-  avatar.src=placeholder(item.name);
-  if(item.image){
-    avatar.src=item.image;
-  }else{
-    const url=await loadTwitchAvatar(item.login);
-    avatar.src=url||placeholder(item.name);
-  }
-  if(qr&&!document.body.classList.contains("hide-qr")){
-    const px=size*2;
-    qr.style.opacity="0";
-    qr.src="https://api.qrserver.com/v1/create-qr-code/?size="+px+"x"+px+"&margin=8&color=0b1726&bgcolor=ffffff&data="+encodeURIComponent(item.url);
-    qr.onload=()=>{qr.style.opacity="1";};
-  }
-  banner.style.opacity="1";
-}
-show(0);
-const seconds=Math.max(3,Math.min(120,Number(params.get("interval"))||7));
-timer=setInterval(()=>show(index+1),seconds*1000);
-document.addEventListener("visibilitychange",()=>{if(!document.hidden){clearInterval(timer);timer=setInterval(()=>show(index+1),seconds*1000)}});
+  {name:"mob_nadziratel",url:"https://www.twitch.tv/mob_nadziratel",login:"mob_nadziratel"}
+ ];
+ const size=Math.max(48,Math.min(256,Number(params.get("size"))||96));
+ const avatarSize=Math.max(40,Math.min(180,Number(params.get("avatar"))||76));
+ document.documentElement.style.setProperty("--qr-size",size+"px");
+ document.documentElement.style.setProperty("--avatar-size",avatarSize+"px");
+ document.documentElement.style.setProperty("--platform-size",Math.max(24,Math.min(64,Number(params.get("platform"))||40))+"px");
+ if(params.get("qr")==="0")document.body.classList.add("hide-qr");
+ const banner=document.getElementById("banner"),avatar=document.getElementById("avatar");
+ const nickname=document.getElementById("nickname"),qr=document.getElementById("qr");
+ let index=0,sequence=0,timer;
+ function placeholder(name){
+  const initials=(name||"?").slice(0,2).toUpperCase();
+  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" rx="64" fill="#242039"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="48" font-weight="bold" fill="#b78aff">'+initials+'</text></svg>');
+ }
+ async function loadAvatar(login){
+  try{const response=await fetch("/api/avatar?login="+encodeURIComponent(login),{cache:"no-store"});if(!response.ok)return null;const data=await response.json();return data.avatarUrl&&/^https:\/\//i.test(data.avatarUrl)?data.avatarUrl:null}catch(_){return null}
+ }
+ async function show(next){
+  const current=++sequence;index=((next%items.length)+items.length)%items.length;const item=items[index];
+  banner.style.opacity="0";await new Promise(resolve=>setTimeout(resolve,160));if(current!==sequence)return;
+  banner.href=item.url;banner.setAttribute("aria-label","Открыть Twitch-канал "+item.name);
+  nickname.textContent=item.name;avatar.alt="Логотип "+item.name;avatar.src=placeholder(item.name);
+  if(!document.body.classList.contains("hide-qr")){qr.alt="QR-код канала "+item.name;qr.src="https://api.qrserver.com/v1/create-qr-code/?size="+(size*2)+"x"+(size*2)+"&margin=4&color=111111&bgcolor=ffffff&data="+encodeURIComponent(item.url)}
+  const avatarUrl=await loadAvatar(item.login);if(current!==sequence)return;if(avatarUrl)avatar.src=avatarUrl;banner.style.opacity="1";
+ }
+ show(0);const seconds=Math.max(3,Math.min(120,Number(params.get("interval"))||7));
+ timer=setInterval(()=>show(index+1),seconds*1000);
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden){clearInterval(timer);timer=setInterval(()=>show(index+1),seconds*1000)}});
 })();
-</script>
-</body>
-</html>
+</script></body></html>

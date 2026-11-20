@@ -99,10 +99,16 @@ body.hide-qr #banner{grid-template-columns:var(--platform-size,40px) minmax(0,1f
   overflow-wrap:anywhere;word-break:normal;
 }
 
+
+/* Compact description under the streamer nickname. */
+#copy{display:flex;min-width:0;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px}
+#description{display:block;max-width:100%;color:rgba(210,226,240,.78);font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:clamp(11px,1.35vw,14px);font-weight:550;line-height:1.35;letter-spacing:.005em;text-transform:none;text-shadow:none;overflow-wrap:anywhere}
+@media(max-width:480px){#copy{gap:3px}#description{font-size:10px;line-height:1.25}}
+
 </style></head><body>
 <a id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer" aria-label="Открыть канал Twitch">
 <span id="platform" aria-label="Twitch"><svg viewBox="0 0 24 24" role="img" aria-label="Twitch"><path fill="currentColor" d="M4 2 2 6v14h5v4l4-4h4l7-7V2H4zm16 10-4 4h-4l-3 3v-3H5V4h15v8zM10 6h2v6h-2zm5 0h2v6h-2z"/></svg></span>
-<span id="nickname">brill1antt</span>
+<span id="copy"><span id="nickname">brill1antt</span><span id="description">Стример сообщества</span></span>
 <span id="avatar-wrap"><img id="avatar" alt=""></span>
 <span id="qr-wrap"><img id="qr" alt="QR-код канала" width="96" height="96" decoding="async"></span>
 </a>
@@ -110,8 +116,8 @@ body.hide-qr #banner{grid-template-columns:var(--platform-size,40px) minmax(0,1f
 (()=>{
  const params=new URLSearchParams(location.search);
  const items=[
-  {name:"brill1antt",url:"https://www.twitch.tv/brill1antt",login:"brill1antt"},
-  {name:"mob_nadziratel",url:"https://www.twitch.tv/mob_nadziratel",login:"mob_nadziratel"}
+  {name:"brill1antt",description:"Стример сообщества",url:"https://www.twitch.tv/brill1antt",login:"brill1antt"},
+  {name:"mob_nadziratel",description:"Стример сообщества",url:"https://www.twitch.tv/mob_nadziratel",login:"mob_nadziratel"}
  ];
  const size=Math.max(48,Math.min(256,Number(params.get("size"))||96));
  const avatarSize=Math.max(40,Math.min(180,Number(params.get("avatar"))||76));
@@ -133,7 +139,7 @@ body.hide-qr #banner{grid-template-columns:var(--platform-size,40px) minmax(0,1f
   const current=++sequence;index=((next%items.length)+items.length)%items.length;const item=items[index];
   banner.style.opacity="0";await new Promise(resolve=>setTimeout(resolve,160));if(current!==sequence)return;
   banner.href=item.url;banner.setAttribute("aria-label","Открыть Twitch-канал "+item.name);
-  nickname.textContent=item.name;avatar.alt="Логотип "+item.name;avatar.src=placeholder(item.name);
+  nickname.textContent=item.name;document.getElementById("description").textContent=item.description||"Стример сообщества";avatar.alt="Логотип "+item.name;avatar.src=placeholder(item.name);
   if(!document.body.classList.contains("hide-qr")){qr.alt="QR-код канала "+item.name;qr.src="https://api.qrserver.com/v1/create-qr-code/?size="+(size*2)+"x"+(size*2)+"&margin=4&color=111111&bgcolor=ffffff&data="+encodeURIComponent(item.url)}
   const avatarUrl=await loadAvatar(item.login);if(current!==sequence)return;if(avatarUrl)avatar.src=avatarUrl;banner.style.opacity="1";
  }

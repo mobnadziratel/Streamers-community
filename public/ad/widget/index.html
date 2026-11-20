@@ -20,20 +20,13 @@ body{padding:6px;color:#fff}
 #banner > *{position:relative;z-index:1}
 
 #avatarWrap{
-  flex:0 0 auto;position:relative;width:72px;height:72px;border-radius:18px;
-  padding:2px;
-  background:linear-gradient(145deg,#9ae8f8,#2a8fb0,#7ad4ea);
-  background-size:200% 200%;
-  box-shadow:0 8px 22px rgba(0,20,40,.35),0 0 18px rgba(121,216,238,.22);
-  animation:avatar-ring 5s ease-in-out infinite;
+  flex:0 0 auto;position:relative;width:72px;height:72px;
+  border-radius:14px;overflow:hidden;
+  background:transparent;padding:0;box-shadow:none;
 }
 #avatar{
-  display:block;width:100%;height:100%;border-radius:16px;object-fit:cover;
+  display:block;width:100%;height:100%;border-radius:14px;object-fit:cover;
   background:#1a3348;
-}
-@keyframes avatar-ring{
-  0%,100%{background-position:0% 40%;box-shadow:0 8px 22px rgba(0,20,40,.35),0 0 14px rgba(121,216,238,.18)}
-  50%{background-position:100% 60%;box-shadow:0 10px 26px rgba(0,20,40,.4),0 0 26px rgba(121,216,238,.32)}
 }
 
 #name{
@@ -49,15 +42,11 @@ body{padding:6px;color:#fff}
 }
 
 #qrWrap{
-  flex:0 0 auto;position:relative;width:70px;height:70px;border-radius:14px;padding:2px;
-  background:linear-gradient(145deg,#9ae8f8,#2a8fb0,#7ad4ea);
-  background-size:200% 200%;
-  box-shadow:0 6px 16px rgba(0,30,50,.3),0 0 14px rgba(121,216,238,.18);
-  animation:avatar-ring 5s ease-in-out infinite;
-  animation-delay:-2s;
+  flex:0 0 auto;position:relative;width:68px;height:68px;border-radius:12px;
+  padding:0;background:#fff;overflow:hidden;box-shadow:none;
 }
 #qrInner{width:100%;height:100%;border-radius:12px;background:#fff;display:grid;place-items:center;overflow:hidden}
-#qr{width:60px;height:60px;display:block;border-radius:6px;transition:opacity .3s ease}
+#qr{width:68px;height:68px;display:block;border-radius:12px;transition:opacity .3s ease}
 
 body.hide-avatar #avatarWrap{display:none}
 body.hide-qr #qrWrap{display:none}
@@ -70,13 +59,12 @@ body.solid #banner{
 @media(max-width:480px){
   #banner{gap:10px;min-height:68px;padding:6px}
   #avatarWrap{width:56px;height:56px}
-  #avatar{border-radius:14px}
+  #avatar{border-radius:12px}
   #name{font-size:18px}
-  #qrWrap{width:54px;height:54px}#qr{width:46px;height:46px}
+  #qrWrap{width:54px;height:54px;border-radius:10px}
+  #qr{width:54px;height:54px;border-radius:10px}
 }
-@media(prefers-reduced-motion:reduce){
-  #avatarWrap,#qrWrap{animation:none!important}
-}
+@media(prefers-reduced-motion:reduce){}
 </style>
 </head>
 <body>

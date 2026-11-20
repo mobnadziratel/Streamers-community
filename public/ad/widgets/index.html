@@ -120,6 +120,10 @@ body.hide-qr #banner{grid-template-columns:minmax(90px,150px) var(--avatar-size,
 @media(max-width:480px){#nizina-wordmark{max-width:66px}}
 @media(max-width:360px){#nizina-wordmark{max-width:56px}}
 
+
+/* Rounded QR corners while preserving a clean, scannable code. */
+#qr-wrap{border-radius:12px!important;overflow:hidden!important}
+#qr{border-radius:10px!important;clip-path:inset(0 round 10px)}
 </style></head><body>
 <a id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer" aria-label="Открыть канал Twitch">
 <img id="nizina-wordmark" src="/assets/nizina-logo.svg" alt="Логотип Низина Твича">

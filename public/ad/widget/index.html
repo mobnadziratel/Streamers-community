@@ -105,8 +105,18 @@ body.hide-qr #banner{grid-template-columns:var(--avatar-size,76px) minmax(0,1fr)
 #description{display:block;max-width:100%;color:rgba(210,226,240,.78);font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:clamp(11px,1.35vw,14px);font-weight:550;line-height:1.35;letter-spacing:.005em;text-transform:none;text-shadow:none;overflow-wrap:anywhere}
 @media(max-width:480px){#copy{gap:3px}#description{font-size:10px;line-height:1.25}}
 
+
+/* Nizina wordmark sits before the avatar in the OBS banner. */
+#banner{grid-template-columns:minmax(90px,150px) var(--avatar-size,76px) minmax(0,1fr) var(--qr-size,96px)!important}
+#nizina-wordmark{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-width:0;color:#fff;font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;font-style:italic;font-weight:1000;font-size:clamp(17px,3vw,31px);line-height:.82;letter-spacing:-.055em;text-shadow:0 2px 0 #a52b72,0 4px 0 #6b164c,0 7px 12px rgba(90,0,55,.35);transform:skewX(-7deg);white-space:nowrap}
+#nizina-wordmark span:last-child{margin-left:12px}
+body.hide-qr #banner{grid-template-columns:minmax(90px,150px) var(--avatar-size,76px) minmax(0,1fr)!important}
+@media(max-width:480px){#banner{grid-template-columns:68px 50px minmax(0,1fr) 62px!important;column-gap:6px}#nizina-wordmark{font-size:13px}#nizina-wordmark span:last-child{margin-left:6px}body.hide-qr #banner{grid-template-columns:68px 50px minmax(0,1fr)!important}}
+@media(max-width:360px){#banner{grid-template-columns:58px 42px minmax(0,1fr) 52px!important;column-gap:4px}#nizina-wordmark{font-size:11px}body.hide-qr #banner{grid-template-columns:58px 42px minmax(0,1fr)!important}}
+
 </style></head><body>
 <a id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer" aria-label="Открыть канал Twitch">
+<span id="nizina-wordmark" aria-label="Низина Твича"><span>НИЗИНА</span><span>ТВИЧА</span></span>
 <span id="avatar-wrap"><img id="avatar" alt=""></span>
 <span id="copy"><span id="nickname">brill1antt</span><span id="description">Стример сообщества</span></span>
 <span id="qr-wrap"><img id="qr" alt="QR-код канала" width="96" height="96" decoding="async"></span>

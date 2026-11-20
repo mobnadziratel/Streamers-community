@@ -4102,24 +4102,38 @@ async function refreshSchedules() {
   } catch (error) { console.warn("Could not load Twitch schedules:", error); }
 }
 function applyLiveStatuses(streams) {
-  streamers.forEach(({name}) => {
-    const statuses = [...document.querySelectorAll("[data-status]")].filter(el => String(el.dataset.status || "").toLowerCase() === name.toLowerCase());
-    const metas = [...document.querySelectorAll("[data-meta]")].filter(el => String(el.dataset.meta || "").toLowerCase() === name.toLowerCase());
-    if (!statuses.length) return;
-    const item = getStreamState(streams, name);
-    statuses.forEach(status => {
-      status.classList.remove("is-loading", "is-live");
-      if (item && item.isLive === true) { status.classList.add("is-live"); status.textContent = "В ЭФИРЕ"; }
-      else if (!item || item.error || typeof item.isLive !== "boolean") status.textContent = "СТАТУС НЕДОСТУПЕН";
-      else status.textContent = "НЕ В ЭФИРЕ";
-    });
-    metas.forEach(meta => {
-      if (item && item.isLive) {
-        const viewers = Number.isFinite(item.viewerCount) ? ` · ${item.viewerCount.toLocaleString("ru-RU")} зрителей` : "";
-        meta.textContent = `${item.title || "Прямой эфир"}${viewers}`;
-      } else if (!item || item.error || typeof item.isLive !== "boolean") meta.textContent = "Не удалось проверить эфир. Данные Twitch неполные.";
-      else meta.replaceChildren(...scheduleLines(name));
-    });
+  // Обновляем карточки по фактическим data-status атрибутам DOM,
+  // а не по отдельному массиву streamers: он может не совпадать с логинами
+  // после фильтрации, переименований или повторного рендера.
+  document.querySelectorAll("[data-status]").forEach(status => {
+    const login = String(status.dataset.status || "").trim().toLowerCase();
+    if (!login) return;
+    const item = getStreamState(streams, login);
+    status.classList.remove("is-loading", "is-live");
+    if (item && item.isLive === true) {
+      status.classList.add("is-live");
+      status.textContent = "В ЭФИРЕ";
+    } else if (!item || item.error || typeof item.isLive !== "boolean") {
+      status.textContent = "СТАТУС НЕДОСТУПЕН";
+    } else {
+      status.textContent = "НЕ В ЭФИРЕ";
+    }
+  });
+
+  document.querySelectorAll("[data-meta]").forEach(meta => {
+    const login = String(meta.dataset.meta || "").trim().toLowerCase();
+    if (!login) return;
+    const item = getStreamState(streams, login);
+    if (item && item.isLive === true) {
+      const viewers = Number.isFinite(item.viewerCount)
+        ? ` · ${item.viewerCount.toLocaleString("ru-RU")} зрителей`
+        : "";
+      meta.textContent = `${item.title || "Прямой эфир"}${viewers}`;
+    } else if (!item || item.error || typeof item.isLive !== "boolean") {
+      meta.textContent = "Не удалось проверить эфир. Данные Twitch неполные.";
+    } else {
+      meta.replaceChildren(...scheduleLines(login));
+    }
   });
 }
 

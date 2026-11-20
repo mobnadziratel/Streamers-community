@@ -281,11 +281,16 @@ async function getStreams() {
   if (Date.now() < streamsFailUntil && !streamsFetchedAt) throw streamsLastError;
   if (!refreshInFlight) {
     refreshInFlight = fetchStreams().then(result => { streamsFetchedAt = Date.now(); streamsFailUntil = 0; return result; }).catch(error => {
-      // Сбой Twitch: отдаём последние известные данные и повторяем попытку не чаще раза в 15 секунд.
+      // При сбое Twitch возвращаем только действительно сохранённые данные.
+      // Пустой стартовый кэш нельзя выдавать за успешный ответ.
       console.error("Twitch streams refresh failed:", error.message);
-      cacheExpiresAt = Date.now() + 15_000;
-      if (streamsFetchedAt) return cachedStreams;
-      streamsFailUntil = Date.now() + 10_000; streamsLastError = error;
+      if (streamsFetchedAt && Object.keys(cachedStreams).length) {
+        cacheExpiresAt = Date.now() + 15_000;
+        return cachedStreams;
+      }
+      cacheExpiresAt = 0;
+      streamsFailUntil = Date.now() + 10_000;
+      streamsLastError = error;
       throw error;
     }).finally(() => { refreshInFlight = null; });
   }

@@ -16,8 +16,8 @@ body.no-bg #banner{background:transparent;border-color:transparent;box-shadow:no
 #avatar{width:76px;height:76px;flex:0 0 76px;border-radius:16px;object-fit:cover;background:#1a3348}
 #copy{display:flex;flex-direction:column;gap:6px;min-width:0}
 #name{font-size:24px;font-weight:900;letter-spacing:-.04em}
-#description{font-size:14px;line-height:1.35;color:#a9bfd0;overflow-wrap:anywhere}
-#cta{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#79d8ee}
+#description{font-size:14px;line-height:1.35;color:#b7cddc;overflow-wrap:anywhere}
+#cta{display:inline-flex;align-self:flex-start;margin-top:2px;padding:4px 10px;border:1px solid rgba(121,216,238,.38);border-radius:999px;background:rgba(121,216,238,.12);font-size:11px;font-weight:850;letter-spacing:.04em;color:#c8eef8}
 body.hide-avatar #avatar,body.hide-name #name,body.hide-description #description,body.hide-cta #cta{display:none}
 body.hide-name #copy{gap:4px}
 @media(max-width:500px){#banner{min-height:86px;padding:10px;gap:10px}#avatar{width:58px;height:58px;flex-basis:58px}#name{font-size:19px}#description{font-size:12px}}
@@ -26,7 +26,7 @@ body.hide-name #copy{gap:4px}
 <body>
 <a id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer">
 <img id="avatar" alt="">
-<span id="copy"><strong id="name">brill1antt</strong><span id="description">По вопросам рекламы и предложениям — brilliantt300@gmail.com.</span><span id="cta">Открыть Twitch ↗</span></span>
+<span id="copy"><strong id="name">brill1antt</strong><span id="description">По вопросам рекламы и предложениям — brilliantt300@gmail.com.</span><span id="cta">Twitch</span></span>
 </a>
 <script>
 (()=>{
@@ -34,7 +34,7 @@ const params=new URLSearchParams(location.search);
 const names=[
 {name:"brill1antt",description:"18,5cm (яйца). По вопросам рекламы и предложениям: brilliantt300@gmail.com.",url:"https://www.twitch.tv/brill1antt",login:"brill1antt"},
 {name:"mob_nadziratel",description:"Создатель Стримерского комьюнити. Стримы, игры и общение с сообществом.",url:"https://www.twitch.tv/mob_nadziratel",login:"mob_nadziratel"},
-{name:"Низина Твича",description:"Telegram-канал Низины Твича — подписывайся на сообщество и следи за новостями.",url:"https://t.me/Ntwich",image:"https://i.ibb.co/67sHc76S/panel-1263981823-image-1a71f377-cc88-45c3-9ae2-800a963cfe80.png",cta:"Открыть Telegram ↗"}
+{name:"Низина Твича",description:"Telegram-канал Низины Твича — подписывайся на сообщество и следи за новостями.",url:"https://t.me/Ntwich",image:"https://i.ibb.co/67sHc76S/panel-1263981823-image-1a71f377-cc88-45c3-9ae2-800a963cfe80.png",cta:"Telegram"}
 ];
 const body=document.body;
 if(params.get("bg")==="0"||params.get("transparent")==="1")body.classList.add("transparent");
@@ -59,7 +59,7 @@ async function show(next){
  banner.href=item.url;
  name.textContent=item.name;
  description.textContent=item.description;
- ctaEl.textContent=item.cta||"Открыть Twitch ↗";
+ ctaEl.textContent=item.cta||"Twitch";
  avatar.alt=(item.image?"Логотип ":"Аватар ")+item.name;
  if(item.image){
    avatar.src=item.image;

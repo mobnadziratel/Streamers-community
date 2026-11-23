@@ -38,7 +38,7 @@ const params=new URLSearchParams(location.search);
 const items=[
   {name:"brill1antt",url:"https://www.twitch.tv/brill1antt",login:"brill1antt"},
   {name:"mob_nadziratel",url:"https://www.twitch.tv/mob_nadziratel",login:"mob_nadziratel"},
-  {name:"Низина Твича",url:"https://t.me/Ntwich",login:null,image:"/nizina-banner.png"}
+  {name:"Низина Твича",url:"https://t.me/Ntwich",login:null}
 ];
 if(params.get("qr")==="0")document.body.classList.add("hide-qr");
 const size=Math.max(48,Math.min(256,Number(params.get("size"))||96));
@@ -75,8 +75,8 @@ async function show(next){
   banner.href=item.url;
   avatar.alt=item.name;
   avatar.src=placeholder(item.name);
-  if(item.image){
-    avatar.src=item.image;
+  if(!item.login){
+    avatar.src=placeholder(item.name);
   }else{
     const url=await loadTwitchAvatar(item.login);
     avatar.src=url||placeholder(item.name);

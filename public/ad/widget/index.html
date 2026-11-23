@@ -124,9 +124,12 @@ body.hide-qr #banner{grid-template-columns:minmax(90px,150px) var(--avatar-size,
 /* Rounded QR corners while preserving a clean, scannable code. */
 #qr-wrap{border-radius:12px!important;overflow:hidden!important}
 #qr{border-radius:10px!important;overflow:hidden}#qr svg{display:block;width:100%;height:100%}
+
+/* Текст вместо картинки «Низина Твича» */
+#nizina-wordmark{display:flex!important;flex-direction:column;align-items:flex-start;justify-content:center;width:auto!important;max-width:none!important;height:auto!important;filter:none!important;object-fit:initial}
 </style></head><body>
 <a id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer" aria-label="Открыть канал Twitch">
-<img id="nizina-wordmark" src="/assets/nizina-logo.svg" alt="Логотип Низина Твича">
+<span id="nizina-wordmark" aria-label="Низина Твича"><span>Низина</span><span>Твича</span></span>
 <span id="avatar-wrap"><img id="avatar" alt=""></span>
 <span id="copy"><span id="nickname">brill1antt</span><span id="description">Стример сообщества</span></span>
 <span id="qr-wrap"><div id="qr" role="img" aria-label="QR-код канала"></div></span>

@@ -22,7 +22,7 @@
     var host=document.querySelector('.hero')||document.querySelector('main');
     if(!host||document.querySelector('.ny-countdown'))return;
     var el=document.createElement('div');el.className='ny-countdown';el.setAttribute('role','timer');
-    if(host.classList.contains('hero'))host.appendChild(el);else{var h=host.querySelector('h1');if(h&&h.parentNode===host)h.insertAdjacentElement('afterend',el);else host.insertBefore(el,host.firstChild);el.style.marginBottom='18px'}
+    if(host.classList.contains('hero'))host.appendChild(el);else{var h=host.querySelector('h1');if(h)h.insertAdjacentElement('afterend',el);else host.insertBefore(el,host.firstChild);el.style.marginBottom='18px'}
     function upd(){
       var now=new Date(),y=now.getFullYear(),t=new Date(y+1,0,1)-now;
       if(now.getMonth()===0&&now.getDate()<=7){el.innerHTML='<span class="ny-ico">🎆</span><span>С Новым годом, <b>'+y+'</b>!</span>';return}

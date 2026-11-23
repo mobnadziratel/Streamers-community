@@ -113,3 +113,48 @@ html:root:root:root body .cta strong,html:root:root:root body .cta b{color:#fff!
 html:root:root:root body div.submit{border-radius:20px!important;padding:18px 22px!important;display:block}
 html:root:root:root body div.submit,html:root:root:root body div.submit *{color:#fff!important}
 html:root:root:root body div.submit a{color:#ffe7a0!important;text-decoration:underline}
+
+/* ===== Чуть грубее: острее углы, плотные рамки, жёсткие тени вместо свечения ===== */
+html:root:root:not([data-theme="light"]){--line:rgba(160,205,255,.45);--border:rgba(160,205,255,.45);--hard:rgba(0,0,0,.6);--glow:rgba(0,0,0,0)}
+html[data-theme="light"]:root:root{--line:rgba(18,48,74,.6);--border:rgba(18,48,74,.6);--hard:rgba(18,48,74,.4);--glow:rgba(0,0,0,0)}
+
+/* углы: таблетки и «пузыри» -> небольшое скругление */
+html:root:root:root body .navtag,html:root:root:root body .theme-toggle,html:root:root:root body .tab-button,html:root:root:root body .random-streamer-button,html:root:root:root body .refresh-clips,html:root:root:root body .primary,html:root:root:root body .music-button,html:root:root:root body .chat-action,html:root:root:root body .chat-secondary,html:root:root:root body .profile-social-link,html:root:root:root body .profile-back,html:root:root:root body .clip-modal-close,html:root:root:root body .back-to-top,html:root:root:root body .live-status.is-live,html:root:root:root body .ny-countdown{border-radius:7px!important}
+html:root:root:root body .site-switch{border-radius:9px!important}
+html:root:root:root body .site-switch a{border-radius:6px!important}
+html:root:root:root body .logo{border-radius:8px!important}
+html:root:root:root body input,html:root:root:root body textarea,html:root:root:root body select,html:root:root:root body .search input,html:root:root:root body .clip-streamer-picker{border-radius:7px!important}
+html:root:root:root body h1 span,html:root:root:root body .hero h1 span{border-radius:5px!important}
+html:root:root:root body .avatar,html:root:root:root body .clip-modal-author-avatar{border-radius:9px!important}
+html:root:root:root body .card-social-icon,html:root:root:root body .profile-social-icon{border-radius:6px!important}
+html:root:root:root body .collab-badge-wrap{border-radius:8px!important}
+
+/* карточки и панели: прямее, с жёсткой тенью */
+html:root:root:root body .streamer,html:root:root:root body .clip-card,html:root:root:root body .profile-card,html:root:root:root body .pack,html:root:root:root body .special,html:root:root:root body .game-card,html:root:root:root body .clip-modal-dialog,html:root:root:root body .panel,html:root:root:root body .chat-panel,html:root:root:root body .city-widget-panel,html:root:root:root body .music-card,html:root:root:root body .banner,html:root:root:root body .chat-preview,html:root:root:root body .city-settings{border:2px solid var(--line)!important;border-radius:10px!important;box-shadow:inset 0 3px 0 rgba(255,255,255,.85),5px 5px 0 var(--hard)!important}
+html:root:root:root body .streamer:hover,html:root:root:root body .clip-card:hover,html:root:root:root body .pack:hover,html:root:root:root body .special:hover,html:root:root:root body .game-card:hover,html:root:root:root body .music-card:hover{border-color:var(--accent2)!important;transform:translate(-3px,-3px)!important;box-shadow:inset 0 3px 0 rgba(255,255,255,.95),8px 8px 0 var(--accent)!important}
+html:root:root:root body .city-placeholder,html:root:root:root body .empty,html:root:root:root body #gameInfo,html:root:root:root body .game-info,html:root:root:root body .description-panel,html:root:root:root body div.submit,html:root:root:root body .cta{border-radius:10px!important}
+html:root:root:root body .wall-mural{border-radius:10px!important;box-shadow:inset 0 4px 0 rgba(255,255,255,.7),6px 6px 0 var(--hard)!important}
+
+/* кнопки и вкладки: плоская заливка, жёсткая тень, чуть плотнее шрифт */
+html:root:root:root body .tab-button,html:root:root:root body .random-streamer-button,html:root:root:root body .refresh-clips,html:root:root:root body .primary,html:root:root:root body .music-button,html:root:root:root body .chat-action{border-width:2px!important;box-shadow:3px 3px 0 var(--hard)!important;font-weight:900!important;letter-spacing:.03em}
+html:root:root:root body .random-streamer-button,html:root:root:root body .refresh-clips,html:root:root:root body .primary,html:root:root:root body .music-button,html:root:root:root body .chat-action,html:root:root:root body .tab-button.active,html:root:root:root body .tab-button[aria-selected="true"],html:root:root:root body .site-switch a.current,html:root:root:root body .profile-back,html:root:root:root body .clip-modal-close,html:root:root:root body .back-to-top,html:root:root:root body .live-status.is-live{background:var(--accent)!important;box-shadow:3px 3px 0 var(--hard)}
+html:root:root:root body .tab-button.active,html:root:root:root body .tab-button[aria-selected="true"]{transform:translate(2px,2px)!important;box-shadow:1px 1px 0 var(--hard)!important}
+html:root:root:root body .tab-button:hover,html:root:root:root body .random-streamer-button:hover,html:root:root:root body .refresh-clips:hover,html:root:root:root body .primary:hover,html:root:root:root body .music-button:hover,html:root:root:root body .chat-action:hover{transform:translate(-2px,-2px)!important;box-shadow:5px 5px 0 var(--hard)!important}
+html:root:root:root body .navtag,html:root:root:root body .site-switch,html:root:root:root body .theme-toggle{border-width:2px!important;box-shadow:3px 3px 0 var(--hard)!important}
+html:root:root:root body .theme-toggle:hover{transform:translate(-2px,-2px)!important;box-shadow:5px 5px 0 var(--hard)!important}
+html:root:root:root body input,html:root:root:root body textarea,html:root:root:root body select,html:root:root:root body .search input{border-width:2px!important}
+html:root:root:root body input:focus,html:root:root:root body textarea:focus,html:root:root:root body select:focus{box-shadow:4px 4px 0 var(--accent2)!important}
+html:root:root:root body input[type=checkbox],html:root:root:root body input[type=radio],html:root:root:root body input[type=range],html:root:root:root body input[type=color]{box-shadow:none!important}
+
+/* заголовок и шапка: без свечения */
+html:root:root:root body h1 span,html:root:root:root body .hero h1 span{box-shadow:5px 5px 0 var(--hard),inset 0 3px 0 rgba(255,255,255,.45)!important;border:2px solid rgba(0,0,0,.35)}
+html:root:root:root body h1{letter-spacing:-.05em!important}
+html:root:root:root body header,html:root:root:root body .site-header{border-bottom-width:3px!important;backdrop-filter:none!important;background:var(--bg)!important}
+html:root:root:root body .ny-countdown{border-width:2px;box-shadow:3px 3px 0 var(--hard)!important}
+html:root:root:root body .avatar,html:root:root:root body .profile-avatar{box-shadow:none!important}
+html:root:root:root body .category-title{border-bottom:2px solid var(--line);padding-bottom:8px}
+html:root:root:root body .category-title::after{display:none!important}
+html:root:root:root body #winter-snowdrift{box-shadow:none!important;border-top-width:4px!important}
+
+/* зернистость поверх фона — едва заметная «шероховатость» */
+html::before{content:"";position:fixed;inset:0;z-index:9970;pointer-events:none;opacity:.09;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}

@@ -2713,10 +2713,11 @@ img,video,iframe{max-width:100%}
 </style>
 <script>try{var t=localStorage.getItem('small-streamers-theme');if(t==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
 <style id="ny-critical">html{background:#091426;color-scheme:dark}html[data-theme="light"]{background:#eaf4fb;color-scheme:light}</style>
-<link rel="stylesheet" href="/newyear.css?v=2">
+<link rel="stylesheet" href="/newyear.css?v=3">
 <link rel="stylesheet" href="/site-ux.css?v=2">
 <script src="/newyear.js?v=2" defer></script>
 <script src="/site-ux.js?v=2" defer></script>
+<script src="/logo-cars.js?v=1" defer></script>
 </head>
 <body>
 <header><div class="wrap nav">
@@ -4569,124 +4570,19 @@ document.addEventListener("keydown", event => {
   }
 });
 
-// Hidden community easter egg: tap the logo five times to launch every streamer avatar.
-(function initAvatarFlightEasterEgg() {
-  const logo = document.querySelector('.logo');
-  if (!logo) return;
-
-  let taps = 0;
-  let resetTimer = null;
-  let flightRun = 0;
-
-  function launchAvatarFlight() {
-    flightRun += 1;
-    const runId = flightRun;
-    document.querySelectorAll('.avatar-flight-overlay').forEach(node => node.remove());
-
-    const overlay = document.createElement('div');
-    overlay.className = 'avatar-flight-overlay';
-    overlay.setAttribute('aria-hidden', 'true');
-
-    // Use the people from the currently selected directory tab.
-    // On Moderators, include moderators and editors; on Streamers, use streamers.
-    const sourcePeople = activeTab === "moderators" ? [...moderators, ...editors] : streamers;
-    // Deduplicate by Twitch login so a person listed in more than one role flies only once.
-    const seenLogins = new Set();
-    const people = sourcePeople.filter(person => {
-      const login = String(person.name || "").trim().toLowerCase();
-      if (!login || seenLogins.has(login)) return false;
-      seenLogins.add(login);
-      return true;
-    });
-    if (!people.length) return;
-    // Shuffle independently on every launch so the avatar parade order changes each time.
-    for (let i = people.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [people[i], people[j]] = [people[j], people[i]];
-    }
-    const avatarSize = 76;
-    const laneGap = 100;
-    // Run several avatars at once on separate horizontal lanes. A lane only
-    // launches its next avatar after the previous one has completely left the screen.
-    const laneCount = Math.max(1, Math.floor((window.innerHeight - avatarSize) / laneGap) + 1);
-    const totalLaneHeight = (laneCount - 1) * laneGap + avatarSize;
-    const firstLaneY = Math.max(8, (window.innerHeight - totalLaneHeight) / 2);
-    const laneQueues = Array.from({ length: laneCount }, () => []);
-    people.forEach((person, index) => laneQueues[index % laneCount].push({ person, index }));
-    let finished = 0;
-
-    function launchNextInLane(laneIndex, isFirstInLane = false) {
-      if (runId !== flightRun) return;
-      const next = laneQueues[laneIndex].shift();
-      if (!next) {
-        if (finished >= people.length) overlay.remove();
-        return;
-      }
-
-      const { person, index } = next;
-      const item = document.createElement('div');
-      item.className = 'avatar-flight-item';
-      // Keep lanes safely separated while varying each avatar's exact path and timing.
-      const laneJitter = Math.round(Math.random() * 12 - 6);
-      const rotationJitter = Math.round(Math.random() * 14 - 7);
-      const flightDuration = 1080 + Math.floor(Math.random() * 680);
-      // Each lane starts at a different time; later avatars also get a small random pause.
-      const flightDelay = isFirstInLane
-        ? Math.floor(Math.random() * 760)
-        : 80 + Math.floor(Math.random() * 420);
-      item.style.setProperty('--flight-y', `${firstLaneY + laneIndex * laneGap + laneJitter}px`);
-      item.style.setProperty('--flight-rotation', `${rotationJitter}deg`);
-      item.style.setProperty('--flight-delay', `${flightDelay}ms`);
-      item.style.setProperty('--flight-duration', `${flightDuration}ms`);
-
-      const img = document.createElement('img');
-      img.alt = '';
-      img.decoding = 'async';
-      img.src = avatarSvg(person.name, index);
-      item.appendChild(img);
-      overlay.appendChild(item);
-
-      // Reuse the same Twitch avatar endpoint/cache used by the directory cards.
-      loadTwitchAvatar(person.name, img);
-      item.addEventListener('animationend', event => {
-        if (event.target !== item || runId !== flightRun) return;
-        item.remove();
-        finished += 1;
-        if (finished >= people.length) overlay.remove();
-        else launchNextInLane(laneIndex);
-      }, { once: true });
-    }
-
-    // Launch several at once, but stagger lanes and vary speed so the parade feels organic.
-    document.body.appendChild(overlay);
-    laneQueues.forEach((_, laneIndex) => launchNextInLane(laneIndex, true));
-  }
-
-  function registerTap() {
-    taps += 1;
-    logo.classList.remove('logo-tap-pop');
-    // Restart the small logo feedback animation on every tap.
-    void logo.offsetWidth;
-    logo.classList.add('logo-tap-pop');
-    if (resetTimer) window.clearTimeout(resetTimer);
-    resetTimer = window.setTimeout(() => { taps = 0; resetTimer = null; }, 2500);
-
-    if (taps >= 5) {
-      taps = 0;
-      if (resetTimer) window.clearTimeout(resetTimer);
-      resetTimer = null;
-      launchAvatarFlight();
-    }
-  }
-
-  logo.addEventListener('click', registerTap);
-  logo.addEventListener('keydown', event => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      registerTap();
-    }
-  });
-})();
+// Пасхалка «машинки»: 5 нажатий на логотип запускают парад (логика — в /logo-cars.js).
+// Состав зависит от вкладки: Стримеры → стримеры, Модераторы → модераторы и редакторы, Клипы/Стена → все.
+window.SSC_CARS_SOURCE = function () {
+  const mods = [...moderators, ...editors, ...(typeof communityModerators !== "undefined" ? communityModerators : [])];
+  let people;
+  if (activeTab === "streamers") people = streamers;
+  else if (activeTab === "moderators") people = mods;
+  else people = [...streamers, ...mods];
+  return {
+    people: people.map(p => ({ name: p.name })),
+    loadAvatar(person, index, img) { img.src = avatarSvg(person.name, index); loadTwitchAvatar(person.name, img); }
+  };
+};
 
 // Always build the directory behind the profile overlay. A ?streamer=login URL opens the same overlay on load.
 initClipStreamerPicker();
@@ -5047,5 +4943,6 @@ header .theme-toggle{flex:0 0 auto}
 }
 </style>
 <style id="nizina-text">
-.lowlands-wordmark{display:block;font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Unbounded",sans-serif;font-style:italic;font-weight:900;font-size:clamp(34px,6vw,54px);line-height:.95;letter-spacing:-.03em;text-transform:uppercase;color:var(--text);text-shadow:0 2px 0 #a52b72,0 4px 0 #6b164c,0 8px 14px rgba(90,0,55,.3);transform:skewX(-7deg);padding:6px 10px 10px 0}
+/* «Низина твича» — тот же размер и шрифт, что у остальных заголовков разделов */
+.lowlands-wordmark{display:block;font-family:var(--f-head,"Unbounded","Arial Black",Impact,sans-serif);font-style:normal;font-weight:800;font-size:clamp(17px,2.4vw,24px);line-height:1.2;letter-spacing:-.03em;text-transform:uppercase;color:var(--text);text-shadow:2px 2px 0 #c0368a;transform:none;padding:0}
 </style>

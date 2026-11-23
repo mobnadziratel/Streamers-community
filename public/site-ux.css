@@ -22,3 +22,5 @@ html:root:root:root body header .wrap.nav,html:root:root:root body header .nav{h
 html:root:root:root body header{padding-top:0!important;padding-bottom:0!important}
 @media(max-width:900px){html:root:root:root body header .wrap.nav,html:root:root:root body header .nav{height:auto!important;min-height:76px!important;padding:8px 0!important}}
 @media(max-width:640px){html:root:root:root body header .theme-toggle #themeLabel{display:none!important}html:root:root:root body header .theme-toggle{padding:0!important;width:42px!important;height:42px!important;justify-content:center!important;display:inline-flex!important;align-items:center}}
+/* шапка всегда поверх контента страницы, но ниже окон профиля/клипа/кнопки «наверх» */
+html:root:root:root body header{z-index:800!important}

@@ -3762,7 +3762,7 @@ function render(filter="") {
     } else if (modData && modData.communitySubmitted) {
       card.dataset.communityModerator = "true";
     }
-    const moderationTags = modData ? `<div class="moderates"><span class="moderates-label">${modData.tagLabel}</span> ${modData.channels.map(channel => `<button type="button" class="moderates-tag" data-streamer-target="${String(channel).replace(/&/g, "&amp;").replace(/\"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}" aria-label="Найти стримера ${channel}">@${channel}</button>`).join(" ")}</div>` : "";
+    const moderationTags = modData && Array.isArray(modData.channels) && modData.channels.length ? `<div class="moderates"><span class="moderates-label">${modData.tagLabel || "Модератор у:"}</span> ${modData.channels.map(channel => `<button type="button" class="moderates-tag" data-streamer-target="${String(channel).replace(/&/g, "&amp;").replace(/\"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}" aria-label="Найти стримера ${channel}">@${channel}</button>`).join(" ")}</div>` : "";
     card.innerHTML = `<div class="avatar"><img src="${avatarSvg(name,i)}" alt="Аватар ${name}" loading="eager" referrerpolicy="no-referrer"></div>
       <div class="info"><div class="name">${cardLabel}</div>${moderator ? "" : ``}${moderator ? moderationTags : `<div class="status-line"><div class="live-status is-loading" data-status="${name}">Проверяем эфир…</div></div><div class="stream-meta" data-meta="${name}"></div><div class="collab-badge-wrap" data-collab="${name}"></div>`}</div>
       <svg class="arrow" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>`;
@@ -4827,9 +4827,11 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
     }
   }
 
-  const loginForm=byId("communityModeratorLogin"),panel=byId("communityModeratorPanel"),pending=byId("communityPendingList");
-  const moderatorMessage=byId("moderatorFormMessage");
-  function setModeratorSignedIn(signedIn){loginForm.hidden=signedIn;panel.hidden=!signedIn;byId("wallModeratorDetails").open=signedIn;}
+  // Блок входа модератора может отсутствовать в разметке — берём «пустышку», чтобы скрипт не падал и одобренный контент загружался.
+  const byIdSafe=id=>byId(id)||document.createElement("div");
+  const loginForm=byIdSafe("communityModeratorLogin"),panel=byIdSafe("communityModeratorPanel"),pending=byIdSafe("communityPendingList");
+  const moderatorMessage=byIdSafe("moderatorFormMessage");
+  function setModeratorSignedIn(signedIn){loginForm.hidden=signedIn;panel.hidden=!signedIn;byIdSafe("wallModeratorDetails").open=signedIn;}
   async function apiJson(url,options={}){
     const response=await fetch(url,{credentials:"same-origin",...options});
     const data=await response.json().catch(()=>({}));
@@ -4901,10 +4903,10 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
     moderatorMessage.textContent="Обновляем список заявок…";
     try{
       const data=await apiJson("/api/community/moderation");
-      byId("moderatorSessionLabel").textContent="Вошёл: "+data.moderator+" ("+(data.role==="admin"?"владелец":"модератор")+")";
+      byIdSafe("moderatorSessionLabel").textContent="Вошёл: "+data.moderator+" ("+(data.role==="admin"?"владелец":"модератор")+")";
       pending.replaceChildren();
       const counts={streamer:0,moderator:0,wall:0,site:0};data.submissions.forEach(item=>{if(item.kind in counts)counts[item.kind]++;});
-      byId("moderatorSummary").textContent=data.submissions.length?"Ждут решения: "+data.submissions.length+" · стримеры "+counts.streamer+" · модераторы "+counts.moderator+" · стена "+counts.wall+" · идеи "+counts.site:"";
+      byIdSafe("moderatorSummary").textContent=data.submissions.length?"Ждут решения: "+data.submissions.length+" · стримеры "+counts.streamer+" · модераторы "+counts.moderator+" · стена "+counts.wall+" · идеи "+counts.site:"";
       if(!data.submissions.length)pending.append(makeText("p","Новых заявок нет.","wall-muted"));
       data.submissions.forEach(item=>{
         const card=makeText("article","","community-pending-item");
@@ -4942,12 +4944,12 @@ if (initialProfileLogin) openStreamerProfile(initialProfileLogin, false);
   loginForm.addEventListener("submit",async event=>{
     event.preventDefault();const button=loginForm.querySelector('[type="submit"]');button.disabled=true;moderatorMessage.textContent="Входим…";
     try{
-      const data=await apiJson("/api/community/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:byId("moderatorUsername").value,password:byId("moderatorPassword").value})});
-      byId("moderatorPassword").value="";moderatorMessage.textContent="Вход выполнен.";setModeratorSignedIn(true);byId("moderatorSessionLabel").textContent="Вошёл: "+data.username;await loadPending();
-    }catch(error){byId("wallModeratorDetails").open=true;moderatorMessage.textContent=error.message;}finally{button.disabled=false;}
+      const data=await apiJson("/api/community/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:byIdSafe("moderatorUsername").value,password:byIdSafe("moderatorPassword").value})});
+      byIdSafe("moderatorPassword").value="";moderatorMessage.textContent="Вход выполнен.";setModeratorSignedIn(true);byIdSafe("moderatorSessionLabel").textContent="Вошёл: "+data.username;await loadPending();
+    }catch(error){byIdSafe("wallModeratorDetails").open=true;moderatorMessage.textContent=error.message;}finally{button.disabled=false;}
   });
-  byId("communityModeratorRefresh").addEventListener("click",loadPending);
-  byId("communityModeratorLogout").addEventListener("click",async()=>{
+  byIdSafe("communityModeratorRefresh").addEventListener("click",loadPending);
+  byIdSafe("communityModeratorLogout").addEventListener("click",async()=>{
     try{await apiJson("/api/community/logout",{method:"POST"});}catch(_){}
     setModeratorSignedIn(false);pending.replaceChildren();moderatorMessage.textContent="Вы вышли из панели модерации.";
   });
@@ -5040,3 +5042,5 @@ header .theme-toggle{flex:0 0 auto}
 </style>
 <link rel="stylesheet" href="/newyear.css?v=1">
 <script src="/newyear.js?v=1" defer></script>
+<link rel="stylesheet" href="/site-ux.css?v=1">
+<script src="/site-ux.js?v=1" defer></script>

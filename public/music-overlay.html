@@ -18,6 +18,7 @@ body{font:14px system-ui,-apple-system,Segoe UI,sans-serif}
 </head>
 <body>
 <div id="wrap"><div id="videoLayer"><div id="player"></div></div></div>
+<script src="/music-bg.js"></script>
 <script>
 (function(){
   "use strict";
@@ -35,6 +36,14 @@ body{font:14px system-ui,-apple-system,Segoe UI,sans-serif}
   var loadedId="";          // id заказа, который сейчас загружен в плеер
   var endedReported="";     // id заказа, о завершении которого уже сообщили серверу
   var pollBusy=false, failures=0;
+  // Фоновый плейлист: играет, пока нет заказов. Заказ прерывает его, после заказа он продолжается с того же места.
+  var bg=MusicBg.create({
+    channel:function(){return channel},
+    getPlayer:function(){return player},
+    isReady:function(){return playerReady},
+    applyVolume:function(){applyVolume()},
+    onMode:function(active,cfg){setVisible(Boolean(active&&cfg&&cfg.showVideo))}
+  });
 
   function request(url,options){
     var controller=new AbortController();
@@ -55,7 +64,7 @@ body{font:14px system-ui,-apple-system,Segoe UI,sans-serif}
     if(!playerReady)return;
     try{
       if(previewMode||volume<=0){player.mute();return}
-      player.unMute();player.setVolume(volume);
+      player.unMute();player.setVolume(bg.volumeFor(volume));
     }catch(_){}
   }
   function stopPlayer(){
@@ -66,7 +75,13 @@ body{font:14px system-ui,-apple-system,Segoe UI,sans-serif}
   function applyState(data){
     var item=data&&data.item;
     var valid=item&&/^[A-Za-z0-9_-]{11}$/.test(String(item.videoId||""));
-    if(!valid){setVisible(false);stopPlayer();return}
+    if(!valid){
+      // Заказов нет: играет фон (если включён), иначе — тишина.
+      loadedId="";
+      if(!bg.sync(data&&data.bg,false)){setVisible(false);stopPlayer()}
+      return;
+    }
+    bg.suspend();   // пришёл заказ — фон уступает место, позиция запоминается
     // Скрыть = убрать картинку и поставить на паузу (так же ведёт себя музыкальный док).
     setVisible(Boolean(data.visible));
     if(!playerReady)return;
@@ -103,9 +118,11 @@ body{font:14px system-ui,-apple-system,Segoe UI,sans-serif}
       events:{
         onReady:function(){playerReady=true;applyVolume();poll()},
         onStateChange:function(event){
+          bg.handleState(event);
           if(event.data===YT.PlayerState.ENDED&&loadedId){reportEnded(loadedId,"done")}
         },
         onError:function(){
+          if(bg.handleError())return;   // ошибка фонового трека — переходим к следующему, заказы не затрагиваем
           // Видео недоступно (удалено, закрыто, запрещено встраивание): пропускаем, чтобы очередь не застряла.
           if(loadedId)reportEnded(loadedId,"skipped");
         }

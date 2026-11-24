@@ -661,6 +661,164 @@ function musicPlaybackFor(db, ch, current) {
 }
 const musicPublicItem = ({ id, channel, nickname, videoId, url, title, status, createdAt }) => ({ id, channel, nickname, videoId, url, title, status, createdAt });
 
+// ───────────── Фоновая музыка (плейлист, который играет, пока нет заказов) ─────────────
+// Хранится рядом с очередью в том же JSON: db.bg[канал]. Проигрывает его сам плеер (оверлей/док):
+// заказ прерывает фон, после заказа фон продолжается с того же места — это решает плеер, а сервер
+// лишь хранит списки и настройки и отдаёт их вместе с состоянием очереди.
+const BG_LIST_LIMIT = 10, BG_VIDEO_LIMIT = 100, BG_ADD_PER_CALL = 15;
+const bgDefaults = () => ({ enabled: false, paused: false, shuffle: false, showVideo: false, volume: 60, activeId: "", skipSeq: 0, lists: [] });
+function bgNormalize(raw) {
+  const b = { ...bgDefaults(), ...(raw && typeof raw === "object" ? raw : {}) };
+  b.lists = (Array.isArray(b.lists) ? b.lists : []).filter(l => l && typeof l === "object" && l.id).map(l => ({
+    id: String(l.id), name: musicClean(l.name, 60) || "Плейлист", type: l.type === "youtube" ? "youtube" : "custom",
+    playlistId: l.type === "youtube" ? String(l.playlistId || "") : "", rev: Number(l.rev) || 1, createdAt: l.createdAt || "",
+    videos: l.type === "youtube" ? [] : (Array.isArray(l.videos) ? l.videos : []).filter(v => v && /^[A-Za-z0-9_-]{11}$/.test(String(v.videoId || ""))).map(v => ({ id: String(v.id || v.videoId), videoId: String(v.videoId), title: musicClean(v.title, 120) }))
+  }));
+  b.volume = Math.max(0, Math.min(100, Math.round(Number(b.volume))));
+  if (!Number.isFinite(b.volume)) b.volume = 60;
+  b.enabled = Boolean(b.enabled); b.paused = Boolean(b.paused); b.shuffle = Boolean(b.shuffle); b.showVideo = Boolean(b.showVideo);
+  b.skipSeq = Number(b.skipSeq) || 0;
+  if (!b.lists.some(l => l.id === b.activeId)) b.activeId = b.lists[0] ? b.lists[0].id : "";
+  return b;
+}
+function bgGet(db, ch) {            // для записи: создаёт запись канала
+  db.bg = db.bg && typeof db.bg === "object" ? db.bg : {};
+  db.bg[ch] = bgNormalize(db.bg[ch]);
+  return db.bg[ch];
+}
+const bgPeek = (db, ch) => bgNormalize(db.bg && db.bg[ch]);   // для чтения: ничего не меняет
+const bgActive = b => b.lists.find(l => l.id === b.activeId) || null;
+// Компактное состояние, которое уходит оверлею и доку с каждым опросом очереди.
+function bgOverlay(db, ch) {
+  const b = bgPeek(db, ch), a = bgActive(b);
+  const usable = Boolean(a && (a.type === "youtube" ? a.playlistId : a.videos.length));
+  return {
+    enabled: b.enabled && usable, paused: b.paused, shuffle: b.shuffle, showVideo: b.showVideo, volume: b.volume, skipSeq: b.skipSeq,
+    active: usable ? { key: a.id + ":" + a.rev, name: a.name, type: a.type, playlistId: a.playlistId, videoIds: a.videos.map(v => v.videoId) } : null
+  };
+}
+// Полное состояние для панели управления стримера.
+function bgFull(db, ch) {
+  const b = bgPeek(db, ch);
+  return { enabled: b.enabled, paused: b.paused, shuffle: b.shuffle, showVideo: b.showVideo, volume: b.volume, skipSeq: b.skipSeq, activeId: b.activeId,
+    limits: { lists: BG_LIST_LIMIT, videos: BG_VIDEO_LIMIT },
+    lists: b.lists.map(l => ({ id: l.id, name: l.name, type: l.type, playlistId: l.playlistId, rev: l.rev, count: l.videos.length, videos: l.videos })) };
+}
+function parseYouTubePlaylistId(raw) {
+  try {
+    const u = new URL(musicClean(raw, 500));
+    const host = u.hostname.toLowerCase().replace(/^www\./, "").replace(/^m\./, "");
+    if (!["youtube.com", "music.youtube.com"].includes(host)) return "";
+    const id = u.searchParams.get("list") || "";
+    return /^[A-Za-z0-9_-]{10,64}$/.test(id) ? id : "";
+  } catch (_) { return ""; }
+}
+// Проверка плейлиста через oEmbed (так же, как и для видео): отсекает несуществующие и закрытые.
+async function youtubePlaylistLookup(playlistId) {
+  const key = "pl:" + playlistId, cached = musicMetaCache.get(key);
+  if (cached && Date.now() - cached.at < 3600000) return cached.result;
+  let result;
+  try {
+    const response = await fetch("https://www.youtube.com/oembed?url=" + encodeURIComponent("https://www.youtube.com/playlist?list=" + playlistId) + "&format=json", { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(5000) });
+    if (response.status === 404) result = { status: "missing" };
+    else if (response.status === 401 || response.status === 403) result = { status: "blocked" };
+    else if (!response.ok) result = { status: "unknown" };
+    else { const meta = await response.json(); result = { status: "ok", title: musicClean(meta.title, 60) }; }
+  } catch (_) { result = { status: "unknown" }; }
+  if (result.status !== "unknown") musicMetaCache.set(key, { result, at: Date.now() });
+  return result;
+}
+async function handleBgAdmin(req, res, json, isAdmin, session) {
+  const body = await readJsonBody(req, 30000);
+  if (!isAdmin) return json(401, { error: "Войди как стример, чтобы управлять фоновой музыкой." });
+  const ch = musicChannel(body.channel), op = musicClean(body.op, 20);
+  if (!ch) return json(400, { error: "Укажи корректный Twitch-канал." });
+  if (session.channel !== ch) return json(403, { error: "Этот вход разрешён только для канала " + session.channel + "." });
+  // Запросы к YouTube делаем ДО блокировки очереди, чтобы медленный ответ не задерживал заказы.
+  let prepared = null;
+  if (op === "add") {
+    const rawUrls = (Array.isArray(body.urls) ? body.urls : [body.url]).map(u => String(u || "")).filter(Boolean).slice(0, 60);
+    const ids = [];
+    for (const u of rawUrls) { const vid = parseYouTubeId(u); if (vid && !ids.includes(vid)) ids.push(vid); if (ids.length >= BG_ADD_PER_CALL) break; }
+    if (!ids.length) return json(400, { error: "Вставь корректные ссылки на видео YouTube." });
+    const infos = await Promise.all(ids.map(vid => youtubeLookup(vid)));
+    prepared = ids.map((vid, i) => ({ vid, info: infos[i] }));
+  } else if (op === "import") {
+    const playlistId = parseYouTubePlaylistId(body.url);
+    if (!playlistId) return json(400, { error: "Вставь ссылку на плейлист YouTube — в адресе должно быть list=…" });
+    if (/^(RD|LL|WL|FL)/.test(playlistId)) return json(422, { error: "Миксы, «Смотреть позже» и «Понравившиеся» встроить нельзя. Используй обычный публичный плейлист." });
+    const info = await youtubePlaylistLookup(playlistId);
+    if (info.status === "missing") return json(404, { error: "Плейлист не найден или удалён." });
+    if (info.status === "blocked") return json(422, { error: "Плейлист закрыт. Сделай его публичным или доступным по ссылке." });
+    prepared = { playlistId, info };
+  }
+  return await withMusicLock(async () => {
+    try {
+      const db = await musicLoad();
+      const b = bgGet(db, ch);
+      const list = body.listId ? b.lists.find(l => l.id === musicClean(body.listId, 80)) : null;
+      const needList = () => { if (!list) throw Object.assign(new Error("Плейлист не найден."), { statusCode: 404 }); return list; };
+      let message = "Сохранено.";
+      if (op === "create") {
+        const name = musicClean(body.name, 40);
+        if (name.length < 2) throw Object.assign(new Error("Название плейлиста — от 2 до 40 символов."), { statusCode: 400 });
+        if (b.lists.length >= BG_LIST_LIMIT) throw Object.assign(new Error("Можно создать не больше " + BG_LIST_LIMIT + " плейлистов."), { statusCode: 429 });
+        const created = { id: require("node:crypto").randomUUID(), name, type: "custom", playlistId: "", rev: 1, createdAt: new Date().toISOString(), videos: [] };
+        b.lists.push(created); if (!b.activeId) b.activeId = created.id;
+        message = "Плейлист создан. Добавь в него видео.";
+      } else if (op === "import") {
+        if (b.lists.length >= BG_LIST_LIMIT) throw Object.assign(new Error("Можно сохранить не больше " + BG_LIST_LIMIT + " плейлистов."), { statusCode: 429 });
+        if (b.lists.some(l => l.playlistId === prepared.playlistId)) throw Object.assign(new Error("Этот плейлист уже добавлен."), { statusCode: 409 });
+        const name = musicClean(body.name, 40) || musicClean(prepared.info.title, 40) || "Плейлист YouTube";
+        const created = { id: require("node:crypto").randomUUID(), name, type: "youtube", playlistId: prepared.playlistId, rev: 1, createdAt: new Date().toISOString(), videos: [] };
+        b.lists.push(created); if (!b.activeId) b.activeId = created.id;
+        message = "Плейлист YouTube добавлен.";
+      } else if (op === "add") {
+        const l = needList();
+        if (l.type !== "custom") throw Object.assign(new Error("Видео можно добавлять только в свой плейлист, а не в импортированный из YouTube."), { statusCode: 400 });
+        let added = 0; const skipped = [];
+        for (const { vid, info } of prepared) {
+          if (info.status === "missing") { skipped.push("видео не найдено или закрыто"); continue; }
+          if (info.status === "blocked") { skipped.push("автор запретил встраивание"); continue; }
+          if (l.videos.some(v => v.videoId === vid)) { skipped.push("уже есть в плейлисте"); continue; }
+          if (l.videos.length >= BG_VIDEO_LIMIT) { skipped.push("достигнут лимит " + BG_VIDEO_LIMIT + " видео"); break; }
+          l.videos.push({ id: require("node:crypto").randomUUID(), videoId: vid, title: info.status === "ok" ? musicClean(info.title, 120) : "" });
+          added++;
+        }
+        if (!added) throw Object.assign(new Error("Ничего не добавлено: " + (skipped[0] || "нет подходящих ссылок") + "."), { statusCode: 422 });
+        l.rev++;
+        message = "Добавлено: " + added + (skipped.length ? " · пропущено: " + skipped.length : "") + ".";
+      } else if (op === "remove") {
+        const l = needList(), itemId = musicClean(body.itemId, 80), before = l.videos.length;
+        l.videos = l.videos.filter(v => v.id !== itemId);
+        if (l.videos.length === before) throw Object.assign(new Error("Трек не найден."), { statusCode: 404 });
+        l.rev++; message = "Трек удалён.";
+      } else if (op === "clear") {
+        const l = needList(); l.videos = []; l.rev++; message = "Плейлист очищен.";
+      } else if (op === "rename") {
+        const l = needList(), name = musicClean(body.name, 40);
+        if (name.length < 2) throw Object.assign(new Error("Название плейлиста — от 2 до 40 символов."), { statusCode: 400 });
+        l.name = name; message = "Название изменено.";
+      } else if (op === "delete") {
+        const l = needList(); b.lists = b.lists.filter(x => x.id !== l.id); message = "Плейлист удалён.";
+      } else if (op === "select") {
+        const l = needList(); b.activeId = l.id; b.skipSeq++; message = "Выбран плейлист «" + l.name + "».";
+      } else if (op === "settings") {
+        if (typeof body.enabled === "boolean") b.enabled = body.enabled;
+        if (typeof body.paused === "boolean") b.paused = body.paused;
+        if (typeof body.shuffle === "boolean") b.shuffle = body.shuffle;
+        if (typeof body.showVideo === "boolean") b.showVideo = body.showVideo;
+        if (body.volume !== undefined) { const v = Math.round(Number(body.volume)); if (Number.isFinite(v)) b.volume = Math.max(0, Math.min(100, v)); }
+      } else if (op === "skip") {
+        b.skipSeq++; message = "Переключаю фоновый трек.";
+      } else throw Object.assign(new Error("Неизвестное действие."), { statusCode: 400 });
+      db.bg[ch] = bgNormalize(b);
+      await musicSave(db);
+      return json(200, { ok: true, message, bg: bgFull(db, ch) });
+    } catch (error) { musicDbCache = null; throw error; }
+  });
+}
+
 function parseYouTubeId(raw) {
   try {
     const u = new URL(musicClean(raw, 500));
@@ -745,6 +903,9 @@ async function handleMusicApi(req, res, url) {
       return json(200, { ok: true }, { "Set-Cookie": "music_admin_session=" + cookieFlags + "; Max-Age=0" });
     }
 
+    // Управление фоновым плейлистом: сам читает тело и ходит в YouTube до блокировки очереди.
+    if (route === "/api/music/admin/bg" && method === "POST") return await handleBgAdmin(req, res, json, isAdmin, session);
+
     // Тело запроса читаем ДО блокировки, чтобы медленный клиент не держал очередь.
     const body = method === "POST" ? await readJsonBody(req) : {};
 
@@ -758,7 +919,12 @@ async function handleMusicApi(req, res, url) {
           const item = musicActiveItems(db, ch).find(x => x.status === "playing") || null;
           const sync = musicPlaybackFor(db, ch, item);
           if (changed || sync.changed) await musicSave(db);
-          return json(200, { item: item ? musicPublicItem(item) : null, paused: Boolean(sync.state.paused), visible: item ? sync.state.visible !== false : false });
+          return json(200, { item: item ? musicPublicItem(item) : null, paused: Boolean(sync.state.paused), visible: item ? sync.state.visible !== false : false, bg: bgOverlay(db, ch) });
+        }
+        if (route === "/api/music/bg" && method === "GET") {
+          const ch = musicChannel(url.searchParams.get("channel"));
+          if (!ch) return json(400, { error: "Укажи корректный логин канала." });
+          return json(200, { bg: bgFull(await musicLoad(), ch) });
         }
         if (route === "/api/music/queue" && method === "GET") {
           const ch = musicChannel(url.searchParams.get("channel"));
@@ -772,7 +938,7 @@ async function handleMusicApi(req, res, url) {
           const current = items.find(x => x.status === "playing") || null;
           const sync = musicPlaybackFor(db, ch, current);
           if (changed || sync.changed) await musicSave(db);
-          return json(200, { items: items.map(musicPublicItem), history: history.map(musicPublicItem), paused: Boolean(sync.state.paused), visible: current ? sync.state.visible !== false : false });
+          return json(200, { items: items.map(musicPublicItem), history: history.map(musicPublicItem), paused: Boolean(sync.state.paused), visible: current ? sync.state.visible !== false : false, bg: bgOverlay(db, ch) });
         }
         if (route === "/api/music/request" && method === "POST") {
           const ch = musicChannel(body.channel), nick = musicClean(body.nickname, 32) || "Аноним";

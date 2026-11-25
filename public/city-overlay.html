@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Город — Twitch chat walkers</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}body{font-family:Arial,Helvetica,sans-serif}canvas{display:block;width:100%;height:100%;background:transparent}#status{position:absolute;left:12px;top:10px;padding:5px 8px;border-radius:6px;background:#111b;color:#ddd;font:12px Arial,sans-serif}#status[hidden]{display:none}
+</style>
+</head>
+<body>
+<canvas id="city" aria-label="Ходящие персонажи участников Twitch-чата"></canvas><div id="status" hidden></div>
+<script>
+(function(){
+const params=new URLSearchParams(location.search);
+const channel=(params.get("channel")||"").trim().toLowerCase();
+const idleMinutes=Math.max(1,Math.min(180,Number(params.get("idle")||5)));
+const style=params.get("game")||"mixed";
+const preview=params.get("preview")==="1";
+const nameColor=/^#[0-9a-f]{6}$/i.test(params.get("nameColor")||"")?params.get("nameColor"):"#b9ff36";
+const useTwitchColors=params.get("twitchColors")!=="0";
+const bubbleParam=params.get("bubble");
+const bubbleMode=["both","text","emotes","none"].includes(bubbleParam)?bubbleParam:(params.get("showMessages")==="0"?"none":(params.get("showEmotes")==="0"?"text":"both"));
+const showMessages=bubbleMode!=="none",showEmotes=bubbleMode==="both"||bubbleMode==="emotes";
+const FADE_IN=480,FADE_OUT=520,EMOTE_W=22;
+const canvas=document.getElementById("city"),ctx=canvas.getContext("2d"),status=document.getElementById("status");
+const people=new Map();
+const twitchColorCache={};
+const badgeImages=new Map();
+const emoteImages=new Map();
+const emoteCache=new Map();
+const emoteLazy=new Map();
+function addEmote(name,url,fallbackUrl="",lazy=false){
+ if(!name||!url||emoteCache.has(name))return;
+ emoteCache.set(name,url);
+ if(lazy){emoteLazy.set(name,[url,fallbackUrl]);return}
+ loadEmoteImage(name,url,fallbackUrl);
+}
+function loadEmoteImage(name,url,fallbackUrl){
+ const img=new Image();
+ img.crossOrigin="anonymous";
+ img.onload=()=>emoteImages.set(name,img);
+ img.onerror=()=>{
+  if(fallbackUrl&&img.src!==fallbackUrl){img.onerror=null;img.src=fallbackUrl;return;}
+  emoteImages.delete(name);
+ };
+ img.src=url;
+}
+async function loadChatEmotes(){
+ const login=channel||"rueumur";
+ try{
+  const userResponse=await fetch("https://api.ivr.fi/v2/twitch/user?login="+encodeURIComponent(login),{signal:AbortSignal.timeout(8000)});
+  if(!userResponse.ok)return;
+  const users=await userResponse.json(),user=Array.isArray(users)?users[0]:users;
+  const id=user&&user.id;if(!id)return;
+  const jobs=[
+   fetch("https://api.betterttv.net/3/cached/users/twitch/"+encodeURIComponent(id),{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).catch(()=>null),
+   fetch("https://7tv.io/v3/users/twitch/"+encodeURIComponent(id),{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).catch(()=>null),
+   fetch("https://api.frankerfacez.com/v1/room/"+encodeURIComponent(login),{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).catch(()=>null),
+   fetch("https://api.frankerfacez.com/v1/set/global",{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).catch(()=>null)
+  ];
+  const [bttv,seventv,ffz,ffzGlobal]=(await Promise.allSettled(jobs)).map(r=>r.status==="fulfilled"?r.value:null);
+  for(const e of [...(bttv?.channelEmotes||[]),...(bttv?.sharedEmotes||[])])addEmote(e.code,"https://cdn.betterttv.net/emote/"+e.id+"/2x","",true);
+  const seven=[...(seventv?.emote_set?.emotes||[]),...(seventv?.user?.emote_set?.emotes||[]),...(seventv?.user?.emote_sets||[]).flatMap(s=>s.emotes||[]),...(seventv?.emote_sets||[]).flatMap(s=>s.emotes||[])];
+  for(const e of seven){
+   const data=e.data||{};
+   const id=e.id||data.id;
+   const name=e.name||data.name;
+   if(id&&name){
+    // Stable 7TV CDN URL; host metadata can be protocol-relative or incomplete.
+    addEmote(name,"https://cdn.7tv.app/emote/"+id+"/2x.webp","https://cdn.7tv.app/emote/"+id+"/1x.webp",true);
+   }
+  }
+  for(const set of Object.values(ffz?.sets||{}))for(const e of (set.emoticons||[]))addEmote(e.name,"https://cdn.frankerfacez.com/emote/"+e.id+"/2","",true);
+  for(const set of Object.values(ffzGlobal?.sets||{}))for(const e of (set.emoticons||[]))addEmote(e.name,"https://cdn.frankerfacez.com/emote/"+e.id+"/2","",true);
+ }catch(_){}
+}
+function nativeEmotesFromTag(tag,text){
+ const result={};if(!tag)return result;const cps=Array.from(text);
+ for(const group of tag.split("/")){const parts=group.split(":");const id=parts[0];for(const range of (parts[1]||"").split(",")){const [a,b]=range.split("-").map(Number);if(Number.isInteger(a)&&Number.isInteger(b)&&a>=0&&b<cps.length){const word=cps.slice(a,b+1).join("");if(word)addEmote(word,"https://static-cdn.jtvnw.net/emoticons/v2/"+id+"/default/dark/2.0");result[word]=true;}}}
+ return result;
+}
+
+const badgeLabels={broadcaster:"Владелец",moderator:"Модератор",vip:"VIP",subscriber:"Подписчик",founder:"Основатель",staff:"Twitch Staff",admin:"Администратор",global_mod:"Глобальный модератор",bits:"Bits"};
+async function loadTwitchBadges(){try{const response=await fetch("/api/chat-badges?channel="+encodeURIComponent(channel||"rueumur"),{cache:"no-store"});if(!response.ok)return;const data=await response.json();for(const [setId,set] of Object.entries(data.badges||{})){for(const version of (set.versions||[])){if(!version.url)continue;const img=new Image();img.src=version.url;badgeImages.set(setId+"/"+String(version.id),img);}}}catch(_){}}
+const pendingColorLogins=new Set();
+let colorTimer=null,width=0,height=0,lastFrame=0,socket=null,retryTimer=null,watchdogTimer=null,connectTimer=null,retryDelay=1000,stopped=false,lastSocketActivity=0;
+const palettes=[
+{skin:"#f0c49a",hair:"#53352c",shirt:"#4b8bd8",pants:"#25395d",accent:"#f3d56a"},
+{skin:"#dba47b",hair:"#2d2928",shirt:"#5dbb77",pants:"#303a40",accent:"#f3f3f3"},
+{skin:"#f2d0ad",hair:"#d5a13b",shirt:"#b06be0",pants:"#47366b",accent:"#74e4dc"},
+{skin:"#a96f4f",hair:"#201c24",shirt:"#ed765f",pants:"#3a2a38",accent:"#f6cf58"},
+{skin:"#f2c6a0",hair:"#b7c9d7",shirt:"#e5e7eb",pants:"#3e536a",accent:"#6ce0f2"},
+{skin:"#d9aa8a",hair:"#5942a4",shirt:"#e5a34b",pants:"#463a35",accent:"#83ed91"},
+{skin:"#f6d5b8",hair:"#e0679b",shirt:"#3fb8af",pants:"#2b3d4f",accent:"#ffd9e8"},
+{skin:"#8d5a3f",hair:"#f4f1ea",shirt:"#d9534f",pants:"#2c2a36",accent:"#7ee0ff"},
+{skin:"#e8b98f",hair:"#2f7d6b",shirt:"#f0c24b",pants:"#4a3a2d",accent:"#fff3b0"},
+{skin:"#c68863",hair:"#c0392b",shirt:"#2f6fb5",pants:"#1f2c47",accent:"#ffb347"},
+{skin:"#8fd6a1",hair:"#2c5f4a",shirt:"#7c5cd6",pants:"#33264f",accent:"#b9ff36"},
+{skin:"#9ec5ff",hair:"#f2f2ff",shirt:"#e86d9a",pants:"#37314f",accent:"#ffe27a"},
+{skin:"#f1c9a5",hair:"#111111",shirt:"#ff8a3d",pants:"#2a3b36",accent:"#a3f0d8"},
+{skin:"#b57b58",hair:"#7a4a2a",shirt:"#52b76b",pants:"#2e2a22",accent:"#ff9bd0"},
+{skin:"#f7dcc1",hair:"#4d7cff",shirt:"#f4f0e6",pants:"#394a63",accent:"#ff7a7a"},
+{skin:"#6e4531",hair:"#1b1b1f",shirt:"#d4a62a",pants:"#26324a",accent:"#9ae7ff"},
+{skin:"#e4b995",hair:"#9b59b6",shirt:"#2ecc9a",pants:"#3a2f45",accent:"#ffe6a6"},
+{skin:"#fadfc9",hair:"#ffd45a",shirt:"#6b7bd8",pants:"#2b2f4d",accent:"#ff9f80"}
+];
+function resize(){const dpr=Math.min(window.devicePixelRatio||1,2);width=Math.max(1,canvas.clientWidth);height=Math.max(1,canvas.clientHeight);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);for(const p of people.values())p.y=height-2;}
+function queueTwitchColor(login){
+ if(!useTwitchColors||!login||twitchColorCache[login]||pendingColorLogins.has(login))return;
+ pendingColorLogins.add(login);
+ if(colorTimer)clearTimeout(colorTimer);
+ colorTimer=setTimeout(async()=>{
+  const logins=[...pendingColorLogins];pendingColorLogins.clear();colorTimer=null;
+  try{
+   const response=await fetch("/api/chat-colors?logins="+encodeURIComponent(logins.join(",")));
+   if(!response.ok)throw new Error("Twitch colors unavailable");
+   const data=await response.json();
+   Object.assign(twitchColorCache,data.colors||{});
+   for(const [key,p] of people){const c=twitchColorCache[key];if(/^#[0-9a-f]{6}$/i.test(c||""))p.nameColor=c;}
+  }catch(_){}
+ },180);
+}
+const stripEdge=t=>t.replace(/^[([{¿¡"'“‘]+/,"").replace(/[.,!?;:)}\]”’"'…]+$/,"");
+const isEmoteToken=t=>emoteCache.has(t)||emoteCache.has(stripEdge(t));
+const emojiRe=/\p{Extended_Pictographic}/u;
+// «Только текст» убирает смайлы из сообщения, «Только смайлики» оставляет только их (и обычные эмодзи).
+function filterMessage(text){
+ text=String(text||"");
+ if(bubbleMode==="both"||bubbleMode==="none")return text;
+ const out=[];
+ for(const tok of text.split(/\s+/)){if(!tok)continue;const emo=isEmoteToken(tok);if(bubbleMode==="text"?!emo:(emo||emojiRe.test(tok)))out.push(tok)}
+ return out.join(" ");
+}
+function pickSpawnX(){
+ const margin=40,span=Math.max(1,width-margin*2);let best=margin+Math.random()*span,bestScore=-1;
+ const xs=[...people.values()].filter(v=>!v.leaving).map(v=>v.x);
+ for(let i=0;i<12;i++){const c=margin+Math.random()*span;const score=xs.length?Math.min(...xs.map(v=>Math.abs(v-c))):1e9;if(score>bestScore){bestScore=score;best=c}}
+ return best;
+}
+function addPerson(login,badges=[],userType="",messageText=""){
+ messageText=filterMessage(messageText);
+ const key=String(login||"").toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,25);if(!key)return;
+ const visibleBadges=badges.filter(entry=>!!badgeLabels[String(entry).split("/")[0]]).map(entry=>{const [id,version]=String(entry).split("/");return {id,version:version||"1",label:badgeLabels[id]}});
+ if(userType==="mod"&&!visibleBadges.some(b=>b.id==="moderator"))visibleBadges.push({id:"moderator",version:"1",label:badgeLabels.moderator});
+ const now=Date.now();let p=people.get(key);
+ if(p){if(p.leaving){p.leaving=0;p.born=now-FADE_IN*.6}p.last=now;p.display=login;if(visibleBadges.length)p.badges=visibleBadges;if(messageText&&messageText.trim()){p.message=messageText.trim().slice(0,220);p.messageAt=now;}queueTwitchColor(key);return}
+ const palette=palettes[Math.floor(Math.random()*palettes.length)];
+ const x=pickSpawnX();
+ people.set(key,{key,display:login,badges:visibleBadges,last:now,born:now,leaving:0,message:messageText.trim().slice(0,220),messageAt:messageText.trim()?now:0,x,y:height-2,vx:(Math.random()>.5?1:-1)*(.3+Math.random()*.45),phase:Math.random()*6.28,palette,kind:style==="mixed"?Math.floor(Math.random()*9):({minecraft:0,terraria:1,rpg:2,scifi:3,ninja:4,astronaut:5,knight:6,cat:7,ghost:8}[style]??0),variant:Math.floor(Math.random()*6),extra:Math.random()<.4?0:1+Math.floor(Math.random()*6),scale:.85+Math.random()*.7,nameColor:twitchColorCache[key]||nameColor});
+ queueTwitchColor(key);
+ if(people.size>150){let oldestKey=null,oldest=Infinity;for(const [k,v] of people)if(!v.leaving&&v.last<oldest){oldest=v.last;oldestKey=k}const o=oldestKey&&oldestKey!==key?people.get(oldestKey):null;if(o)o.leaving=Date.now()}
+}
+function drawPerson(p,t){
+ const gait=t*.012+p.phase,stride=Math.sin(gait),bob=Math.abs(Math.cos(gait))*1.5;
+ const x=Math.round(p.x),base=Math.round(p.y-bob),s=p.scale,pal=p.palette;
+ ctx.save();ctx.translate(x,base);ctx.scale(p.vx<0?-s:s,s);
+ ctx.fillStyle="#0005";ctx.beginPath();ctx.ellipse(0,bob/s,10,2.5,0,0,Math.PI*2);ctx.fill();
+ const px=(xx,yy,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(Math.round(xx),Math.round(yy),w,h)};
+ const legA=stride>0?2:0,legB=stride<0?2:0;
+ if(p.kind===0){
+  // BLOCKY WORLD: square head, oversized cubic hair and chunky boots.
+  px(-5,-9+legA,4,8,p.pants||pal.pants);px(1,-9+legB,4,8,p.pants||pal.pants);
+  px(-6,-1+legA,5,2,"#222");px(1,-1+legB,5,2,"#222");
+  px(-5,-25,10,9,pal.skin);px(-6,-28,12,5,pal.hair);px(-7,-23,2,5,pal.hair);
+  px(-7,-16,14,10,pal.shirt);px(-9,-15+legB,3,7,pal.skin);px(6,-15+legA,3,7,pal.skin);
+  px(-3,-21,2,2,"#292929");px(2,-21,2,2,"#292929");px(-2,-17,4,1,"#8b5a42");
+ }else if(p.kind===1){
+  // TERRARIA-LIKE ADVENTURER: swept hair, bright tunic, belt and little blade.
+  px(-5,-9+legA,4,8,"#55453b");px(1,-9+legB,4,8,"#55453b");
+  px(-6,-1+legA,5,2,"#b88a53");px(1,-1+legB,5,2,"#b88a53");
+  px(-4,-25,8,9,pal.skin);px(-6,-27,11,4,pal.hair);px(3,-25,4,3,pal.hair);
+  px(-6,-17,12,9,pal.shirt);px(-7,-14+legB,3,6,pal.skin);px(5,-14+legA,3,6,pal.skin);
+  px(-6,-10,12,2,pal.accent);px(-2,-22,2,2,"#252525");
+  px(8,-17+legA,2,10,"#d7e8ed");px(7,-18+legA,4,3,"#f8fbff");
+ }else if(p.kind===2){
+  // FANTASY RPG: hood, long cloak, glowing trim and a walking staff.
+  px(-5,-9+legA,4,8,"#332c43");px(1,-9+legB,4,8,"#332c43");
+  px(-6,-1+legA,5,2,"#b99c70");px(1,-1+legB,5,2,"#b99c70");
+  px(-5,-25,10,9,pal.skin);px(-7,-28,14,6,"#3a254f");px(-8,-24,3,8,"#3a254f");px(5,-24,3,8,"#3a254f");
+  px(-8,-17,16,12,"#50366f");px(-10,-16+legB,3,8,"#3a254f");px(7,-16+legA,3,8,"#3a254f");
+  px(-2,-17,4,10,pal.accent);px(-2,-22,2,2,"#27202d");px(2,-22,2,2,"#27202d");
+  px(10,-23,2,24,"#9a754a");px(8,-27,6,5,"#a9f4ff");px(9,-26,4,3,"#eaffff");
+ }else if(p.kind===3){
+  // SCI-FI: armored robot, luminous visor, antenna and mechanical limbs.
+  px(-6,-9+legA,5,8,"#4c596b");px(2,-9+legB,5,8,"#4c596b");
+  px(-7,-1+legA,6,2,"#a5c8d8");px(2,-1+legB,6,2,"#a5c8d8");
+  px(-6,-26,12,11,"#8296a9");px(-5,-24,10,5,"#1c3447");px(-4,-23,3,2,"#5df5ff");px(2,-23,3,2,"#5df5ff");
+  px(-2,-29,2,4,"#8296a9");px(-3,-31,4,2,"#ff6d9c");
+  px(-8,-16,16,10,"#566c82");px(-10,-15+legB,3,7,"#8296a9");px(7,-15+legA,3,7,"#8296a9");
+  px(-4,-14,8,3,"#5df5ff");px(-2,-10,4,2,"#d4faff");
+ }else{
+  const vv=p.variant||0;
+  if(p.kind===4){
+   // NINJA: dark suit, masked face, headband with fluttering tails and a katana on the back.
+   const dk="#262c3a";
+   px(-5,-9+legA,4,8,dk);px(1,-9+legB,4,8,dk);px(-6,-1+legA,5,2,"#11151c");px(1,-1+legB,5,2,"#11151c");
+   px(-6,-17,12,9,dk);px(-6,-11,12,2,pal.accent);px(-8,-16+legB,3,7,dk);px(5,-16+legA,3,7,dk);
+   px(-5,-25,10,9,dk);px(-4,-22,8,3,pal.skin);px(-3,-21,2,1,"#111");px(1,-21,2,1,"#111");
+   px(-5,-24,10,2,pal.accent);px(-9,-24+(stride>0?1:0),4,2,pal.accent);px(-12,-22+(stride>0?0:1),3,2,pal.accent);
+   px(6,-27,1,17,"#cfd8dc");px(5,-12,3,2,"#6b4a2b");
+   if(vv===1){px(-6,-17,12,2,"#e5484d");px(-9,-16,3,4,"#e5484d")}else if(vv===2){px(8,-13,3,3,"#b0bec5")}else if(vv===3){px(-8,-28,16,3,"#d9b46a");px(-5,-30,10,2,"#d9b46a")}
+  }else if(p.kind===5){
+   // ASTRONAUT: white suit, round helmet with a visor, backpack and antenna.
+   const suit="#f2f6f8",gray="#7d8b99";
+   px(-5,-9+legA,4,8,suit);px(1,-9+legB,4,8,suit);px(-6,-1+legA,5,2,gray);px(1,-1+legB,5,2,gray);
+   px(-9,-17,4,10,"#aab7c4");px(-6,-17,12,9,suit);px(-3,-14,6,3,pal.accent);px(-2,-13,1,1,"#ff5d5d");px(1,-13,1,1,"#5dff9a");
+   px(-8,-16+legB,3,7,suit);px(5,-16+legA,3,7,suit);px(-8,-10+legB,3,2,gray);px(5,-10+legA,3,2,gray);
+   px(-6,-30,12,14,suit);px(-7,-28,14,10,suit);px(-5,-27,10,8,vv===2?"#6b4a12":"#1d3a52");px(-4,-25,8,5,pal.skin);
+   px(-3,-24,2,2,"#fff");px(1,-24,2,2,"#fff");px(-2,-24,1,1,"#222");px(2,-24,1,1,"#222");px(-5,-27,3,2,"#8fd8ff");
+   px(0,-33,1,3,"#aab7c4");px(-1,-34,3,2,pal.accent);
+   if(vv===1){px(8,-26,1,18,"#aab7c4");px(9,-26,5,3,"#e5484d")}else if(vv===3){px(9,-31-bob,4,4,"#7be0ff");px(10,-30-bob,2,2,"#e8fbff")}
+  }else if(p.kind===6){
+   // KNIGHT: steel armor, plumed helmet, shield and sword.
+   const steel=vv===2?"#e8c14f":"#a9b4bf",dark="#7f8c99";
+   px(-5,-9+legA,4,8,dark);px(1,-9+legB,4,8,dark);px(-6,-1+legA,5,2,"#5b6672");px(1,-1+legB,5,2,"#5b6672");
+   px(-7,-17,14,10,steel);px(-2,-14,4,4,pal.shirt);px(-10,-16+legB,3,8,dark);px(7,-16+legA,3,8,dark);
+   px(-13,-17+legB,6,9,pal.shirt);px(-12,-16+legB,4,7,pal.accent);px(-11,-14+legB,2,3,pal.shirt);
+   px(9,-21+legA,2,13,"#e6edf2");px(8,-9+legA,4,2,"#c9a227");
+   px(-5,-27,10,11,steel);px(-4,-22,8,2,"#1b222a");px(-1,-32,3,5,pal.shirt);px(1,-31,4,3,pal.shirt);
+   if(vv===1){px(-7,-30,2,4,"#f3e9d2");px(5,-30,2,4,"#f3e9d2")}else if(vv===3){px(-9,-17,3,12,pal.shirt)}
+  }else if(p.kind===7){
+   // CAT STREAMER: furry head with ears, hoodie and a swishing tail.
+   const fur=["#f2a65a","#cfd4da","#4a4a52","#f5e6d3","#8b5e3c"][vv%5],sw=stride>0?1:0;
+   px(-5,-9+legA,4,8,pal.pants);px(1,-9+legB,4,8,pal.pants);px(-6,-1+legA,5,2,"#fff");px(1,-1+legB,5,2,"#fff");
+   px(6,-8,3,3,fur);px(8+sw,-12,2,5,fur);px(9+sw,-14,2,3,fur);
+   px(-6,-17,12,9,pal.shirt);px(-3,-11,6,3,pal.accent);px(-8,-16+legB,3,7,pal.shirt);px(5,-16+legA,3,7,pal.shirt);px(-8,-10+legB,3,2,fur);px(5,-10+legA,3,2,fur);
+   px(-5,-25,10,9,fur);px(-5,-29,3,4,fur);px(2,-29,3,4,fur);px(-4,-28,1,2,"#f7b6c2");px(3,-28,1,2,"#f7b6c2");
+   px(-3,-22,2,2,"#222");px(1,-22,2,2,"#222");px(-1,-19,2,1,"#f27c93");px(-8,-21,3,1,"#ffffff99");px(5,-21,3,1,"#ffffff99");
+   if(vv%2===1){px(-4,-17,8,1,"#e5484d");px(-1,-16,2,2,"#ffd43b")}
+  }else{
+   // GHOST: a floating sheet with a wobbly hem and rosy cheeks.
+   const sheet="#f4f7fb",lift=3+bob*1.2,w2=stride>0?1:0;ctx.translate(0,-lift);
+   px(-6,-22,12,16,sheet);px(-5,-26,10,5,sheet);px(-4,-27,8,1,sheet);
+   px(-6,-6+w2,3,3,sheet);px(-2,-5-w2,3,3,sheet);px(2,-6+w2,3,3,sheet);px(-9,-18+w2,3,4,sheet);px(6,-18+(1-w2),3,4,sheet);
+   px(-3,-20,2,3,"#1b1f2a");px(1,-20,2,3,"#1b1f2a");px(-1,-16,2,2,"#1b1f2a");px(-5,-17,2,1,"#ffb3c1");px(3,-17,2,1,"#ffb3c1");
+   const gv=vv%4;
+   if(gv===1){px(-6,-14,12,2,pal.shirt);px(-8,-13,3,4,pal.shirt)}else if(gv===2){px(-7,-28,14,2,"#2b1b3d");px(-4,-33,8,5,"#2b1b3d");px(-4,-29,8,1,"#8b5cf6")}else if(gv===3){px(-3,-14,6,2,"#e5484d");px(-1,-14,2,2,"#ffd43b")}
+   ctx.translate(0,lift);
+  }
+ }
+ // Random themed gear makes characters distinct even when they share a world.
+ const v=p.variant||0;
+ if(p.kind===0){
+  if(v===0){px(-7,-29,14,3,"#a36b3c");px(-2,-26,4,2,"#f4d06f");}
+  else if(v===1){px(-8,-27,16,3,"#c7d2da");px(-6,-24,3,3,"#f5f5f5");px(3,-24,3,3,"#f5f5f5");}
+  else if(v===2){px(-7,-28,14,5,"#5c3327");px(5,-26,5,3,"#5c3327");}
+  else if(v===3){px(-8,-18,3,10,"#7b4c2a");px(-10,-20,7,4,"#7b4c2a");px(-2,-18,4,4,"#e0bd78");}
+  else if(v===4){px(-8,-16,3,8,"#f1d9a5");px(6,-16,3,8,"#f1d9a5");px(-4,-20,8,2,"#f1d9a5");}
+  else{px(-8,-27,16,4,"#252525");px(-5,-23,3,2,"#65e7ff");px(2,-23,3,2,"#65e7ff");}
+ }else if(p.kind===1){
+  if(v===0){px(-7,-29,14,4,"#b7d9ed");px(-9,-26,4,5,"#b7d9ed");}
+  else if(v===1){px(-7,-28,14,4,"#7d4930");px(5,-26,5,4,"#7d4930");}
+  else if(v===2){px(-8,-24,3,9,"#d8b66c");px(6,-24,3,9,"#d8b66c");px(-2,-20,4,3,"#fff0b2");}
+  else if(v===3){px(-8,-27,16,4,"#536d9a");px(-6,-23,3,3,"#d9f1ff");px(3,-23,3,3,"#d9f1ff");}
+  else if(v===4){px(-8,-16,3,9,"#8a3f3f");px(6,-16,3,9,"#8a3f3f");px(-4,-12,8,2,"#f2d36f");}
+  else{px(-9,-29,18,3,"#e6e6e6");px(-7,-26,3,3,"#e6e6e6");px(4,-26,3,3,"#e6e6e6");}
+ }else if(p.kind===2){
+  if(v===0){px(-8,-30,16,5,"#352345");px(-10,-26,4,8,"#352345");px(7,-26,4,8,"#352345");}
+  else if(v===1){px(-8,-27,16,3,"#b88d45");px(-2,-30,4,5,"#b88d45");px(-3,-22,6,4,"#ffdc77");}
+  else if(v===2){px(-10,-20,4,10,"#7a2e48");px(7,-20,4,10,"#7a2e48");px(-2,-18,4,7,"#f1b4cf");}
+  else if(v===3){px(-8,-29,16,4,"#d4d7df");px(-6,-25,3,4,"#d4d7df");px(4,-25,3,4,"#d4d7df");}
+  else if(v===4){px(-9,-17,3,12,"#2e665e");px(7,-17,3,12,"#2e665e");px(-2,-21,4,4,"#7dffd9");}
+  else{px(-8,-28,16,5,"#222");px(-4,-23,8,2,"#ff6c6c");px(12,-28,2,28,"#e0c18a");px(10,-31,6,4,"#ffb84d");}
+ }else if(p.kind===3){
+  if(v===0){px(-9,-18,3,11,"#394c60");px(7,-18,3,11,"#394c60");px(-11,-21,4,5,"#5df5ff");}
+  else if(v===1){px(-8,-28,16,3,"#aab8c8");px(-3,-31,6,3,"#ff6d9c");px(9,-19,4,8,"#aab8c8");}
+  else if(v===2){px(-9,-16,3,10,"#a3b7cc");px(7,-16,3,10,"#a3b7cc");px(-4,-18,8,3,"#ffbf5f");}
+  else if(v===3){px(-8,-28,16,4,"#303d52");px(-6,-24,12,3,"#ff6d9c");px(-10,-16,3,7,"#303d52");}
+  else if(v===4){px(-10,-20,4,7,"#687f98");px(7,-20,4,7,"#687f98");px(-3,-13,6,3,"#ffbf5f");}
+  else{px(-8,-28,16,4,"#d5e1ed");px(-5,-24,10,2,"#5df5ff");px(-2,-32,4,3,"#5df5ff");}
+ }
+ // Accessories chosen at random on top of any character: party hat, headphones, sunglasses, santa hat, crown, flower.
+ const HEAD={0:{top:-28,eye:-21,w:6,ok:[1,2,3,4,5,6]},1:{top:-27,eye:-22,w:5,ok:[1,2,3,4,5,6]},2:{top:-28,eye:-22,w:7,ok:[1,4,5,6]},3:{top:-26,eye:-23,w:6,ok:[1,5,6]},4:{top:-25,eye:-22,w:5,ok:[1,2,4,5,6]},7:{top:-29,eye:-22,w:5,ok:[1,2,3,4,5,6]},8:{top:-30,eye:-24,w:5,ok:[1,4,5,6]}};
+ const hd=HEAD[p.kind];
+ if(hd&&hd.ok.includes(p.extra)){
+  const {top,eye,w}=hd;ctx.save();if(p.kind===8)ctx.translate(0,-3-bob*1.2);
+  if(p.extra===1){px(-3,top-2,6,2,pal.accent);px(-2,top-4,4,2,"#ff6bd6");px(-1,top-6,2,2,pal.accent);px(-1,top-8,2,2,"#fff")}
+  else if(p.extra===2){px(-w,top+1,w*2,2,"#2b2f3a");px(-w-1,eye-1,3,5,"#ff4d6d");px(w-2,eye-1,3,5,"#ff4d6d")}
+  else if(p.extra===3){px(-w+1,eye,w*2-2,2,"#101018");px(-1,eye,2,1,"#101018");px(-w+1,eye,2,1,"#5df5ff66")}
+  else if(p.extra===4){px(-w,top-1,w*2,3,"#fff");px(-w+1,top-4,w*2-3,3,"#e5484d");px(w-2,top-6,3,3,"#fff")}
+  else if(p.extra===5){px(-4,top-3,8,3,"#ffd43b");px(-4,top-5,2,2,"#ffd43b");px(-1,top-6,2,3,"#ffd43b");px(2,top-5,2,2,"#ffd43b");px(-1,top-2,2,1,"#ff4d6d")}
+  else if(p.extra===6){px(w-3,top,4,4,"#ff8fb1");px(w-2,top+1,2,2,"#ffd43b")}
+  ctx.restore();
+ }
+ ctx.restore();
+ ctx.save();ctx.font="bold 13px Arial,sans-serif";ctx.textAlign="center";ctx.textBaseline="bottom";
+ const label=p.display;const labelWidth=ctx.measureText(label).width;const icons=(p.badges||[]).map(b=>({badge:b,img:badgeImages.get(b.id+"/"+b.version)||badgeImages.get(b.id+"/1")})).filter(item=>item.img&&item.img.complete&&item.img.naturalWidth>0);const iconSize=13,gap=2,iconsWidth=icons.length?icons.length*iconSize+(icons.length-1)*gap+4:0;const tw=Math.min(labelWidth+iconsWidth,width*.4);const tx=Math.max(tw/2+3,Math.min(width-tw/2-3,x));const textX=tx+iconsWidth/2;let badgeX=textX-labelWidth/2-iconsWidth+2;for(const item of icons){ctx.drawImage(item.img,badgeX,base-38*s-12,iconSize,iconSize);badgeX+=iconSize+gap;}ctx.lineWidth=4;ctx.strokeStyle="#101014";ctx.lineJoin="round";ctx.strokeText(label,textX,base-38*s);ctx.fillStyle=p.nameColor||nameColor;ctx.fillText(label,textX,base-38*s);ctx.restore();
+ // Wrap long messages reliably, including text without spaces.
+ if(showMessages&&p.message&&Date.now()-p.messageAt<9000&&width>30&&height>30){
+  const bubbleText=p.message.slice(0,220);
+   const wordsForEmotes=bubbleText.split(/(\s+)/);
+  ctx.save();ctx.font='bold 12px Arial,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';ctx.textAlign="left";ctx.textBaseline="top";
+  const padX=8,padY=6,lineHeight=15;
+  const maxBubbleWidth=Math.min(260,width-12);
+  const maxTextWidth=Math.max(12,maxBubbleWidth-padX*2);
+  const spaceW=ctx.measureText(" ").width;
+  const tokenW=t=>{if(!showEmotes)return ctx.measureText(t).width;const core=stripEdge(t);if(core&&(emoteImages.has(core)||(bubbleMode==="emotes"&&emoteCache.has(core)))){const extra=t.length-core.length;return EMOTE_W+2+(extra?ctx.measureText(t.replace(core,"")).width:0)}return ctx.measureText(t).width};
+  const lines=[];let line="",lineW=0,truncated=false;
+  const pushLine=()=>{lines.push(line.replace(/\s+$/,""));line="";lineW=0};
+  outer:for(const t of bubbleText.split(/(\s+)/)){
+   if(!t)continue;
+   if(/^\s+$/.test(t)){if(line){line+=" ";lineW+=spaceW}continue}
+   const w=tokenW(t);
+   if(lineW+w>maxTextWidth&&line){pushLine();if(lines.length>=4){truncated=true;break}}
+   if(w>maxTextWidth){for(const ch of Array.from(t)){const cw=ctx.measureText(ch).width;if(lineW+cw>maxTextWidth&&line){pushLine();if(lines.length>=4){truncated=true;break outer}}line+=ch;lineW+=cw}}
+   else{line+=t;lineW+=w}
+  }
+  if(!truncated&&line)lines.push(line.replace(/\s+$/,""));
+  if(lines.length>4){lines.length=4;truncated=true}
+  if(!lines.length)lines.push(bubbleText.slice(0,10));
+  if(truncated){let last=lines[lines.length-1];while(last.length&&ctx.measureText(last+"…").width>maxTextWidth)last=last.slice(0,-1);lines[lines.length-1]=last+"…"}
+  const lineWidth=value=>value.split(/(\s+)/).reduce((sum,t)=>sum+(!t?0:/^\s+$/.test(t)?spaceW:tokenW(t)),0);
+  const contentWidth=Math.max(24,...lines.map(lineWidth));
+  const bw=Math.min(maxBubbleWidth,contentWidth+padX*2),bh=lines.length*lineHeight+padY*2;
+  const bx=Math.max(6,Math.min(width-bw-6,x-bw/2));
+  const by=Math.max(6,Math.min(height-bh-6,base-48*s-bh));
+  ctx.fillStyle="rgba(18,18,25,.96)";ctx.strokeStyle=(p.nameColor||nameColor)+"cc";ctx.lineWidth=1;
+  ctx.beginPath();if(typeof ctx.roundRect==="function")ctx.roundRect(bx,by,bw,bh,7);else ctx.rect(bx,by,bw,bh);ctx.fill();ctx.stroke();
+  ctx.fillStyle="#fff";
+  ctx.save();ctx.beginPath();ctx.rect(bx+1,by+1,bw-2,bh-2);ctx.clip();
+  lines.forEach((value,i)=>{
+   let cursorX=bx+padX;
+    for(const token of value.split(/(\s+)/)){
+    if(!token)continue;
+    if(/^\s+$/.test(token)){ctx.fillText(token,cursorX,by+padY+i*lineHeight);cursorX+=ctx.measureText(token).width;continue;}
+    let matchEmote=null,matchAt=-1;
+    if(showEmotes){
+     const lead=(token.match(/^[([{¿¡"'“‘]+/)||[""])[0],tail=(token.slice(lead.length).match(/[.,!?;:)}\]”’"'…]+$/)||[""])[0],core=token.slice(lead.length,token.length-tail.length);
+     for(const [cand,at] of [[core,lead.length],[token,0]]){
+      if(!cand)continue;
+      if(!emoteImages.has(cand)&&emoteLazy.has(cand)){const [u,f]=emoteLazy.get(cand);emoteLazy.delete(cand);loadEmoteImage(cand,u,f)}
+      if(emoteImages.has(cand)){matchEmote=cand;matchAt=at;break}
+     }
+    }
+    const img=matchEmote?emoteImages.get(matchEmote):null;
+    if(img&&img.complete&&img.naturalWidth>0){
+     const before=token.slice(0,matchAt),after=token.slice(matchAt+matchEmote.length);
+     if(before){ctx.fillText(before,cursorX,by+padY+i*lineHeight);cursorX+=ctx.measureText(before).width;}
+     const size=20;if(cursorX+size>bx+bw-padX+2)break;
+     ctx.drawImage(img,cursorX,by+padY+i*lineHeight-3,size,size);cursorX+=size+2;
+     if(after){ctx.fillText(after,cursorX,by+padY+i*lineHeight);cursorX+=ctx.measureText(after).width;}
+    }else if(showEmotes&&bubbleMode==="emotes"&&isEmoteToken(token)){cursorX+=EMOTE_W+2}else{ctx.fillText(token,cursorX,by+padY+i*lineHeight);cursorX+=ctx.measureText(token).width;}
+   }
+  });
+  ctx.restore();
+  const pointerX=Math.max(bx+9,Math.min(bx+bw-9,x));
+  ctx.fillStyle="rgba(18,18,25,.96)";ctx.beginPath();ctx.moveTo(pointerX-4,by+bh-1);ctx.lineTo(pointerX,Math.min(height-2,by+bh+5));ctx.lineTo(pointerX+1,by+bh-1);ctx.closePath();ctx.fill();
+  ctx.restore();
+ }
+}
+const idleMs=preview?14000:idleMinutes*60000;
+function frame(t){
+ if(!lastFrame)lastFrame=t;const dt=Math.min(40,t-lastFrame);lastFrame=t;
+ ctx.clearRect(0,0,width,height);const now=Date.now();
+ for(const [key,p] of people){
+  if(!p.leaving&&now-p.last>idleMs)p.leaving=now;
+  if(p.leaving&&now-p.leaving>FADE_OUT){people.delete(key);continue}
+  p.x+=p.vx*dt*.06;if(p.x>width-18){p.x=width-18;p.vx=-Math.abs(p.vx)}if(p.x<18){p.x=18;p.vx=Math.abs(p.vx)}
+  let alpha=1,scale=1,lift=0;
+  if(p.leaving){const u=Math.min(1,(now-p.leaving)/FADE_OUT);alpha=1-u;scale=1-.2*u;lift=-16*u*u}
+  else if(now-p.born<FADE_IN){const u=Math.max(0,(now-p.born)/FADE_IN),e=1+2.70158*Math.pow(u-1,3)+1.70158*Math.pow(u-1,2);alpha=Math.min(1,u*1.8);scale=.35+.65*e;lift=0}
+  ctx.save();ctx.globalAlpha=alpha;ctx.translate(p.x,p.y+lift);ctx.scale(scale,scale);ctx.translate(-p.x,-p.y);drawPerson(p,t);ctx.restore();
+ }
+ requestAnimationFrame(frame);
+}
+function showStatus(message){if(preview){status.textContent=message;status.hidden=false;setTimeout(()=>status.hidden=true,4500)}}
+function scheduleReconnect(){
+ if(preview||stopped)return;
+ clearTimeout(retryTimer);
+ if(socket){const old=socket;socket=null;try{old.onclose=null;old.onerror=null;old.close()}catch(_){}}
+ retryTimer=setTimeout(()=>{retryTimer=0;connect()},retryDelay+Math.floor(Math.random()*400));
+ retryDelay=Math.min(retryDelay*2,20000);
+}
+function startPreviewDemo(){
+ const emotes={Kappa:"25",LUL:"425618",PogChamp:"88",HeyGuys:"30259",BibleThump:"86",KappaPride:"55338",SeemsGood:"64138"};
+ for(const [name,id] of Object.entries(emotes))addEmote(name,"https://static-cdn.jtvnw.net/emoticons/v2/"+id+"/default/dark/2.0");
+ const names=["rueumur","homka20_","d1unizi","medverina","viewer_42","mob_nadziratel","cherrys_fox","ne_twig"];
+ const phrases=["Всем привет! Kappa","LUL это было сильно","Kappa Kappa Kappa","PogChamp","Классный стрим 💜","Погнали! HeyGuys","SeemsGood LUL","Это просто невероятно, чат, вы это видели? PogChamp","BibleThump","Залетайте в чат KappaPride"];
+ const talk=name=>addPerson(name,[],"",phrases[Math.floor(Math.random()*phrases.length)]);
+ names.slice(0,4).forEach((n,i)=>setTimeout(()=>talk(n),i*450));
+ setInterval(()=>talk(names[Math.floor(Math.random()*names.length)]),2200);
+}
+function connect(){
+ if(preview){startPreviewDemo();return}
+ if(stopped||!(/^[a-z0-9_]{1,25}$/.test(channel)))return;
+ if(socket&&(socket.readyState===WebSocket.OPEN||socket.readyState===WebSocket.CONNECTING))return;
+ clearTimeout(retryTimer);retryTimer=0;
+ let ws;
+ try{ws=new WebSocket("wss://irc-ws.chat.twitch.tv:443");socket=ws;connectTimer=Date.now()}catch(_){scheduleReconnect();return}
+ ws.onopen=()=>{
+  if(socket!==ws)return;
+  retryDelay=1000;lastSocketActivity=Date.now();
+  try{ws.send("CAP REQ :twitch.tv/tags twitch.tv/commands");ws.send("PASS SCHMOOPIIE");ws.send("NICK justinfan"+Math.floor(Math.random()*900000+100000));ws.send("JOIN #"+channel)}
+  catch(_){scheduleReconnect()}
+ };
+ ws.onmessage=e=>{
+  if(socket!==ws)return;
+  lastSocketActivity=Date.now();
+  for(const line of String(e.data||"").split(/\r\n/)){
+   if(!line)continue;
+   if(line.startsWith("PING")){try{ws.send("PONG :"+line.slice(5).trim())}catch(_){scheduleReconnect()}continue}
+   if(/ RECONNECT\s*$/.test(line)){scheduleReconnect();break}
+   const tagPart=line.startsWith("@")?line.slice(1,line.indexOf(" ")).split(";"):[];
+   const tags=Object.fromEntries(tagPart.map(x=>{const i=x.indexOf("=");return i<0?[x,""]:[x.slice(0,i),x.slice(i+1)]}));
+   const match=line.match(/:([a-zA-Z0-9_]{1,25})![^ ]+ PRIVMSG #\S+ :(.*)$/);
+   if(match){const text=match[2].replace(/[\r\n\t]/g," ");nativeEmotesFromTag(tags.emotes||"",text);addPerson(match[1],(tags.badges||"").split(",").filter(Boolean),tags["user-type"]||"",text)}
+  }
+ };
+ ws.onerror=()=>{if(socket===ws)scheduleReconnect()};
+ ws.onclose=()=>{if(socket===ws){socket=null;scheduleReconnect()}};
+}
+let lastPingAt=0;
+watchdogTimer=setInterval(()=>{
+ if(stopped||preview)return;
+ const now=Date.now();
+ if(socket?.readyState===WebSocket.OPEN){
+  if(now-lastPingAt>60000){lastPingAt=now;try{socket.send("PING :tmi.twitch.tv")}catch(_){}}
+  if(lastSocketActivity&&now-lastSocketActivity>150000)scheduleReconnect();
+ }
+ else if(socket?.readyState===WebSocket.CONNECTING&&connectTimer&&now-connectTimer>20000)scheduleReconnect();
+ else if(!socket&&!retryTimer)connect();
+},15000);
+window.addEventListener("online",()=>{if(!stopped&&!preview&&(!socket||socket.readyState>1))connect()});
+
+window.addEventListener("resize",resize);resize();loadTwitchBadges();loadChatEmotes();connect();requestAnimationFrame(frame);
+window.addEventListener("beforeunload",()=>{stopped=true;clearTimeout(retryTimer);clearInterval(watchdogTimer);if(socket)socket.close()});
+})();
+</script>
+</body>
+</html>

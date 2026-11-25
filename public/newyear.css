@@ -1,0 +1,160 @@
+/* ===== НОВОГОДНЯЯ ТЕМА · общая для всех разделов сайта ===== */
+html:root:root:not([data-theme="light"]){
+ --bg:#091426;--panel:#10233d;--panel2:#173152;--text:#f5f9ff;--muted:#a9bdd6;
+ --accent:#ff5468;--accent2:#ffd36b;--green:#35c47c;--ice:#8fd8ff;
+ --line:rgba(160,205,255,.24);--border:rgba(160,205,255,.24);--surface:#10233d;--on-accent:#fff;--glow:rgba(255,84,104,.18);
+ --sky1:#12305a;--sky2:#091426;color-scheme:dark}
+html[data-theme="light"]:root:root{
+ --bg:#eaf4fb;--panel:#ffffff;--panel2:#dcecf7;--text:#12304a;--muted:#52708a;
+ --accent:#d1243a;--accent2:#e3a21a;--green:#16844f;--ice:#2b8fc4;
+ --line:rgba(34,90,130,.25);--border:rgba(34,90,130,.25);--surface:#fff;--on-accent:#fff;--glow:rgba(209,36,58,.14);
+ --sky1:#cfe7f7;--sky2:#eaf4fb;color-scheme:light}
+html:root:root{--f-head:"Unbounded","Arial Black",Impact,sans-serif;--f-body:"Manrope",Inter,ui-sans-serif,system-ui,sans-serif;background:var(--bg)!important}
+
+/* фон: ночное небо и сугробы-звёзды */
+html:root:root:root body{font-family:var(--f-body)!important;color:var(--text)!important;background-color:var(--bg)!important;background-attachment:fixed!important;
+ background-image:radial-gradient(1.5px 1.5px at 12% 18%,rgba(255,255,255,.85),transparent 60%),radial-gradient(1.5px 1.5px at 78% 12%,rgba(255,255,255,.7),transparent 60%),radial-gradient(2px 2px at 40% 34%,rgba(255,236,170,.8),transparent 60%),radial-gradient(1.5px 1.5px at 90% 48%,rgba(255,255,255,.6),transparent 60%),radial-gradient(1.5px 1.5px at 22% 62%,rgba(255,255,255,.55),transparent 60%),radial-gradient(ellipse 80% 60% at 50% -10%,var(--sky1),transparent 70%)!important;background-repeat:no-repeat!important}
+html:root:root:root body:before,#winter-snow-layer,.winter-flake{display:none!important}
+html:root:root:root body ::selection{background:var(--accent);color:#fff}
+
+/* шапка с гирляндой */
+html:root:root:root body header,html:root:root:root body .site-header{position:sticky;background:color-mix(in srgb,var(--bg) 88%,transparent)!important;backdrop-filter:blur(10px)!important;border-bottom:2px solid var(--line)!important;box-shadow:none!important}
+html:root:root:root body header::after{content:"";position:absolute;left:0;right:0;bottom:-15px;height:14px;pointer-events:none;z-index:5;
+ background:radial-gradient(circle at 10px 9px,var(--accent) 0 4px,transparent 5px) 0 0/80px 14px repeat-x,radial-gradient(circle at 30px 9px,var(--accent2) 0 4px,transparent 5px) 0 0/80px 14px repeat-x,radial-gradient(circle at 50px 9px,var(--green) 0 4px,transparent 5px) 0 0/80px 14px repeat-x,radial-gradient(circle at 70px 9px,var(--ice) 0 4px,transparent 5px) 0 0/80px 14px repeat-x;animation:ny-lights 1.6s steps(2,end) infinite}
+html:root:root:root body header::before{content:"";position:absolute;left:0;right:0;bottom:-4px;height:6px;pointer-events:none;z-index:4;border-bottom:2px solid rgba(120,140,160,.55);border-radius:0 0 50% 50%/0 0 100% 100%}
+@keyframes ny-lights{50%{filter:brightness(.55) saturate(.8)}}
+html:root:root:root body .brand,html:root:root:root body .logo-text{color:var(--text)!important;font-family:var(--f-body)!important}
+html:root:root:root body .brand-top,html:root:root:root body .brand-bottom{color:var(--muted)!important}
+html:root:root:root body .brand-main{color:var(--text)!important}
+html:root:root:root body .brand-main span:first-child,html:root:root:root body #brandMainLead{color:var(--accent)!important}
+html:root:root:root body .logo{position:relative;overflow:visible!important;background:linear-gradient(135deg,var(--accent),#a8142b)!important;color:#fff!important;border:2px solid var(--accent2)!important;border-radius:12px!important;box-shadow:0 0 18px var(--glow)!important}
+html:root:root:root body .logo::before{content:"";position:absolute;left:-7px;top:-13px;width:30px;height:17px;background:radial-gradient(circle at 90% 10%,#fff 0 3.5px,transparent 4.5px),linear-gradient(#e0263f,#b51428);border-radius:16px 16px 2px 2px;border-bottom:5px solid #fff;transform:rotate(-14deg);z-index:3;box-shadow:0 1px 3px #0005}
+html:root:root:root body .navtag,html:root:root:root body .site-switch,html:root:root:root body .theme-toggle{background:var(--panel)!important;color:var(--text)!important;border:1.5px solid var(--line)!important;border-radius:999px!important;box-shadow:none!important}
+html:root:root:root body .site-switch a{border-radius:999px!important;color:var(--muted)!important;font-weight:800!important}
+html:root:root:root body .site-switch a:hover{color:var(--text)!important;background:var(--panel2)!important}
+html:root:root:root body .site-switch a.current{background:var(--accent)!important;color:#fff!important}
+html:root:root:root body .theme-toggle:hover{border-color:var(--accent2)!important;box-shadow:0 0 14px var(--glow)!important}
+
+/* заголовок */
+html:root:root:root body .hero{background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;margin:0!important;padding:58px 0 24px!important;max-width:880px!important}
+html:root:root:root body .hero::before,html:root:root:root body .hero::after{display:none!important}
+html:root:root:root body h1{font-family:var(--f-head)!important;font-weight:800!important;text-transform:uppercase;letter-spacing:-.04em!important;line-height:1.1!important;font-size:clamp(28px,6vw,62px)!important;color:var(--text)!important;overflow-wrap:anywhere}
+html:root:root:root body h1 span,html:root:root:root body .hero h1 span{display:inline-block;position:relative;background:linear-gradient(135deg,var(--accent),#a8142b)!important;color:#fff!important;-webkit-text-fill-color:#fff!important;padding:.03em .24em .08em;border-radius:14px;box-shadow:0 8px 30px var(--glow),inset 0 4px 0 rgba(255,255,255,.55);transform:rotate(-1.2deg)}
+html:root:root:root body .eyebrow,html:root:root:root body .category-title span{color:var(--accent2)!important}
+html:root:root:root body .lead{color:var(--muted)!important;font-weight:600;font-size:clamp(15px,1.6vw,18px)!important;max-width:580px!important}
+.ny-countdown{display:inline-flex;align-items:center;gap:10px;margin-top:20px;padding:9px 16px;border:1.5px solid var(--accent2);border-radius:999px;background:color-mix(in srgb,var(--panel) 85%,transparent);color:var(--text);font:800 13px/1.2 var(--f-body);box-shadow:0 0 22px rgba(255,211,107,.18)}
+.ny-countdown b{font-family:var(--f-head);color:var(--accent2);font-size:15px;letter-spacing:-.02em}
+.ny-countdown .ny-ico{font-size:18px}
+
+/* вкладки / кнопки / поля */
+html:root:root:root body .tabs,html:root:root:root body .widget-tabs{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;gap:10px!important;width:auto!important;margin:8px 0 26px!important}
+html:root:root:root body .tab-button{background:var(--panel)!important;color:var(--text)!important;border:1.5px solid var(--line)!important;border-radius:999px!important;font-weight:800!important;box-shadow:none!important;padding:12px 20px!important;transition:transform .15s,background .15s,box-shadow .15s!important}
+html:root:root:root body .tab-button:hover{background:var(--panel2)!important;border-color:var(--accent2)!important;transform:translateY(-2px)!important}
+html:root:root:root body .tab-button.active,html:root:root:root body .tab-button[aria-selected="true"]{background:linear-gradient(135deg,var(--accent),#a8142b)!important;color:#fff!important;border-color:var(--accent2)!important;box-shadow:0 6px 22px var(--glow)!important}
+html:root:root:root body .count{background:none!important;border:0!important;color:var(--muted)!important;padding:0!important}
+html:root:root:root body .count strong{color:var(--accent2)!important;font-family:var(--f-head);font-size:19px!important}
+html:root:root:root body input,html:root:root:root body textarea,html:root:root:root body select,html:root:root:root body .search input,html:root:root:root body .clip-streamer-picker{background:var(--panel)!important;color:var(--text)!important;border:1.5px solid var(--line)!important;border-radius:14px!important;box-shadow:none!important;font-family:var(--f-body)!important}
+html:root:root:root body input:focus,html:root:root:root body textarea:focus,html:root:root:root body select:focus{outline:none!important;border-color:var(--accent2)!important;box-shadow:0 0 0 3px rgba(255,211,107,.22)!important}
+html:root:root:root body input[type=checkbox],html:root:root:root body input[type=radio],html:root:root:root body input[type=range],html:root:root:root body input[type=color]{accent-color:var(--accent)}
+html:root:root:root body .random-streamer-button,html:root:root:root body .refresh-clips,html:root:root:root body .primary,html:root:root:root body .submit,html:root:root:root body .cta,html:root:root:root body .music-button,html:root:root:root body .chat-action{background:linear-gradient(135deg,var(--accent),#a8142b)!important;color:#fff!important;border:1.5px solid var(--accent2)!important;border-radius:999px!important;font-weight:800!important;box-shadow:0 6px 20px var(--glow)!important;transition:transform .15s,box-shadow .15s!important}
+html:root:root:root body .random-streamer-button:hover,html:root:root:root body .refresh-clips:hover,html:root:root:root body .primary:hover,html:root:root:root body .submit:hover,html:root:root:root body .cta:hover,html:root:root:root body .music-button:hover,html:root:root:root body .chat-action:hover{transform:translateY(-2px)!important;box-shadow:0 10px 28px var(--glow)!important}
+html:root:root:root body .chat-secondary{background:var(--panel)!important;color:var(--text)!important;border:1.5px solid var(--line)!important;box-shadow:none!important}
+
+/* заголовки секций */
+html:root:root:root body .category-title,html:root:root:root body h2{font-family:var(--f-head);font-weight:800!important;letter-spacing:-.03em!important;color:var(--text)!important}
+html:root:root:root body .category-title{font-size:clamp(17px,2.4vw,24px)!important;text-transform:uppercase;display:flex;align-items:center;gap:12px;margin-bottom:18px!important}
+html:root:root:root body .category-title::before{content:"❄";color:var(--ice);font-size:.9em}
+html:root:root:root body .category-title::after{content:"";flex:1;height:2px;min-width:20px;background:repeating-linear-gradient(90deg,var(--accent) 0 12px,#fff 12px 24px);opacity:.75;border-radius:2px}
+html:root:root:root body .grid{gap:16px!important}
+
+/* карточки — со снежной шапкой */
+html:root:root:root body .streamer,html:root:root:root body .clip-card,html:root:root:root body .profile-card,html:root:root:root body .pack,html:root:root:root body .special,html:root:root:root body .game-card,html:root:root:root body .clip-modal-dialog,html:root:root:root body .panel,html:root:root:root body .chat-panel,html:root:root:root body .city-widget-panel,html:root:root:root body .music-card,html:root:root:root body .banner,html:root:root:root body .chat-preview,html:root:root:root body .city-settings{background:linear-gradient(180deg,color-mix(in srgb,var(--panel2) 55%,var(--panel)),var(--panel))!important;border:1.5px solid var(--line)!important;border-radius:20px!important;color:var(--text)!important;box-shadow:inset 0 4px 0 rgba(255,255,255,.88),0 10px 30px rgba(0,0,0,.18)!important;backdrop-filter:none!important}
+html:root:root:root body .streamer:hover,html:root:root:root body .clip-card:hover,html:root:root:root body .pack:hover,html:root:root:root body .special:hover,html:root:root:root body .game-card:hover,html:root:root:root body .music-card:hover{border-color:var(--accent2)!important;transform:translateY(-4px)!important;box-shadow:inset 0 4px 0 rgba(255,255,255,.95),0 16px 36px rgba(0,0,0,.25),0 0 26px var(--glow)!important}
+html:root:root:root body .avatar,html:root:root:root body .clip-modal-author-avatar,html:root:root:root body .profile-avatar{background:var(--panel2)!important;border:2px solid var(--accent2)!important;box-shadow:0 0 14px rgba(255,211,107,.25)!important}
+html:root:root:root body .profile-avatar{border-radius:50%!important}
+html:root:root:root body .name,html:root:root:root body .profile-name,html:root:root:root body .pack h2,html:root:root:root body .special h3{font-family:var(--f-body)!important;font-weight:900!important;color:var(--text)!important}
+html:root:root:root body .handle,html:root:root:root body .card-description,html:root:root:root body .stream-meta,html:root:root:root body .moderates,html:root:root:root body .desc,html:root:root:root body .muted{color:var(--muted)!important}
+html:root:root:root body .arrow{color:var(--accent2)!important}
+html:root:root:root body .live-status.is-live{background:var(--accent)!important;color:#fff!important;padding:3px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.06em;box-shadow:0 0 14px var(--glow)}
+html:root:root:root body .live-status.is-live::before{background:#fff!important;box-shadow:0 0 8px #fff!important}
+html:root:root:root body .card-social-icon,html:root:root:root body .profile-social-icon{border:1.5px solid var(--line)!important;border-radius:9px!important}
+html:root:root:root body .collab-badge-wrap{background:color-mix(in srgb,var(--green) 12%,var(--panel))!important;border:1.5px dashed var(--green)!important;border-radius:14px!important}
+html:root:root:root body .clip-thumb{background:var(--panel2)!important}
+html:root:root:root body .clip-author,html:root:root:root body .clip-modal-author{color:var(--accent2)!important}
+html:root:root:root body .profile-social-link{background:var(--panel2)!important;color:var(--text)!important;border:1.5px solid var(--line)!important;border-radius:999px!important}
+html:root:root:root body .profile-social-link:hover{border-color:var(--accent2)!important;background:var(--panel)!important}
+html:root:root:root body .profile-back,html:root:root:root body .clip-modal-close{background:var(--accent)!important;color:#fff!important;border:1.5px solid var(--accent2)!important;border-radius:999px!important}
+html:root:root:root body .city-placeholder,html:root:root:root body .empty,html:root:root:root body #gameInfo,html:root:root:root body .game-info,html:root:root:root body .description-panel{background:var(--panel)!important;border:1.5px dashed var(--ice)!important;border-radius:20px!important;color:var(--text)!important;text-shadow:none!important;box-shadow:none!important}
+html:root:root:root body .back-to-top{background:var(--accent)!important;color:#fff!important;border:1.5px solid var(--accent2)!important;border-radius:999px!important;box-shadow:0 6px 20px var(--glow)!important}
+
+/* стена */
+html:root:root:root body .wall-mural{border:3px solid var(--accent2)!important;border-radius:22px!important;box-shadow:inset 0 6px 0 rgba(255,255,255,.7),0 0 34px rgba(255,211,107,.2)!important}
+html:root:root:root body .wall-contact-note{color:var(--muted)!important}html:root:root:root body .wall-contact-note a{color:var(--accent2)!important}
+
+/* подвал, сугроб и бегущая плашка эфиров */
+html:root:root:root body footer{border-top:2px dashed var(--line)!important;color:var(--muted)!important;font-weight:700;padding-bottom:64px!important}
+html:root:root:root body footer b{color:var(--text)!important}
+html:root:root:root body #winter-snowdrift{display:block!important;height:36px!important;background:linear-gradient(180deg,#d1243a,#9d1228)!important;border-top:3px solid #fff!important;filter:none!important;opacity:1!important;box-shadow:0 -6px 24px rgba(209,36,58,.35)}
+html:root:root:root body #winter-live-ticker{color:#fff!important;font-family:var(--f-body)!important}
+html:root:root:root body .winter-ticker-label{color:#ffe7a0!important}
+html:root:root:root body .winter-ticker-link{color:#fff!important}
+html:root:root:root body .winter-ticker-link:hover{color:#ffe7a0!important}
+html:root:root:root body .winter-ticker-names small,html:root:root:root body .winter-ticker-separator{color:#ffd0d6!important}
+html:root:root:root body button:focus-visible,html:root:root:root body a:focus-visible{outline:3px solid var(--accent2)!important;outline-offset:3px!important}
+
+/* снег */
+#ny-snow{position:fixed;inset:0;width:100%;height:100%;z-index:9980;pointer-events:none}
+@media(max-width:680px){html:root:root:root body .hero{padding-top:34px!important}html:root:root:root body header::after{height:11px}}
+@media(prefers-reduced-motion:reduce){html:root:root:root body header::after{animation:none!important}}
+html:root:root:root body .cta{border-radius:20px!important;padding:18px 22px!important;display:block}
+html:root:root:root body .cta,html:root:root:root body .cta *{color:#fff!important}
+html:root:root:root body .cta a{color:#ffe7a0!important;text-decoration:underline}
+html:root:root:root body .cta strong,html:root:root:root body .cta b{color:#fff!important}
+html:root:root:root body div.submit{border-radius:20px!important;padding:18px 22px!important;display:block}
+html:root:root:root body div.submit,html:root:root:root body div.submit *{color:#fff!important}
+html:root:root:root body div.submit a{color:#ffe7a0!important;text-decoration:underline}
+
+/* ===== Чуть грубее: острее углы, плотные рамки, жёсткие тени вместо свечения ===== */
+html:root:root:not([data-theme="light"]){--line:rgba(160,205,255,.45);--border:rgba(160,205,255,.45);--hard:rgba(0,0,0,.6);--glow:rgba(0,0,0,0)}
+html[data-theme="light"]:root:root{--line:rgba(18,48,74,.6);--border:rgba(18,48,74,.6);--hard:rgba(18,48,74,.4);--glow:rgba(0,0,0,0)}
+
+/* углы: таблетки и «пузыри» -> небольшое скругление */
+html:root:root:root body .navtag,html:root:root:root body .theme-toggle,html:root:root:root body .tab-button,html:root:root:root body .random-streamer-button,html:root:root:root body .refresh-clips,html:root:root:root body .primary,html:root:root:root body .music-button,html:root:root:root body .chat-action,html:root:root:root body .chat-secondary,html:root:root:root body .profile-social-link,html:root:root:root body .profile-back,html:root:root:root body .clip-modal-close,html:root:root:root body .back-to-top,html:root:root:root body .live-status.is-live,html:root:root:root body .ny-countdown{border-radius:7px!important}
+html:root:root:root body .site-switch{border-radius:9px!important}
+html:root:root:root body .site-switch a{border-radius:6px!important}
+html:root:root:root body .logo{border-radius:8px!important}
+html:root:root:root body input,html:root:root:root body textarea,html:root:root:root body select,html:root:root:root body .search input,html:root:root:root body .clip-streamer-picker{border-radius:7px!important}
+html:root:root:root body h1 span,html:root:root:root body .hero h1 span{border-radius:5px!important}
+html:root:root:root body .avatar,html:root:root:root body .clip-modal-author-avatar{border-radius:9px!important}
+html:root:root:root body .card-social-icon,html:root:root:root body .profile-social-icon{border-radius:6px!important}
+html:root:root:root body .collab-badge-wrap{border-radius:8px!important}
+
+/* карточки и панели: прямее, с жёсткой тенью */
+html:root:root:root body .streamer,html:root:root:root body .clip-card,html:root:root:root body .profile-card,html:root:root:root body .pack,html:root:root:root body .special,html:root:root:root body .game-card,html:root:root:root body .clip-modal-dialog,html:root:root:root body .panel,html:root:root:root body .chat-panel,html:root:root:root body .city-widget-panel,html:root:root:root body .music-card,html:root:root:root body .banner,html:root:root:root body .chat-preview,html:root:root:root body .city-settings{border:2px solid var(--line)!important;border-radius:10px!important;box-shadow:inset 0 3px 0 rgba(255,255,255,.85),5px 5px 0 var(--hard)!important}
+html:root:root:root body .streamer:hover,html:root:root:root body .clip-card:hover,html:root:root:root body .pack:hover,html:root:root:root body .special:hover,html:root:root:root body .game-card:hover,html:root:root:root body .music-card:hover{border-color:var(--accent2)!important;transform:translate(-3px,-3px)!important;box-shadow:inset 0 3px 0 rgba(255,255,255,.95),8px 8px 0 var(--accent)!important}
+html:root:root:root body .city-placeholder,html:root:root:root body .empty,html:root:root:root body #gameInfo,html:root:root:root body .game-info,html:root:root:root body .description-panel,html:root:root:root body div.submit,html:root:root:root body .cta{border-radius:10px!important}
+html:root:root:root body .wall-mural{border-radius:10px!important;box-shadow:inset 0 4px 0 rgba(255,255,255,.7),6px 6px 0 var(--hard)!important}
+
+/* кнопки и вкладки: плоская заливка, жёсткая тень, чуть плотнее шрифт */
+html:root:root:root body .tab-button,html:root:root:root body .random-streamer-button,html:root:root:root body .refresh-clips,html:root:root:root body .primary,html:root:root:root body .music-button,html:root:root:root body .chat-action{border-width:2px!important;box-shadow:3px 3px 0 var(--hard)!important;font-weight:900!important;letter-spacing:.03em}
+html:root:root:root body .random-streamer-button,html:root:root:root body .refresh-clips,html:root:root:root body .primary,html:root:root:root body .music-button,html:root:root:root body .chat-action,html:root:root:root body .tab-button.active,html:root:root:root body .tab-button[aria-selected="true"],html:root:root:root body .site-switch a.current,html:root:root:root body .profile-back,html:root:root:root body .clip-modal-close,html:root:root:root body .back-to-top,html:root:root:root body .live-status.is-live{background:var(--accent)!important;box-shadow:3px 3px 0 var(--hard)}
+html:root:root:root body .tab-button.active,html:root:root:root body .tab-button[aria-selected="true"]{transform:translate(2px,2px)!important;box-shadow:1px 1px 0 var(--hard)!important}
+html:root:root:root body .tab-button:hover,html:root:root:root body .random-streamer-button:hover,html:root:root:root body .refresh-clips:hover,html:root:root:root body .primary:hover,html:root:root:root body .music-button:hover,html:root:root:root body .chat-action:hover{transform:translate(-2px,-2px)!important;box-shadow:5px 5px 0 var(--hard)!important}
+html:root:root:root body .navtag,html:root:root:root body .site-switch,html:root:root:root body .theme-toggle{border-width:2px!important;box-shadow:3px 3px 0 var(--hard)!important}
+html:root:root:root body .theme-toggle:hover{transform:translate(-2px,-2px)!important;box-shadow:5px 5px 0 var(--hard)!important}
+html:root:root:root body input,html:root:root:root body textarea,html:root:root:root body select,html:root:root:root body .search input{border-width:2px!important}
+html:root:root:root body input:focus,html:root:root:root body textarea:focus,html:root:root:root body select:focus{box-shadow:4px 4px 0 var(--accent2)!important}
+html:root:root:root body input[type=checkbox],html:root:root:root body input[type=radio],html:root:root:root body input[type=range],html:root:root:root body input[type=color]{box-shadow:none!important}
+
+/* заголовок и шапка: без свечения */
+html:root:root:root body h1 span,html:root:root:root body .hero h1 span{box-shadow:5px 5px 0 var(--hard),inset 0 3px 0 rgba(255,255,255,.45)!important;border:2px solid rgba(0,0,0,.35)}
+html:root:root:root body h1{letter-spacing:-.05em!important}
+html:root:root:root body header,html:root:root:root body .site-header{border-bottom-width:3px!important;backdrop-filter:none!important;background:var(--bg)!important}
+html:root:root:root body .ny-countdown{border-width:2px;box-shadow:3px 3px 0 var(--hard)!important}
+html:root:root:root body .avatar,html:root:root:root body .profile-avatar{box-shadow:none!important}
+html:root:root:root body .category-title{border-bottom:2px solid var(--line);padding-bottom:8px}
+html:root:root:root body .category-title::after{display:none!important}
+html:root:root:root body #winter-snowdrift{box-shadow:none!important;border-top-width:4px!important}
+
+/* зернистость поверх фона — едва заметная «шероховатость» */
+html::before{content:"";position:fixed;inset:0;z-index:9970;pointer-events:none;opacity:.09;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}

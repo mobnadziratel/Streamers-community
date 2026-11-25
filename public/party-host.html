@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b1726">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
+<title>Экран ведущего</title>
+<link rel="stylesheet" href="/party-theme.css">
+<style>
+:root{color-scheme:dark;--bg:#0b1726;--line:rgba(164,218,239,.22);--text:#edf7ff;--muted:#a9bfd0;--accent:#8ce2f2;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden}
+body{background:radial-gradient(ellipse at 50% -10%,#1d4560,transparent 55%),var(--bg);color:var(--text);display:flex;flex-direction:column}
+#stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2vh;padding:3vh 4vw;text-align:center;min-height:0}
+h1{margin:0;font-size:clamp(28px,5vw,64px);letter-spacing:-.03em;line-height:1.1}h1 span{color:var(--accent)}
+p{margin:0;color:var(--muted);font-size:clamp(15px,2vw,26px)}
+.code{font-size:clamp(70px,16vw,200px);font-weight:900;letter-spacing:.12em;color:var(--accent);line-height:1;text-shadow:0 0 60px rgba(140,226,242,.35)}
+.url{font-size:clamp(18px,2.6vw,34px);font-weight:800}
+.players{display:flex;flex-wrap:wrap;gap:1.4vh 1.6vw;justify-content:center;max-width:1100px}
+.chip{display:flex;align-items:center;gap:10px;padding:8px 18px 8px 8px;border-radius:999px;border:1px solid var(--line);background:rgba(20,46,67,.8);font-size:clamp(16px,2vw,26px);font-weight:800;animation:pop .35s cubic-bezier(.2,1.6,.4,1)}
+.chip.done{border-color:#69db7c;box-shadow:0 0 20px rgba(105,219,124,.25)}.chip small{color:#69db7c;font-size:.9em}
+.dot{display:inline-grid;place-items:center;width:2.2em;height:2.2em;border-radius:50%;color:#10202e;font-weight:900}.dot.off{opacity:.4}
+.timer{position:absolute;top:2vh;right:3vw;font-size:clamp(30px,5vw,72px);font-weight:900;color:var(--accent)}
+.prompt{font-size:clamp(26px,4.6vw,62px);font-weight:900;line-height:1.15;max-width:1200px}
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:2.5vw;width:min(1300px,100%)}
+.card{padding:3vh 2vw;border-radius:24px;border:2px solid var(--line);background:linear-gradient(145deg,rgba(20,46,67,.96),rgba(13,29,46,.96));font-size:clamp(20px,3.2vw,44px);font-weight:800;line-height:1.2;overflow-wrap:anywhere;animation:pop .4s cubic-bezier(.2,1.5,.4,1)}
+.card.win{border-color:#ffd43b;box-shadow:0 0 60px rgba(255,212,59,.3);transform:scale(1.04)}
+.card small{display:block;margin-top:1.4vh;font-size:.5em;color:var(--muted)}.card b{display:block;font-size:.8em;color:var(--accent);margin-top:.6vh}
+.bonus{font-size:clamp(30px,6vw,90px);font-weight:900;color:#ffd43b;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+.bars{display:flex;flex-direction:column;gap:1.2vh;width:min(900px,100%)}
+.bar{display:flex;align-items:center;gap:14px;font-size:clamp(16px,2.4vw,32px);font-weight:800}
+.bar .name{width:12ch;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .track{flex:1;background:rgba(255,255,255,.07);border-radius:12px;overflow:hidden;height:1.7em}.bar .fill{height:100%;transition:width 1s cubic-bezier(.2,.8,.2,1);border-radius:12px}
+.bar .pts{width:5ch;text-align:right}
+#bar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:10px;border-top:1px solid var(--line);background:rgba(8,18,30,.8)}
+body.clean #bar{display:none}
+button{font:inherit;font-weight:850;font-size:15px;border:1px solid var(--line);border-radius:12px;padding:10px 18px;cursor:pointer;color:var(--text);background:#17344c}
+button.main{background:linear-gradient(135deg,#8ce5f3,#4daac8);color:#082032;border:0;font-size:18px;padding:12px 26px}button:disabled{opacity:.4}
+.kick{margin-left:4px;background:none;border:0;color:var(--muted);padding:0 4px;font-size:18px}
+.err{color:#ff9aa6;font-weight:700}
+.logo{font-size:clamp(60px,9vw,120px);filter:drop-shadow(0 8px 30px rgba(140,226,242,.45));animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px) rotate(-5deg)}}
+.modes{display:flex;gap:2vw;justify-content:center;flex-wrap:wrap}
+.mode{display:flex;flex-direction:column;align-items:center;gap:6px;width:min(270px,29vw);padding:2.2vh 1.4vw;border-radius:22px;border:2px solid var(--line);background:rgba(20,46,67,.7);color:var(--text);transition:transform .15s,border-color .15s}
+.mode .ico{font-size:clamp(34px,4vw,56px)}.mode b{font-size:clamp(20px,2.4vw,32px)}.mode small{color:var(--muted);font-size:clamp(12px,1.3vw,17px);font-weight:600;line-height:1.35}
+.mode.on{border-color:var(--accent);background:rgba(34,86,116,.8);transform:scale(1.04);box-shadow:0 0 40px rgba(140,226,242,.2)}
+.rounds{display:flex;align-items:center;gap:10px}.rounds p{font-size:clamp(15px,1.8vw,22px)}.rn{width:48px;height:48px;border-radius:14px;font-size:20px;padding:0}.rn.on{background:linear-gradient(135deg,#8ce5f3,#4daac8);color:#082032;border:0}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:1.6vw;width:min(1300px,100%)}.opts .card{font-size:clamp(18px,2.6vw,36px);padding:2vh 1.4vw}
+.card.truth{border-color:#69db7c;box-shadow:0 0 50px rgba(105,219,124,.3)}
+.awards{display:flex;flex-wrap:wrap;gap:12px 22px;justify-content:center;max-width:1100px;font-size:clamp(14px,1.7vw,24px);font-weight:800}
+.awards span{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(20,46,67,.7)}
+.dot{font-size:1.15em}
+.art{width:min(44vh,42vw);height:min(44vh,42vw);border-radius:18px;background:#fdfcf7;box-shadow:0 12px 50px rgba(0,0,0,.45);animation:pop .4s cubic-bezier(.2,1.5,.4,1)}
+.stage-row{display:flex;gap:3vw;align-items:center;justify-content:center;width:min(1500px,100%)}.stage-row .opts{grid-template-columns:1fr;flex:1;min-width:0}
+@media(max-width:900px){.stage-row{flex-direction:column}}
+@keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+@media(max-width:700px){.duel{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="timer" class="timer"></div>
+<div id="stage"></div>
+<div id="bar"></div>
+<script src="/party-common.js"></script>
+<script>
+(() => {
+  const { h, api, clock, connect, dot } = Party, stage = document.getElementById("stage"), bar = document.getElementById("bar"), timer = document.getElementById("timer");
+  const KEY = "party-host";
+  let session = null, view = null, stop = null, lastKey = "";
+  try { session = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (_) {}
+  const save = s => { session = s; try { s ? localStorage.setItem(KEY, JSON.stringify(s)) : localStorage.removeItem(KEY); } catch (_) {} };
+  const act = (route, extra) => api(route, Object.assign({ code: session.code, key: session.key }, extra || {})).catch(e => alert(e.message));
+  const joinUrl = () => location.origin + "/party";
+
+  let mode = "quip", rounds = 2;
+  function intro(error) {
+    stop && stop(); timer.textContent = ""; Party.bg(mode);
+    const modes = [["quip", "🎭", "Подкол", "Отвечай на вопросы смешно — все голосуют за лучший ответ"], ["fib", "🕵️", "Враки", "Придумай ложь к настоящему факту и найди правду среди вариантов"], ["draw", "🎨", "Каракули", "Рисуй секретное задание, остальные угадывают, что это"]];
+    document.title = "Экран ведущего";
+    stage.replaceChildren(...[h("div", { class: "logo" }, "🎮"), h("h1", {}, "Новая игра"), p("Выбери режим и число раундов. Зрители и друзья играют с телефонов, нужно от 3 игроков."),
+      h("div", { class: "modes" }, modes.map(([id, ico, name, desc]) => h("button", { class: "mode" + (mode === id ? " on" : ""), onclick: () => { mode = id; intro(error); } }, h("span", { class: "ico" }, ico), h("b", {}, name), h("small", {}, desc)))),
+      h("div", { class: "rounds" }, p("Раундов:"), [1, 2, 3].map(n => h("button", { class: "rn" + (rounds === n ? " on" : ""), onclick: () => { rounds = n; intro(error); } }, n))),
+      error ? h("div", { class: "err" }, error) : null,
+      h("button", { class: "main", onclick: async e => { e.target.disabled = true; try { const r = await api("create", { mode, rounds }); save({ code: r.code, key: r.key }); begin(); } catch (err) { intro(err.message); } } }, "Создать комнату")].filter(Boolean));
+    bar.replaceChildren(h("button", { onclick: () => document.body.classList.toggle("clean") }, "Скрыть панель (H)"));
+  }
+  function begin() {
+    stop && stop();
+    stop = connect(session.code, session.key, v => { view = v; render(); }, () => { save(null); intro("Комната закрыта или сервер перезапускался."); });
+  }
+  const chips = (list, withKick) => h("div", { class: "players m-" + (view ? view.mode : "quip") }, list.map(p => h("div", { class: "chip" + (p.done ? " done" : "") + (p.online === false ? " off" : ""), style: "--c:" + p.color }, dot(p), h("span", { class: "nm" }, p.name), p.done ? h("small", { class: "st" }, "ГОТОВО") : null,
+    withKick ? h("button", { class: "kick", title: "Убрать игрока", onclick: () => act("kick", { id: p.id }) }, "×") : null)));
+  // Итоги выглядят по-разному: подиум (сцена), досье (расследование), рамки на стене (мастерская).
+  function board(v, list, final) {
+    const max = Math.max(1, list[0] ? list[0].score : 1);
+    if (final && v.mode === "quip" && list.length >= 2) {
+      const top = [list[1], list[0], list[2]].filter(Boolean), cls = x => "p" + (list.indexOf(x) + 1);
+      return [h("div", { class: "podium" }, top.map(x => h("div", { class: "pcol " + cls(x) }, list.indexOf(x) === 0 ? h("div", { class: "crown" }, "👑") : null, dot(x, 70), h("div", { class: "nm" }, x.name), h("div", { class: "block" }, x.score)))),
+        list.length > 3 ? h("p", {}, list.slice(3).map(x => (x.avatar || "") + " " + x.name + " — " + x.score).join("   ·   ")) : null];
+    }
+    if (v.mode === "draw") return [h("div", { class: "gallery" }, list.map((x, i) => h("div", { class: "frame" + (final && i === 0 ? " gold" : ""), style: "animation-delay:" + (i * .12) + "s" }, h("div", { class: "pic", style: "background:" + x.color }, x.avatar || "🎨"), h("div", { class: "nm" }, x.name), h("div", { class: "pt" }, x.score + " очк."))))];
+    return [h("div", { class: "bars m-" + v.mode }, list.map(x => h("div", { class: "bar" }, h("span", { class: "name" }, (x.avatar || "") + " " + x.name), h("div", { class: "track" }, h("div", { class: "fill", style: "width:0;background:" + x.color, "data-w": Math.round(x.score / max * 100) })), h("span", { class: "pts" }, x.score))))];
+  }
+
+  function render() {
+    const v = view, ph = v.phase;
+    Party.bg(v.mode);
+    const modeTitle = { fib: "🕵️ Враки", draw: "🎨 Каракули" }[v.mode] || "🎭 Подкол";
+    document.title = modeTitle.replace(/^\S+\s/, "") + " — экран ведущего";
+    const key = ph + ":" + v.cur + ":" + v.round + ":" + (v.fib ? v.fib.i : "") + (v.match ? v.match.i : "");
+    if (key !== lastKey) { lastKey = key; stage.classList.remove("screen-in"); void stage.offsetWidth; stage.classList.add("screen-in"); if (ph === "final") Party.confetti(); }
+    timer.textContent = ""; let nodes = [], controls = [];
+    if (ph === "lobby") {
+      nodes = [h("h1", {}, modeTitle), h("p", {}, "Заходи с телефона на"), h("div", { class: "url" }, joinUrl().replace(/^https?:\/\//, "")), h("div", { class: "code" }, v.code), p0("Раундов: " + v.rounds),
+        v.players.length ? chips(v.players, true) : p0("Ждём игроков… (до 8, остальные могут быть зрителями)"),
+        v.audience ? p0("Зрителей: " + v.audience) : null];
+      controls = [h("button", { class: "main", disabled: v.players.length < v.min, onclick: () => act("start") }, v.players.length < v.min ? "Нужно игроков: " + v.min : "Старт")];
+    } else if (ph === "answering") {
+      nodes = [h("h1", {}, "Раунд " + v.round + " из " + v.rounds), p0("Пишите ответы на телефонах. У каждого два вопроса!"), chips(v.players)];
+      controls = [h("button", { onclick: () => act("skip") }, "Закончить приём ответов")];
+    } else if (ph === "drawing") {
+      nodes = [h("h1", {}, "🎨 Рисуем! Раунд " + v.round + " из " + v.rounds), p0("У каждого своё секретное задание — рисуйте на телефоне пальцем"), chips(v.players)];
+      controls = [h("button", { onclick: () => act("skip") }, "Закончить рисование")];
+    } else if (ph === "lie") {
+      const art = v.fib.art != null;
+      nodes = [p0("Раунд " + v.round + " из " + v.rounds + (art ? " · рисунок " : " · факт ") + v.fib.i + " из " + v.fib.n + (art ? " · художник: " + v.fib.artist : "")), art ? artBox(v) : h("div", { class: "prompt" }, v.fib.prompt),
+        p0(art ? "Придумайте подпись к рисунку на телефонах" : "Придумайте правдоподобную ложь на телефонах"), chips(v.players)];
+      controls = [h("button", { onclick: () => act("skip") }, "Закончить приём")];
+    } else if (ph === "pick") {
+      nodes = [v.fib.art != null ? null : h("div", { class: "prompt" }, v.fib.prompt), row(v, h("div", { class: "opts" }, v.options.map(t => h("div", { class: "card" }, t)))), p0("Выбрали: " + v.picks + " — где правда?")];
+      controls = [h("button", { onclick: () => act("skip") }, "Закончить выбор")];
+    } else if (ph === "reveal" && v.fibReveal) {
+      const r = v.fibReveal;
+      nodes = [v.fib.art != null ? null : h("div", { class: "prompt" }, v.fib.prompt), row(v, h("div", { class: "opts" }, r.options.map(o => h("div", { class: "card" + (o.truth ? " truth" : "") }, o.text,
+        h("small", {}, o.truth ? "✅ Правда" : "Автор: " + (o.authors.join(", ") || "?")), o.pickedBy.length ? h("small", {}, "Выбрали: " + o.pickedBy.join(", ")) : null))))];
+      controls = [h("button", { onclick: () => act("skip") }, "Дальше")];
+    } else if (ph === "voting") {
+      nodes = [p0("Пара " + v.match.i + " из " + v.match.n), h("div", { class: "prompt" }, v.match.prompt),
+        h("div", { class: "duel" }, v.match.answers.map(t => h("div", { class: "card" }, t))), p0("Голосов: " + v.votes + " — выбирайте на телефонах")];
+      controls = [h("button", { onclick: () => act("skip") }, "Пропустить / закончить голосование")];
+    } else if (ph === "reveal") {
+      const top = Math.max(...v.reveal.map(r => r.votes));
+      nodes = [h("div", { class: "prompt" }, v.match.prompt), h("div", { class: "duel" }, v.reveal.map(r => h("div", { class: "card" + (top > 0 && r.votes === top && !v.auto ? " win" : "") },
+        r.text, h("small", {}, r.name), h("b", {}, r.votes + " гол. · +" + r.points)))), v.bonus ? h("div", { class: "bonus" }, "РАЗГРОМ! +бонус") : v.auto ? p0("Один из ответов не пришёл") : null];
+      controls = [h("button", { onclick: () => act("skip") }, "Дальше")];
+    } else {
+      const list = v.players.slice().sort((a, b) => b.score - a.score), max = Math.max(1, list[0] ? list[0].score : 1), final = ph === "final";
+      nodes = [h("h1", {}, final ? "🏆 " + (list[0] ? list[0].avatar + " " + list[0].name : "") + " побеждает!" : "Счёт после раунда " + v.round),
+        final && v.cards ? h("div", { class: "awards" }, v.cards.map(c => h("span", {}, c.icon + " " + c.label + " — " + c.name))) : null,
+        ...board(v, list, final)];
+      controls = final ? [h("button", { class: "main", onclick: () => act("restart") }, "Сыграть ещё")] : [h("button", { onclick: () => act("skip") }, "Дальше")];
+      requestAnimationFrame(() => requestAnimationFrame(() => stage.querySelectorAll(".fill").forEach(f => { f.style.width = f.dataset.w + "%"; })));
+    }
+    stage.replaceChildren(...nodes.filter(Boolean));
+    if (ph === "lobby" || ph === "final") controls.push(h("button", { onclick: () => confirm("Закрыть комнату для всех?") && act("close").then(() => { save(null); intro(); }) }, "Закрыть комнату"));
+    controls.push(h("button", { onclick: () => document.body.classList.toggle("clean") }, "Скрыть панель (H)"));
+    bar.replaceChildren(...controls);
+    if (["answering", "voting", "lie", "pick", "drawing"].includes(ph) && v.deadline) clock(timer);
+  }
+  const artBox = v => Party.artCanvas(v.code, v.fib.art, "art");
+  const row = (v, opts) => v.fib.art != null ? h("div", { class: "stage-row" }, artBox(v), opts) : opts;
+  const p0 = t => h("p", {}, t);
+  const p = p0;
+  document.addEventListener("keydown", e => { if (e.key.toLowerCase() === "h" && !/input|textarea/i.test(e.target.tagName)) document.body.classList.toggle("clean"); });
+  if (session) begin(); else intro();
+})();
+</script>
+</body>
+</html>

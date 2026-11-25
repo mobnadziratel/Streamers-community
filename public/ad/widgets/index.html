@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Streamers Community — рекламный виджет</title>
+<meta name="description" content="Прозрачный Twitch-виджет с ником, аватаром и QR-кодом">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:transparent!important;overflow:hidden}
+body{font-family:Inter,ui-sans-serif,system-ui,Arial,sans-serif;color:#f1fbff}
+#banner{display:grid;width:100%;height:100%;min-height:76px;grid-template-columns:var(--avatar-size,76px) minmax(0,1fr) var(--qr-size,96px);align-items:center;column-gap:clamp(8px,1.5vw,18px);padding:0;margin:0;border:0;background:transparent!important;color:inherit;text-decoration:none;overflow:hidden;opacity:1;transition:opacity .25s ease}
+#platform{display:grid;place-items:center;width:100%;aspect-ratio:1;color:#9147ff}
+#platform svg{display:block;width:100%;height:100%}
+#nickname{min-width:0;overflow-wrap:anywhere;word-break:break-word;font-size:clamp(18px,4vw,38px);font-weight:950;line-height:1.08;letter-spacing:-.04em;text-shadow:none}
+#avatar-wrap{display:block;width:var(--avatar-size,76px);height:var(--avatar-size,76px);padding:2px;border-radius:50%;background:transparent;animation:float 3.8s ease-in-out infinite}
+#avatar{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;border:1px solid rgba(145,71,255,.6);background:transparent}
+#qr-wrap{width:var(--qr-size,96px);height:var(--qr-size,96px);display:grid;place-items:center}
+#qr{display:block;width:100%;height:100%;object-fit:contain;background:#fff;border-radius:3px}
+body.hide-qr #banner{grid-template-columns:var(--avatar-size,76px) minmax(0,1fr)}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -9px}}
+@media(max-width:480px){#banner{grid-template-columns:50px minmax(0,1fr) 64px;column-gap:7px}#nickname{font-size:clamp(15px,5vw,24px)}#avatar-wrap{width:50px;height:50px}#qr-wrap{width:62px;height:62px}body.hide-qr #banner{grid-template-columns:50px minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){#avatar-wrap{animation:none}}
+/* Refined transparent OBS widget: subtle purple/cyan accents, no opaque panel. */
+#banner{position:relative;isolation:isolate;padding:5px 8px;border:1px solid rgba(145,71,255,.22);border-radius:14px;background:linear-gradient(105deg,rgba(145,71,255,.07),rgba(255,255,255,.018) 52%,rgba(73,190,255,.05))!important;box-shadow:0 6px 22px rgba(8,18,38,.10),inset 0 1px 0 rgba(255,255,255,.09)}
+#banner:before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(190,145,255,.72),rgba(110,220,255,.48),transparent);pointer-events:none}
+#platform{width:calc(100% - 4px);margin:2px;border-radius:11px;color:#a879ff;background:rgba(145,71,255,.11);border:1px solid rgba(145,71,255,.28);box-shadow:0 0 17px rgba(145,71,255,.14)}
+#platform svg{width:68%;height:68%;filter:drop-shadow(0 2px 5px rgba(145,71,255,.28))}
+#nickname{text-shadow:0 2px 15px rgba(145,71,255,.18);letter-spacing:-.035em}
+#nickname:after{content:"";display:block;width:34%;height:2px;margin-top:6px;border-radius:2px;background:linear-gradient(90deg,#a879ff,#65d9ef,transparent);opacity:.82}
+#avatar-wrap{padding:3px;border:1px solid rgba(145,71,255,.45);background:linear-gradient(145deg,rgba(169,121,255,.4),rgba(101,217,239,.18));box-shadow:0 0 0 4px rgba(145,71,255,.06),0 7px 20px rgba(15,20,45,.16)}
+#avatar{border:2px solid rgba(255,255,255,.9)}
+#qr-wrap{padding:4px;border-radius:11px;background:linear-gradient(145deg,rgba(169,121,255,.42),rgba(101,217,239,.24));box-shadow:0 5px 17px rgba(15,20,45,.16)}
+#qr{border-radius:7px}
+#banner:hover{border-color:rgba(164,112,255,.48);box-shadow:0 10px 28px rgba(66,35,130,.16),inset 0 1px 0 rgba(255,255,255,.12)}
+@media(max-width:480px){#banner{padding:4px 5px;border-radius:11px}#platform{border-radius:8px}#qr-wrap{padding:3px;border-radius:8px}}
+
+
+/* Final polish: transparent canvas with no surrounding card/frame. */
+#banner{
+  border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+  padding:0!important;
+}
+#banner:before{display:none!important}
+#banner:hover{border:0!important;background:transparent!important;box-shadow:none!important}
+#platform{
+  border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+  color:#a879ff!important;
+}
+#avatar-wrap{
+  border:0!important;padding:0!important;
+  background:transparent!important;box-shadow:none!important;
+}
+#avatar{
+  border:2px solid rgba(169,121,255,.82)!important;
+  box-shadow:0 0 0 3px rgba(145,71,255,.12),0 3px 14px rgba(145,71,255,.18)!important;
+}
+#qr-wrap{
+  padding:0!important;border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+}
+#qr-wrap{box-sizing:border-box!important;padding:5px!important;border-radius:10px!important;background:#fff!important;overflow:hidden!important}#qr{width:100%;height:100%;border-radius:0!important;overflow:hidden!important}#qr svg{display:block;width:100%;height:100%;shape-rendering:crispEdges}
+#nickname{
+  color:#f7f7ff;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  font-weight:950;
+}
+
+
+/* Reference-inspired typography: bold italic display lettering, transparent background. */
+#nickname{
+  display:inline-block;
+  width:fit-content;max-width:100%;
+  color:#fff!important;
+  font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif!important;
+  font-style:italic!important;font-weight:1000!important;
+  font-size:clamp(24px,4.4vw,48px)!important;
+  line-height:1.02!important;letter-spacing:-.045em!important;
+  text-transform:uppercase!important;
+  -webkit-text-stroke:.35px rgba(255,255,255,.7);
+  -webkit-font-smoothing:antialiased;
+  text-shadow:0 1px 0 #d9c7df,0 3px 0 #8c245f,0 6px 0 #5d123f,0 10px 15px rgba(70,5,45,.38)!important;
+  transform:skewX(-7deg);transform-origin:left center;
+}
+#nickname:after{display:none!important}
+
+
+/* Readability pass: restore the exact streamer nickname in a clean, sturdy sans-serif. */
+#nickname{
+  font-family:Inter,"Segoe UI",Arial,sans-serif!important;
+  font-style:normal!important;font-weight:900!important;
+  font-size:clamp(23px,3.7vw,39px)!important;
+  line-height:1.16!important;letter-spacing:-.035em!important;
+  text-transform:none!important;
+  -webkit-text-stroke:0!important;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  text-shadow:0 2px 0 rgba(102,35,90,.48),0 4px 12px rgba(60,20,70,.18)!important;
+  transform:none!important;
+  overflow-wrap:anywhere;word-break:normal;
+}
+
+
+/* Compact description under the streamer nickname. */
+#copy{display:flex;min-width:0;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px}
+#description{display:block;max-width:100%;color:rgba(210,226,240,.78);font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:clamp(11px,1.35vw,14px);font-weight:550;line-height:1.35;letter-spacing:.005em;text-transform:none;text-shadow:none;overflow-wrap:anywhere}
+@media(max-width:480px){#copy{gap:3px}#description{font-size:10px;line-height:1.25}}
+
+
+/* Nizina wordmark sits before the avatar in the OBS banner. */
+#banner{grid-template-columns:minmax(90px,150px) var(--avatar-size,76px) minmax(0,1fr) var(--qr-size,96px)!important}
+#nizina-wordmark{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-width:0;color:#fff;font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;font-style:italic;font-weight:1000;font-size:clamp(17px,3vw,31px);line-height:.82;letter-spacing:-.055em;text-shadow:0 2px 0 #a52b72,0 4px 0 #6b164c,0 7px 12px rgba(90,0,55,.35);transform:skewX(-7deg);white-space:nowrap}
+#nizina-wordmark span:last-child{margin-left:12px}
+body.hide-qr #banner{grid-template-columns:minmax(90px,150px) var(--avatar-size,76px) minmax(0,1fr)!important}
+@media(max-width:480px){#banner{grid-template-columns:68px 50px minmax(0,1fr) 62px!important;column-gap:6px}#nizina-wordmark{font-size:13px}#nizina-wordmark span:last-child{margin-left:6px}body.hide-qr #banner{grid-template-columns:68px 50px minmax(0,1fr)!important}}
+@media(max-width:360px){#banner{grid-template-columns:58px 42px minmax(0,1fr) 52px!important;column-gap:4px}#nizina-wordmark{font-size:11px}body.hide-qr #banner{grid-template-columns:58px 42px minmax(0,1fr)!important}}
+
+
+/* Exact supplied Nizina logo artwork; no recreated text or background. */
+#nizina-wordmark{display:block;width:100%;max-width:142px;height:auto;object-fit:contain;filter:drop-shadow(0 3px 0 #a52b72) drop-shadow(0 6px 0 #5d003b) drop-shadow(0 9px 7px rgba(90,0,55,.28))}
+@media(max-width:480px){#nizina-wordmark{max-width:66px}}
+@media(max-width:360px){#nizina-wordmark{max-width:56px}}
+
+
+/* Rounded QR corners while preserving a clean, scannable code. */
+#qr-wrap{border-radius:12px!important;overflow:hidden!important}
+#qr{border-radius:10px!important;overflow:hidden}#qr svg{display:block;width:100%;height:100%}
+
+/* Текст вместо картинки «Низина Твича» */
+#nizina-wordmark{display:flex!important;flex-direction:column;align-items:flex-start;justify-content:center;width:auto!important;max-width:none!important;height:auto!important;filter:none!important;object-fit:initial}
+</style></head><body>
+<a id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer" aria-label="Открыть канал Twitch">
+<span id="nizina-wordmark" aria-label="Низина Твича"><span>Низина</span><span>Твича</span></span>
+<span id="avatar-wrap"><img id="avatar" alt=""></span>
+<span id="copy"><span id="nickname">brill1antt</span><span id="description">Стример сообщества</span></span>
+<span id="qr-wrap"><div id="qr" role="img" aria-label="QR-код канала"></div></span>
+</a>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+function drawRoundedQR(target, value) {
+  try {
+    const code = window.qrcode(0, "M");
+    code.addData(String(value)); code.make();
+    const count = code.getModuleCount(), quiet = 4, total = count + quiet * 2;
+    let modules = "";
+    for (let row = 0; row < count; row++) for (let col = 0; col < count; col++) {
+      if (code.isDark(row, col)) modules += '<rect x="' + (col + quiet) + '" y="' + (row + quiet) + '" width="1" height="1" fill="#000"/>';
+    }
+    target.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + total + ' ' + total + '" shape-rendering="crispEdges" aria-hidden="true"><rect width="' + total + '" height="' + total + '" fill="#fff"/>' + modules + '</svg>';
+  } catch (_) { target.textContent = ""; }
+}
+
+(()=>{
+ const params=new URLSearchParams(location.search);
+ const items=[
+  {name:"brill1antt",description:"Стример сообщества",url:"https://www.twitch.tv/brill1antt",login:"brill1antt"},
+  {name:"mob_nadziratel",description:"Стример сообщества",url:"https://www.twitch.tv/mob_nadziratel",login:"mob_nadziratel"}
+ ];
+ const size=Math.max(48,Math.min(256,Number(params.get("size"))||96));
+ const avatarSize=Math.max(40,Math.min(180,Number(params.get("avatar"))||76));
+ document.documentElement.style.setProperty("--qr-size",size+"px");
+ document.documentElement.style.setProperty("--avatar-size",avatarSize+"px");
+ document.documentElement.style.setProperty("--platform-size",Math.max(24,Math.min(64,Number(params.get("platform"))||40))+"px");
+ if(params.get("qr")==="0")document.body.classList.add("hide-qr");
+ const banner=document.getElementById("banner"),avatar=document.getElementById("avatar");
+ const nickname=document.getElementById("nickname"),qr=document.getElementById("qr");
+ let index=0,sequence=0,timer;
+ function placeholder(name){
+  const initials=(name||"?").slice(0,2).toUpperCase();
+  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" rx="64" fill="#242039"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="48" font-weight="bold" fill="#b78aff">'+initials+'</text></svg>');
+ }
+ async function loadAvatar(login){
+  try{const response=await fetch("/api/avatar?login="+encodeURIComponent(login),{cache:"no-store"});if(!response.ok)return null;const data=await response.json();return data.avatarUrl&&/^https:\/\//i.test(data.avatarUrl)?data.avatarUrl:null}catch(_){return null}
+ }
+ async function show(next){
+  const current=++sequence;index=((next%items.length)+items.length)%items.length;const item=items[index];
+  banner.style.opacity="0";await new Promise(resolve=>setTimeout(resolve,160));if(current!==sequence)return;
+  banner.href=item.url;banner.setAttribute("aria-label","Открыть Twitch-канал "+item.name);
+  nickname.textContent=item.name;document.getElementById("description").textContent=item.description||"Стример сообщества";avatar.alt="Логотип "+item.name;avatar.src=placeholder(item.name);
+  if(!document.body.classList.contains("hide-qr")){qr.setAttribute("aria-label","QR-код канала "+item.name);drawRoundedQR(qr,item.url)}
+  const avatarUrl=await loadAvatar(item.login);if(current!==sequence)return;if(avatarUrl)avatar.src=avatarUrl;banner.style.opacity="1";
+ }
+ show(0);const seconds=Math.max(3,Math.min(120,Number(params.get("interval"))||7));
+ timer=setInterval(()=>show(index+1),seconds*1000);
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden){clearInterval(timer);timer=setInterval(()=>show(index+1),seconds*1000)}});
+})();
+</script></body></html>

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="transparent">
+<title>Music video overlay · 1°6 Community</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent!important}
+body{font:14px system-ui,-apple-system,Segoe UI,sans-serif}
+#wrap{position:relative;width:100%;height:100%;overflow:hidden;background:transparent!important}
+#videoLayer{position:absolute;inset:0;width:100%;height:100%;visibility:hidden;opacity:0;pointer-events:none;background:transparent;transition:opacity .12s linear}
+#videoLayer.is-active{visibility:visible;opacity:1;pointer-events:auto}
+#player,#player iframe{position:absolute;inset:0;display:block;width:100%;height:100%;border:0;background:transparent}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="videoLayer"><div id="player"></div></div></div>
+<script src="/music-bg.js"></script>
+<script>
+(function(){
+  "use strict";
+  var params=new URLSearchParams(location.search);
+  var channel=(params.get("channel")||"").trim().replace(/^@/,"").toLowerCase();
+  var previewMode=params.get("preview")==="1";
+  var volume=Math.max(0,Math.min(100,Number(params.get("volume")||100)||0));
+  var layer=document.getElementById("videoLayer");
+  if(!/^[a-z0-9_]{1,25}$/.test(channel))return;
+
+  // Оверлей использует ПУБЛИЧНЫЙ эндпоинт /api/music/overlay/current.
+  // Раньше он обращался к /api/music/queue, который требует пароль стримера, поэтому в OBS
+  // (без cookie входа) запрос всегда получал 401 и видео не показывалось никогда.
+  var player=null, playerReady=false;
+  var loadedId="";          // id заказа, который сейчас загружен в плеер
+  var endedReported="";     // id заказа, о завершении которого уже сообщили серверу
+  var pollBusy=false, failures=0;
+  // Фоновый плейлист: играет, пока нет заказов. Заказ прерывает его, после заказа он продолжается с того же места.
+  var bg=MusicBg.create({
+    channel:function(){return channel},
+    getPlayer:function(){return player},
+    isReady:function(){return playerReady},
+    applyVolume:function(){applyVolume()},
+    onMode:function(active,cfg){setVisible(Boolean(active&&cfg&&cfg.showVideo))}
+  });
+
+  function request(url,options){
+    var controller=new AbortController();
+    var timer=setTimeout(function(){controller.abort()},8000);
+    options=options||{};options.signal=controller.signal;options.cache="no-store";
+    return fetch(url,options).finally(function(){clearTimeout(timer)});
+  }
+  function reportEnded(id,status){
+    if(!id||endedReported===id)return Promise.resolve();
+    endedReported=id;
+    return request("/api/music/overlay/ended",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({channel:channel,id:id,status:status})})
+      .then(function(r){if(!r.ok)throw Error("ended "+r.status)})
+      .catch(function(){endedReported=""}) // не вышло — повторим при следующем опросе, трек не теряется
+      .then(function(){setTimeout(poll,300)});
+  }
+  function setVisible(on){layer.classList.toggle("is-active",Boolean(on))}
+  function applyVolume(){
+    if(!playerReady)return;
+    try{
+      if(previewMode||volume<=0){player.mute();return}
+      player.unMute();player.setVolume(bg.volumeFor(volume));
+    }catch(_){}
+  }
+  function stopPlayer(){
+    loadedId="";
+    if(playerReady){try{player.stopVideo()}catch(_){}}
+  }
+
+  function applyState(data){
+    var item=data&&data.item;
+    var valid=item&&/^[A-Za-z0-9_-]{11}$/.test(String(item.videoId||""));
+    if(!valid){
+      // Заказов нет: играет фон (если включён), иначе — тишина.
+      loadedId="";
+      if(!bg.sync(data&&data.bg,false)){setVisible(false);stopPlayer()}
+      return;
+    }
+    bg.suspend();   // пришёл заказ — фон уступает место, позиция запоминается
+    // Скрыть = убрать картинку и поставить на паузу (так же ведёт себя музыкальный док).
+    setVisible(Boolean(data.visible));
+    if(!playerReady)return;
+    if(item.id!==loadedId){
+      if(endedReported===item.id)return;          // этот трек уже закончился, ждём, пока сервер переключит очередь
+      loadedId=item.id;
+      endedReported="";
+      try{player.loadVideoById({videoId:item.videoId,startSeconds:0})}catch(_){loadedId=""}
+      applyVolume();
+    }
+    if(endedReported===item.id)return;            // не перезапускаем уже закончившийся ролик
+    var shouldPlay=Boolean(data.visible)&&!data.paused;
+    var state=-2;try{state=player.getPlayerState()}catch(_){}
+    if(shouldPlay){
+      if(state!==1&&state!==3){try{player.playVideo()}catch(_){}}   // 1 — играет, 3 — буферизация
+    }else if(state===1||state===3){try{player.pauseVideo()}catch(_){}}
+  }
+
+  function poll(){
+    if(pollBusy)return;
+    pollBusy=true;
+    request("/api/music/overlay/current?channel="+encodeURIComponent(channel))
+      .then(function(r){if(!r.ok)throw Error("HTTP "+r.status);return r.json()})
+      .then(function(data){failures=0;applyState(data)})
+      // Временный сбой сети/сервера НЕ должен обрывать играющий трек — просто пробуем снова.
+      .catch(function(){failures++})
+      .then(function(){pollBusy=false});
+  }
+
+  window.onYouTubeIframeAPIReady=function(){
+    player=new YT.Player("player",{
+      width:"100%",height:"100%",
+      playerVars:{autoplay:1,controls:0,rel:0,modestbranding:1,playsinline:1,disablekb:1,iv_load_policy:3,enablejsapi:1,origin:location.origin},
+      events:{
+        onReady:function(){playerReady=true;applyVolume();poll()},
+        onStateChange:function(event){
+          bg.handleState(event);
+          if(event.data===YT.PlayerState.ENDED&&loadedId){reportEnded(loadedId,"done")}
+        },
+        onError:function(){
+          if(bg.handleError())return;   // ошибка фонового трека — переходим к следующему, заказы не затрагиваем
+          // Видео недоступно (удалено, закрыто, запрещено встраивание): пропускаем, чтобы очередь не застряла.
+          if(loadedId)reportEnded(loadedId,"skipped");
+        }
+      }
+    });
+  };
+
+  function loadYouTubeApi(attempt){
+    var script=document.createElement("script");
+    script.src="https://www.youtube.com/iframe_api";
+    script.async=true;
+    script.onerror=function(){script.remove();setTimeout(function(){loadYouTubeApi(attempt+1)},Math.min(30000,2000*attempt))};
+    document.head.appendChild(script);
+  }
+  loadYouTubeApi(1);
+
+  poll();
+  setInterval(poll,2000);
+  document.addEventListener("visibilitychange",function(){if(!document.hidden)poll()});
+  window.addEventListener("online",poll);
+})();
+</script>
+</body>
+</html>

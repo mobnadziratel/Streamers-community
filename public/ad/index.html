@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1726">
+<meta name="description" content="Реклама стримеров и сообществ в Стримерском комьюнити.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Small Streamers Community">
+<meta property="og:title" content="Реклама — Streamers Community">
+<meta property="og:description" content="Рекламные баннеры стримеров и сообществ. Размести свою рекламу через бота.">
+<meta property="og:url" content="https://small-streamers.onrender.com/ad">
+<meta property="og:image" content="https://small-streamers.onrender.com/og-image.svg">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
+<link rel="shortcut icon" href="/favicon.svg?v=5">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Unbounded:wght@600;700;800&display=swap&subset=cyrillic" rel="stylesheet">
+<title>Реклама — Streamers Community</title>
+<style>
+:root{
+  --bg:#0b1726;--panel:#122438;--panel2:#193149;
+  --text:#edf7ff;--muted:#a9bfd0;--accent:#79d8ee;--accent2:#a9e9f7;
+  --line:rgba(164,218,239,.18);--glow:rgba(87,190,224,.16);
+  color-scheme:dark;
+}
+@keyframes theme-circle-reveal{from{clip-path:circle(0 at var(--theme-x,50%) var(--theme-y,50%))}to{clip-path:circle(var(--theme-radius,150vmax) at var(--theme-x,50%) var(--theme-y,50%))}}
+::view-transition-old(root){animation:none;z-index:1}
+::view-transition-new(root){animation:theme-circle-reveal 1.5s cubic-bezier(.22,.75,.25,1) both;z-index:2}
+@media(prefers-reduced-motion:reduce){::view-transition-new(root){animation-duration:.01ms}}
+*{box-sizing:border-box}
+html,body{scrollbar-color:#3b718a var(--bg)}
+body{
+  margin:0;min-height:100vh;color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(ellipse at 12% 0%,rgba(73,155,196,.18),transparent 38%),
+    radial-gradient(ellipse at 92% 14%,rgba(155,190,231,.12),transparent 34%),
+    linear-gradient(180deg,#0b1726 0%,#0d1c2d 52%,#101c2b 100%);
+}
+body:before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.22;
+  background-image:
+    radial-gradient(2px 2px at 12% 18%,#e8faff 98%,transparent),
+    radial-gradient(1.5px 1.5px at 72% 36%,#e8faff 98%,transparent),
+    radial-gradient(2px 2px at 42% 78%,#d4f4ff 98%,transparent),
+    radial-gradient(1px 1px at 88% 84%,#fff 98%,transparent);
+  background-size:230px 260px,310px 340px,270px 290px,190px 220px;
+}
+body>*{position:relative;z-index:1}
+a{color:inherit;text-decoration:none}
+.wrap{width:min(920px,calc(100% - 36px));margin:auto}
+
+header{
+  padding:28px 0 24px;
+  border-bottom:1px solid var(--line);
+  background:rgba(10,24,39,.82);
+  backdrop-filter:blur(18px);
+}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:-.06em;font-size:21px;color:#f1faff}
+.logo{
+  width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:11px;
+  background:linear-gradient(145deg,#b6f1fa,#55b9d5);color:#0b2030;
+  box-shadow:0 7px 24px rgba(91,199,225,.22);
+}
+.logo svg{width:26px;height:26px;display:block}
+.brand-wordmark{display:flex;flex-direction:column;line-height:1.05;gap:1px}
+.brand-top,.brand-bottom{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.brand-main{font-size:15px;font-weight:950;letter-spacing:-.04em}
+
+.site-switch{
+  display:flex;align-items:center;gap:4px;padding:4px;
+  border:1px solid var(--line);border-radius:13px;
+  background:rgba(17,42,62,.82);flex:0 0 auto;
+}
+.site-switch a{
+  display:block;padding:9px 12px;border-radius:9px;
+  color:#c8e3ef;font-size:13px;font-weight:850;white-space:nowrap;
+  transition:background .18s,color .18s;
+}
+.site-switch a:hover{color:#edf7ff}
+.site-switch a.current{
+  background:linear-gradient(135deg,#75d7eb,#3b9dbb);color:#082032;
+}
+.site-switch a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.theme-toggle{
+  display:flex;align-items:center;gap:8px;padding:11px 14px;
+  border:1px solid var(--line);border-radius:999px;
+  background:rgba(17,42,62,.82);color:#c8e3ef;
+  font:inherit;font-size:13px;font-weight:850;cursor:pointer;
+  transition:background .2s,border-color .2s;
+}
+.theme-toggle:hover{border-color:var(--accent);color:#edf7ff}
+.theme-toggle .theme-icon{font-size:16px;line-height:1}
+
+@media(max-width:650px){
+  .nav{flex-wrap:wrap}
+  .site-switch{order:3;width:100%;justify-content:center}
+  .site-switch a{flex:1;text-align:center}
+  .theme-toggle{margin-left:auto}
+}
+
+.hero{padding:48px 0 18px;max-width:760px}
+.eyebrow{
+  color:#8ce2f2;font-weight:800;font-size:12px;letter-spacing:.19em;text-transform:uppercase;
+  display:flex;align-items:center;gap:9px;
+}
+.eyebrow:before{content:"";width:22px;height:2px;background:var(--accent)}
+h1{font-size:clamp(36px,7vw,64px);line-height:1.02;letter-spacing:-.055em;margin:14px 0 14px;font-weight:950;color:#f1fbff}
+.lead{font-size:16px;line-height:1.7;color:var(--muted);max-width:620px;margin:0}
+
+.banner{
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  margin-top:22px;padding:16px;min-height:0;
+  border:1px solid var(--line);border-radius:18px;
+  background:transparent;
+  overflow:hidden;
+  text-decoration:none;color:inherit;
+  transition:border-color .2s,transform .35s,opacity .35s,filter .35s;
+}
+.banner:hover{border-color:rgba(121,216,238,.55);transform:translateY(-2px)}
+.avatar,.qr{
+  width:112px;height:112px;flex:0 0 112px;
+  border-radius:16px;object-fit:cover;
+  display:block;background:transparent;
+  max-width:100%;max-height:100%;
+}
+.qr{background:#fff}
+.ad-art,.copy,.name,.desc,.cta,.qr-wrap,.qr-frame,.qr-frame-inner,.qr-label{display:none!important}
+@media(max-width:560px){
+  .avatar,.qr{width:88px;height:88px;flex-basis:88px;border-radius:14px}
+}
+
+
+.panel{
+  margin:28px 0 40px;padding:clamp(20px,4vw,34px);
+  border:1px solid var(--line);border-radius:24px;
+  background:
+    radial-gradient(ellipse at 0 0,rgba(90,185,218,.12),transparent 62%),
+    linear-gradient(145deg,rgba(18,36,56,.98),rgba(16,31,48,.98));
+  box-shadow:0 24px 80px rgba(0,0,0,.28),inset 0 1px rgba(226,249,255,.04);
+}
+h2{margin:0 0 6px;font-size:22px;font-weight:900;letter-spacing:-.03em;color:#edf8ff}
+.muted{color:var(--muted);font-size:14px;margin:0 0 4px}
+
+.ad-art{
+  flex:1;min-width:0;width:100%;height:auto;max-height:200px;
+  object-fit:cover;object-position:center;
+  border-radius:16px;background:#1a1020;display:block;
+}
+.banner{gap:16px;align-items:center;min-height:0;padding:clamp(12px,3vw,18px)}
+.avatar,.copy,.name,.desc,.cta{display:none!important}
+
+.banner{
+  display:flex;align-items:center;gap:22px;margin-top:22px;
+  padding:clamp(16px,4vw,28px);
+  border:1px solid var(--line);border-radius:18px;
+  background:linear-gradient(130deg,#152a40,#112233);
+  color:inherit;text-decoration:none;min-height:150px;
+  transition:border-color .2s,transform .2s,background .2s,box-shadow .2s;
+}
+.banner:hover{
+  border-color:rgba(121,216,238,.55);transform:translateY(-3px);
+  background:linear-gradient(130deg,#1a3650,#14283c);
+  box-shadow:0 12px 36px rgba(87,190,224,.12);
+}
+.avatar{
+  width:112px;height:112px;flex:0 0 112px;object-fit:cover;border-radius:16px;
+  background:#1a3348;box-shadow:none;border:none;
+}
+.copy{display:flex;flex-direction:column;gap:7px;min-width:0}
+.name{font-size:clamp(22px,4vw,30px);font-weight:900;letter-spacing:-.03em;overflow-wrap:anywhere;color:#ffffff;-webkit-font-smoothing:antialiased}
+.desc{color:#b7cddc;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+.cta{
+  display:inline-flex;align-items:center;align-self:flex-start;
+  margin-top:6px;padding:5px 11px;
+  border:1px solid rgba(121,216,238,.38);
+  border-radius:999px;
+  background:rgba(121,216,238,.12);
+  color:#c8eef8;
+  font-size:12px;font-weight:850;letter-spacing:.04em;
+}
+html[data-theme="light"] .cta{
+  border-color:rgba(37,142,174,.35);
+  background:rgba(37,142,174,.1);
+  color:#1a6a88;
+}
+.desc{color:#b7cddc}
+html[data-theme="light"] .desc{color:#587083}
+
+
+.dots{display:flex;gap:7px;justify-content:center;margin-top:16px}
+.dot{width:7px;height:7px;border-radius:20px;background:rgba(164,218,239,.28);transition:width .2s,background .2s}
+.dot.active{width:22px;background:var(--accent)}
+
+.submit{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.submit strong{font-size:15px;color:#edf8ff}
+.submit p{margin:8px 0 0}
+a.inline{color:var(--accent);font-weight:800;text-decoration:none}
+a.inline:hover{text-decoration:underline;color:var(--accent2)}
+
+.obs{margin-top:22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+button{
+  border:1px solid var(--line);border-radius:12px;padding:11px 16px;
+  background:var(--panel2);color:var(--text);font:inherit;font-weight:800;cursor:pointer;
+  transition:border-color .18s,background .18s,color .18s;
+}
+button:hover{
+  border-color:rgba(121,216,238,.5);
+  background:linear-gradient(135deg,rgba(61,157,187,.35),rgba(37,120,150,.25));
+  color:#edf8ff;
+}
+#status{color:var(--muted);font-size:13px}
+footer{padding:0 0 48px;color:#9bb6c7;font-size:13px}
+
+html[data-theme="light"]{
+  --bg:#eef6fa;--panel:#ffffff;--panel2:#e8f2f6;
+  --text:#183044;--muted:#587083;--accent:#258eae;--accent2:#3ba8c8;
+  --line:rgba(32,91,117,.16);--glow:rgba(37,142,174,.1);
+  color-scheme:light;
+}
+html[data-theme="light"] body{
+  background:
+    radial-gradient(ellipse at 12% 0%,rgba(121,200,220,.22),transparent 40%),
+    radial-gradient(ellipse at 90% 10%,rgba(180,220,235,.18),transparent 36%),
+    linear-gradient(180deg,#eef6fa 0%,#e5f1f6 100%);
+}
+html[data-theme="light"] body:before{opacity:.12}
+html[data-theme="light"] header{background:rgba(255,255,255,.88)!important;border-color:var(--line)!important}
+html[data-theme="light"] .brand{color:#183044}
+html[data-theme="light"] .logo{
+  background:linear-gradient(145deg,#61c4dc,#258eae)!important;color:#fff!important;
+  box-shadow:0 7px 20px rgba(37,142,174,.25)!important;
+}
+html[data-theme="light"] .site-switch,
+html[data-theme="light"] .theme-toggle{
+  background:#fff!important;color:#34576d!important;border-color:rgba(32,91,117,.18)!important;
+}
+html[data-theme="light"] .site-switch a{color:#587083}
+html[data-theme="light"] .site-switch a.current{
+  background:linear-gradient(135deg,#61c4dc,#258eae)!important;color:#fff!important;
+}
+html[data-theme="light"] .theme-toggle:hover{border-color:var(--accent);color:#183044}
+html[data-theme="light"] h1{color:#183044}
+html[data-theme="light"] .eyebrow{color:#258eae}
+html[data-theme="light"] .eyebrow:before{background:var(--accent)}
+html[data-theme="light"] .panel{
+  background:linear-gradient(145deg,#fff,#f1f8fa)!important;
+  border-color:rgba(32,91,117,.16)!important;
+  box-shadow:0 16px 50px rgba(35,78,99,.08)!important;
+}
+html[data-theme="light"] h2,html[data-theme="light"] .name,html[data-theme="light"] .submit strong{color:#0f2433}
+html[data-theme="light"] .banner{
+  background:linear-gradient(130deg,#fff,#f0f7fa);
+  border-color:rgba(32,91,117,.14);
+}
+html[data-theme="light"] .banner:hover{
+  border-color:rgba(37,142,174,.38);
+  background:linear-gradient(130deg,#fff,#e7f5f8);
+  box-shadow:0 12px 28px rgba(37,142,174,.1);
+}
+html[data-theme="light"] .avatar{background:#d8e8ef;box-shadow:none}
+html[data-theme="light"] .dot{background:rgba(37,142,174,.22)}
+html[data-theme="light"] .dot.active{background:var(--accent)}
+html[data-theme="light"] button{
+  background:#e8f2f6;color:#183044;border-color:rgba(32,91,117,.18);
+}
+html[data-theme="light"] button:hover{
+  background:linear-gradient(135deg,#61c4dc,#258eae);color:#fff;border-color:transparent;
+}
+html[data-theme="light"] footer{color:#6a8799}
+
+
+
+
+.qr-wrap{
+  margin-left:auto;flex:0 0 auto;position:relative;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  width:auto;padding:0;background:transparent;box-shadow:none;border:none;
+  transition:transform .35s ease;
+}
+.qr-frame{
+  position:relative;width:100px;height:100px;border-radius:14px;padding:0;
+  background:transparent;box-shadow:none;overflow:hidden;
+}
+.qr-frame-inner{
+  width:100%;height:100%;border-radius:14px;background:#fff;
+  display:grid;place-items:center;overflow:hidden;
+}
+.qr-frame-inner::before,.qr-frame-inner::after,.qr-tick{display:none!important}
+.qr{
+  width:100px;height:100px;display:block;border-radius:14px;
+  transition:opacity .3s ease,transform .35s ease;
+}
+.qr-label{
+  margin:0;position:relative;z-index:2;
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:999px;
+  background:rgba(14,36,54,.88);
+  color:#9be9f6;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(121,216,238,.35);
+  box-shadow:0 4px 12px rgba(0,20,40,.3);
+}
+.qr-label svg{width:11px;height:11px;flex:0 0 11px;opacity:.9}
+.banner:hover .qr-wrap{transform:translateY(-2px)}
+html[data-theme="light"] .qr-frame-inner{background:#fff}
+html[data-theme="light"] .qr-label{
+  background:#fff;color:#1a6a88;border-color:rgba(37,142,174,.3);
+}
+
+/* Dynamic streamer promo artwork: HTML/CSS, not a flattened image. */
+.banner{
+  position:relative;display:block;min-height:0;height:clamp(230px,30vw,330px);
+  padding:0;overflow:hidden;border:0;border-radius:20px;
+  background:#ff70c5;
+  box-shadow:0 18px 46px rgba(255,76,179,.22),inset 0 1px rgba(255,255,255,.5);
+}
+.banner:hover{
+  border-color:transparent;transform:translateY(-3px);
+  background:#ff70c5;box-shadow:0 24px 54px rgba(255,76,179,.3);
+}
+.ad-scene{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;isolation:isolate;
+  background:
+    radial-gradient(ellipse at 50% 46%,rgba(255,255,255,.34) 0 22%,transparent 57%),
+    radial-gradient(ellipse at 6% 15%,#ffb0d9 0 17%,transparent 40%),
+    radial-gradient(ellipse at 96% 85%,#ffb0d9 0 17%,transparent 42%),
+    linear-gradient(118deg,#ff91ce 0%,#ff55b6 48%,#f34cae 100%);
+}
+.ad-scene:before,.ad-scene:after{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  width:42%;height:150%;top:-25%;border-radius:50%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.24),transparent);
+  filter:blur(13px);transform:rotate(28deg);
+}
+.ad-scene:before{left:-15%;animation:ad-light-sweep 7s ease-in-out infinite}
+.ad-scene:after{right:-18%;animation:ad-light-sweep 8s ease-in-out -3s infinite reverse}
+.ad-twitch-mark{
+  position:absolute;top:clamp(14px,3vw,25px);left:50%;transform:translateX(-50%);
+  width:38px;height:38px;display:grid;place-items:center;color:#fff;
+  filter:drop-shadow(0 4px 12px rgba(105,0,68,.22));opacity:.96;
+}
+.ad-twitch-mark svg{width:100%;height:100%}
+.ad-name{
+  display:block;position:relative;z-index:2;width:min(76%,850px);
+  padding:30px 10px 0;text-align:center;
+  color:#fff;font-size:clamp(36px,7.2vw,86px);font-weight:1000;
+  line-height:.98;letter-spacing:-.065em;text-transform:uppercase;
+  overflow-wrap:anywhere;word-break:break-word;
+  text-shadow:0 5px 0 #a90068,0 9px 0 #850052,0 17px 24px rgba(92,0,54,.48);
+  transform:skew(-5deg);
+}
+.ad-subtitle{
+  position:absolute;z-index:2;left:50%;bottom:clamp(15px,3vw,25px);
+  transform:translateX(-50%);padding:7px 14px;border:1px solid rgba(255,255,255,.55);
+  border-radius:999px;background:rgba(132,0,82,.2);color:#fff;
+  font-size:clamp(9px,1.3vw,12px);font-weight:950;letter-spacing:.2em;
+  white-space:nowrap;text-shadow:0 2px 8px rgba(95,0,60,.35);
+}
+.ad-avatar-orbit{
+  position:absolute;z-index:3;right:clamp(14px,5vw,58px);top:50%;
+  width:clamp(76px,12vw,132px);aspect-ratio:1;border-radius:50%;
+  transform:translateY(-50%);padding:5px;
+  background:linear-gradient(145deg,#fff,#ffb7df 48%,#a90068);
+  box-shadow:0 12px 30px rgba(95,0,60,.32),0 0 0 7px rgba(255,255,255,.16);
+  animation:ad-avatar-float 3.8s ease-in-out infinite;
+}
+.ad-avatar{
+  display:block!important;width:100%;height:100%;max-width:none;max-height:none;
+  object-fit:cover;border-radius:50%;background:#7b1456;
+  border:3px solid rgba(255,255,255,.9);box-shadow:inset 0 0 0 1px #fff;
+}
+.ad-spark{
+  position:absolute;width:9px;height:9px;border-radius:50%;background:#fff;
+  box-shadow:0 0 14px 4px rgba(255,255,255,.75);opacity:.85;
+  animation:ad-sparkle 2.8s ease-in-out infinite;
+}
+.ad-spark-one{left:12%;top:25%}
+.ad-spark-two{right:18%;top:19%;animation-delay:-.9s}
+.ad-spark-three{left:23%;bottom:18%;width:6px;height:6px;animation-delay:-1.7s}
+@keyframes ad-avatar-float{
+  0%,100%{translate:0 0}
+  50%{translate:0 -15px}
+}
+@keyframes ad-sparkle{
+  0%,100%{opacity:.3;scale:.7}
+  50%{opacity:1;scale:1.25}
+}
+@keyframes ad-light-sweep{
+  0%,100%{translate:0 0;opacity:.5}
+  50%{translate:30px 0;opacity:1}
+}
+@media(max-width:560px){
+  .banner{height:220px;border-radius:16px}
+  .ad-name{width:82%;font-size:clamp(30px,9vw,52px);padding:24px 8px 0}
+  .ad-avatar-orbit{right:12px;top:auto;bottom:12px;width:68px;transform:none}
+  .ad-twitch-mark{top:12px;width:30px;height:30px}
+  .ad-subtitle{left:12px;bottom:16px;transform:none;font-size:8px;letter-spacing:.12em}
+}
+@media(prefers-reduced-motion:reduce){
+  .ad-avatar-orbit,.ad-spark,.ad-scene:before,.ad-scene:after{animation:none!important}
+}
+
+/* Clean transparent ad: platform, nickname, streamer logo and QR only. */
+.banner{
+  display:block!important;position:relative;height:auto!important;min-height:112px!important;
+  padding:8px 0!important;margin-top:22px;border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;overflow:visible!important;
+}
+.banner:hover{background:transparent!important;box-shadow:none!important;transform:none!important}
+.ad-clean-layout{
+  display:grid;width:100%;min-height:112px;
+  grid-template-columns:84px minmax(0,1fr) 104px;
+  align-items:center;column-gap:clamp(10px,2vw,22px);
+}
+.ad-platform{display:grid;place-items:center;width:40px;height:40px;color:#9147ff}
+.ad-platform svg{display:block;width:36px;height:36px}
+.ad-name{
+  display:block!important;position:static!important;width:auto!important;min-width:0;
+  padding:0!important;margin:0!important;text-align:left!important;
+  color:var(--text,#f1fbff)!important;font-size:clamp(20px,4vw,38px)!important;
+  font-weight:950!important;line-height:1.12!important;letter-spacing:-.04em!important;
+  text-transform:none!important;overflow-wrap:anywhere;word-break:break-word;
+  text-shadow:none!important;transform:none!important;
+}
+.ad-avatar-orbit{
+  position:relative!important;inset:auto!important;display:block;width:76px;height:76px;
+  padding:3px!important;border-radius:50%;transform:none!important;
+  background:transparent!important;box-shadow:none!important;
+  animation:ad-avatar-float 3.8s ease-in-out infinite;
+}
+.ad-avatar{
+  display:block!important;width:100%!important;height:100%!important;
+  max-width:none!important;max-height:none!important;object-fit:cover;
+  border-radius:50%;border:1px solid rgba(145,71,255,.55)!important;
+  background:transparent!important;box-shadow:none!important;
+}
+.ad-qr-wrap{display:grid;place-items:center;width:104px;height:104px}
+.ad-qr{
+  display:block;width:100%;height:100%;object-fit:contain;
+  border:0;border-radius:4px;background:#fff;
+}
+.ad-clean-layout .ad-platform,.ad-clean-layout .ad-name,
+.ad-clean-layout .ad-avatar-orbit,.ad-clean-layout .ad-qr-wrap{z-index:1}
+@media(max-width:560px){
+ .ad-clean-layout{grid-template-columns:58px minmax(0,1fr) 72px;column-gap:8px;min-height:76px}
+ .ad-platform{width:28px;height:28px}.ad-platform svg{width:26px;height:26px}
+ .ad-name{font-size:clamp(16px,5vw,24px)!important}
+ .ad-avatar-orbit{width:54px;height:54px}
+ .ad-qr-wrap{width:68px;height:68px}
+}
+@media(prefers-reduced-motion:reduce){.ad-avatar-orbit{animation:none!important}}
+
+/* Banner switch animation */
+.banner.is-leaving{
+  opacity:0;transform:translateY(10px) scale(.985);
+  filter:blur(2px);
+  pointer-events:none;
+}
+.banner.is-entering{
+  animation:banner-in .55s cubic-bezier(.22,.75,.25,1) both;
+}
+@keyframes banner-in{
+  from{opacity:0;transform:translateY(-12px) scale(.97);filter:blur(3px)}
+  to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+.banner{
+  transition:border-color .2s,transform .35s cubic-bezier(.22,.75,.25,1),background .2s,box-shadow .2s,opacity .35s ease,filter .35s ease;
+}
+.dots .dot{transition:width .35s cubic-bezier(.22,.75,.25,1),background .35s ease,box-shadow .35s ease}
+.dot.active{box-shadow:0 0 12px rgba(121,216,238,.55)}
+
+@media(max-width:560px){
+  .qr-wrap{margin-left:0;align-self:flex-end;width:108px}
+  .qr-frame{width:102px;height:102px;border-radius:16px}
+  .qr-frame-inner{border-radius:14px}
+  .qr{width:74px;height:74px}
+  .qr-label{font-size:9px;padding:4px 10px}
+}
+@media(prefers-reduced-motion:reduce){
+  .banner.is-entering{animation:none}
+  .banner.is-leaving{opacity:0;transform:none;filter:none}
+  .qr-wrap,.qr,.qr-frame{transition:none}.qr-frame,.qr-tick{animation:none!important}
+}
+
+@media(max-width:560px){
+  .banner{flex-direction:column;align-items:flex-start;gap:14px;min-height:0}
+  .avatar{width:88px;height:88px;flex-basis:88px;border-radius:14px}
+  .name{font-size:22px}
+}
+
+#winter-snow-layer{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:9998;contain:strict}
+.winter-flake{
+  position:absolute;top:-24px;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;
+  background:rgba(238,250,255,var(--o));box-shadow:0 0 7px rgba(196,235,255,.45);
+  animation:winter-fall var(--d) linear var(--delay) infinite;will-change:transform;
+}
+@keyframes winter-fall{
+  0%{transform:translate3d(0,-5vh,0)}
+  50%{transform:translate3d(var(--drift),50vh,0)}
+  100%{transform:translate3d(calc(var(--drift)*-.55),110vh,0)}
+}
+@media(prefers-reduced-motion:reduce){.winter-flake{animation:none!important;top:var(--static-y,20%)}}
+
+/* Refined transparent promo styling: subtle accents without a banner background. */
+.ad-clean-layout{
+  position:relative;isolation:isolate;
+  padding:10px 12px;
+  border:1px solid rgba(145,71,255,.22);
+  border-radius:18px;
+  background:linear-gradient(110deg,rgba(145,71,255,.055),rgba(255,255,255,.018) 48%,rgba(73,190,255,.045));
+  box-shadow:0 8px 28px rgba(8,18,38,.10),inset 0 1px 0 rgba(255,255,255,.08);
+  transition:border-color .25s ease,box-shadow .25s ease,transform .25s ease;
+}
+.ad-clean-layout:before{
+  content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(190,145,255,.7),rgba(110,220,255,.45),transparent);
+  pointer-events:none;
+}
+.banner:hover .ad-clean-layout{
+  border-color:rgba(164,112,255,.48);
+  box-shadow:0 12px 34px rgba(66,35,130,.16),inset 0 1px 0 rgba(255,255,255,.12);
+  transform:translateY(-2px);
+}
+.ad-platform{
+  position:relative;width:42px;height:42px;
+  border-radius:13px;color:#a879ff!important;
+  background:rgba(145,71,255,.10);
+  border:1px solid rgba(145,71,255,.25);
+  box-shadow:0 0 18px rgba(145,71,255,.12);
+}
+.ad-platform:after{
+  content:"";position:absolute;inset:-4px;border:1px solid rgba(145,71,255,.13);
+  border-radius:16px;pointer-events:none;
+}
+.ad-platform svg{width:25px!important;height:25px!important;filter:drop-shadow(0 2px 5px rgba(145,71,255,.25))}
+.ad-name{
+  position:relative!important;display:inline-block!important;
+  width:fit-content;max-width:100%;
+  font-size:clamp(21px,3.5vw,36px)!important;
+  letter-spacing:-.035em!important;
+  text-shadow:0 2px 16px rgba(145,71,255,.13)!important;
+}
+.ad-name:after{
+  content:"";display:block;width:38%;height:2px;margin-top:7px;
+  border-radius:2px;background:linear-gradient(90deg,#a879ff,#65d9ef,transparent);
+  opacity:.8;
+}
+.ad-avatar-orbit{
+  border:1px solid rgba(145,71,255,.42)!important;
+  background:linear-gradient(145deg,rgba(169,121,255,.42),rgba(101,217,239,.18))!important;
+  box-shadow:0 0 0 4px rgba(145,71,255,.055),0 8px 22px rgba(15,20,45,.16)!important;
+}
+.ad-avatar{border:2px solid rgba(255,255,255,.9)!important}
+.ad-qr-wrap{
+  position:relative;padding:5px;border-radius:12px;
+  background:linear-gradient(145deg,rgba(169,121,255,.34),rgba(101,217,239,.22));
+  box-shadow:0 5px 18px rgba(15,20,45,.14);
+}
+.ad-qr{border-radius:7px!important}
+@media(max-width:560px){
+ .ad-clean-layout{padding:8px;border-radius:14px;column-gap:7px}
+ .ad-platform{width:29px;height:29px;border-radius:9px}
+ .ad-platform:after{inset:-3px;border-radius:12px}
+ .ad-platform svg{width:19px!important;height:19px!important}
+ .ad-name:after{margin-top:4px}
+ .ad-qr-wrap{padding:3px;border-radius:8px}
+}
+@media(prefers-reduced-motion:reduce){.ad-clean-layout{transition:none}.banner:hover .ad-clean-layout{transform:none}}
+
+
+/* Final polish: remove the outer card/frame; keep only crisp ad elements. */
+.ad-clean-layout{
+  border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+  padding:10px 12px!important;transform:none;
+}
+.ad-clean-layout:before{display:none!important}
+.banner:hover .ad-clean-layout{border:0!important;box-shadow:none!important;transform:none!important}
+.ad-platform{
+  border:0!important;background:transparent!important;box-shadow:none!important;
+  color:#a879ff!important;
+}
+.ad-platform:after{display:none!important}
+.ad-name{
+  color:#f7f7ff!important;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  font-weight:950!important;
+}
+.ad-avatar-orbit{
+  border:0!important;padding:0!important;
+  background:transparent!important;box-shadow:none!important;
+}
+.ad-avatar{
+  border:2px solid rgba(169,121,255,.82)!important;
+  box-shadow:0 0 0 3px rgba(145,71,255,.12),0 3px 14px rgba(145,71,255,.18)!important;
+  image-rendering:auto;
+}
+.ad-qr-wrap{
+  padding:0!important;border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+}
+.ad-qr-wrap{box-sizing:border-box!important;padding:5px!important;border-radius:10px!important;background:#fff!important;overflow:hidden!important}.ad-qr{width:100%;height:100%;border-radius:0!important;overflow:hidden!important}.ad-qr svg{display:block;width:100%;height:100%;shape-rendering:crispEdges}
+
+
+/* Reference-inspired typography: bold italic display lettering, transparent background. */
+.ad-name{
+  display:inline-block!important;
+  width:fit-content;max-width:100%;
+  color:#fff!important;
+  font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif!important;
+  font-style:italic!important;font-weight:1000!important;
+  font-size:clamp(24px,4.4vw,48px)!important;
+  line-height:1.02!important;letter-spacing:-.045em!important;
+  text-transform:uppercase!important;
+  -webkit-text-stroke:.35px rgba(255,255,255,.7);
+  -webkit-font-smoothing:antialiased;
+  text-shadow:0 1px 0 #d9c7df,0 3px 0 #8c245f,0 6px 0 #5d123f,0 10px 15px rgba(70,5,45,.38)!important;
+  transform:skewX(-7deg)!important;transform-origin:left center!important;
+}
+.ad-name:after{display:none!important}
+.ad-clean-layout{background:transparent!important;border:0!important;box-shadow:none!important}
+
+
+/* Readability pass: restore the exact streamer nickname in a clean, sturdy sans-serif. */
+.ad-name{
+  font-family:Inter,"Segoe UI",Arial,sans-serif!important;
+  font-style:normal!important;font-weight:900!important;
+  font-size:clamp(23px,3.7vw,39px)!important;
+  line-height:1.16!important;letter-spacing:-.035em!important;
+  text-transform:none!important;
+  -webkit-text-stroke:0!important;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  text-shadow:0 2px 0 rgba(102,35,90,.48),0 4px 12px rgba(60,20,70,.18)!important;
+  transform:none!important;
+  overflow-wrap:anywhere;word-break:normal;white-space:normal;
+}
+
+
+/* Small supporting streamer description beneath the nickname. */
+.ad-copy{display:flex;min-width:0;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px}
+.ad-description{
+ display:block;max-width:100%;color:rgba(210,226,240,.78);
+ font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:clamp(11px,1.35vw,14px);
+ font-weight:550;line-height:1.35;letter-spacing:.005em;
+ text-transform:none;text-shadow:none;overflow-wrap:anywhere;
+}
+@media(max-width:560px){.ad-copy{gap:3px}.ad-description{font-size:10px;line-height:1.25}}
+
+
+/* Nizina wordmark before the avatar; transparent, text-based, responsive. */
+.ad-clean-layout{grid-template-columns:minmax(112px,170px) 76px minmax(0,1fr) 104px!important;column-gap:clamp(8px,1.5vw,18px)!important}
+.nizina-wordmark{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-width:0;color:#fff;font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;font-style:italic;font-weight:1000;font-size:clamp(19px,3vw,34px);line-height:.82;letter-spacing:-.055em;text-shadow:0 2px 0 #a52b72,0 4px 0 #6b164c,0 7px 12px rgba(90,0,55,.35);transform:skewX(-7deg);white-space:nowrap}
+.nizina-wordmark span:last-child{margin-left:14px}
+@media(max-width:600px){.ad-clean-layout{grid-template-columns:minmax(74px,100px) 54px minmax(0,1fr) 66px!important;column-gap:7px!important}.nizina-wordmark{font-size:clamp(14px,3.5vw,21px)}.nizina-wordmark span:last-child{margin-left:7px}.ad-avatar-orbit{width:52px!important;height:52px!important}}
+@media(max-width:390px){.ad-clean-layout{grid-template-columns:64px 44px minmax(0,1fr) 54px!important;column-gap:5px!important}.nizina-wordmark{font-size:13px}.ad-avatar-orbit{width:42px!important;height:42px!important}}
+
+
+/* Use the exact supplied Nizina logo artwork, with its original letterforms. */
+.nizina-wordmark{display:flex!important}
+.nizina-logo{display:block;width:100%;max-width:150px;height:auto;object-fit:contain;filter:drop-shadow(0 3px 0 #a52b72) drop-shadow(0 6px 0 #5d003b) drop-shadow(0 9px 7px rgba(90,0,55,.28))}
+@media(max-width:600px){.nizina-logo{max-width:96px}}
+@media(max-width:390px){.nizina-logo{max-width:62px}}
+
+
+/* Rounded QR corners while preserving a clean, scannable code. */
+.ad-qr-wrap{box-sizing:border-box!important;padding:5px!important;border-radius:10px!important;background:#fff!important;overflow:hidden!important}
+.ad-qr{width:100%;height:100%;border-radius:0!important;overflow:hidden!important}.ad-qr svg{display:block;width:100%;height:100%;shape-rendering:crispEdges}
+</style>
+<script>try{if(localStorage.getItem('ssc-theme')==='light')document.documentElement.setAttribute('data-theme','light')}catch(e){}</script>
+<style id="ny-critical">html{background:#091426;color-scheme:dark}html[data-theme="light"]{background:#eaf4fb;color-scheme:light}</style>
+<link rel="stylesheet" href="/newyear.css?v=3">
+<link rel="stylesheet" href="/site-ux.css?v=2">
+<script src="/newyear.js?v=2" defer></script>
+<script src="/site-ux.js?v=2" defer></script>
+<script src="/community-people.js?v=1"></script>
+<script src="/logo-cars.js?v=1" defer></script>
+</head>
+<body>
+<div id="winter-snow-layer" aria-hidden="true"></div>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="/" aria-label="На главную">
+      <span class="logo">
+        <svg viewBox="0 0 48 48" role="presentation" focusable="false">
+          <path d="M11 10.5h23.5a5 5 0 0 1 5 5v13a5 5 0 0 1-5 5H23l-8.2 5.7a1.5 1.5 0 0 1-2.35-1.23v-4.8A5 5 0 0 1 7 28.2V15.5a5 5 0 0 1 4-5Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="m20 17.5 10 6-10 6z" fill="currentColor"/>
+          <path d="M36.5 5.5v5M34 8h5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-wordmark">
+        <span class="brand-top">Модераторское</span>
+        <span class="brand-main">Стримерское комьюнити</span>
+        <span class="brand-bottom">Наше</span>
+      </span>
+    </a>
+    <nav class="site-switch" aria-label="Страницы сайта">
+      <a href="/">Главная</a>
+      <a href="/widgets">Виджеты</a>
+      <a href="/ad" aria-current="page" class="current">Реклама</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Переключить тему">
+      <span class="theme-icon" id="themeIcon">☀️</span>
+      <span id="themeLabel">Светлая тема</span>
+    </button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Стримерское комьюнити</div>
+    <h1>Реклама</h1>
+    <p class="lead">Здесь размещаются рекламные баннеры стримеров и сообществ. Они автоматически сменяют друг друга — выбери интересный канал и загляни в гости.</p>
+  </section>
+
+  <section class="panel" aria-label="Рекламные баннеры">
+    <h2>Сейчас рекомендуем</h2>
+    <p class="muted">Баннеры участников и партнёров сообщества</p>
+
+    <a class="banner" id="banner" href="https://www.twitch.tv/brill1antt" target="_blank" rel="noopener noreferrer" aria-label="Открыть канал стримера">
+      <div class="ad-clean-layout">
+        <span class="nizina-wordmark" aria-label="Низина Твича"><span>Низина</span><span>Твича</span></span>
+        <span class="ad-avatar-orbit"><img class="ad-avatar" id="avatar" src="" alt=""></span>
+        <span class="ad-copy"><span class="ad-name" id="adName">brill1antt</span><span class="ad-description" id="adDescription">Стример сообщества</span></span>
+        <span class="ad-qr-wrap"><div class="ad-qr" id="adQr" role="img" aria-label="QR-код канала"></div></span>
+      </div>
+    </a>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+
+    <div class="submit">
+      <strong>Хотите разместить свою рекламу?</strong>
+      <p class="muted">Отправьте заявку через нашего бота: <a class="inline" href="https://t.me/Mobyarik_bot" target="_blank" rel="noopener noreferrer">@Mobyarik_bot</a>. Укажите ссылку, аватарку и короткое описание.</p>
+    </div>
+
+    <div class="obs">
+      <button id="copy" type="button">Скопировать ссылку для OBS</button>
+      <span id="status" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <footer>Стримерское комьюнити · Рекламная площадка</footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+function drawRoundedQR(target, value) {
+  try {
+    const code = window.qrcode(0, "M");
+    code.addData(String(value)); code.make();
+    const count = code.getModuleCount(), quiet = 4, total = count + quiet * 2;
+    let modules = "";
+    for (let row = 0; row < count; row++) for (let col = 0; col < count; col++) {
+      if (code.isDark(row, col)) modules += '<rect x="' + (col + quiet) + '" y="' + (row + quiet) + '" width="1" height="1" fill="#000"/>';
+    }
+    target.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + total + ' ' + total + '" shape-rendering="crispEdges" aria-hidden="true"><rect width="' + total + '" height="' + total + '" fill="#fff"/>' + modules + '</svg>';
+  } catch (_) { target.textContent = ""; }
+}
+
+const ads = [
+  {
+    name: "brill1antt",
+    description: "Стример сообщества",
+    url: "https://www.twitch.tv/brill1antt",
+    login: "brill1antt"
+  },
+  {
+    name: "mob_nadziratel",
+    description: "Стример сообщества",
+    url: "https://www.twitch.tv/mob_nadziratel",
+    login: "mob_nadziratel"
+  }
+];
+
+const $ = id => document.getElementById(id);
+let current = 0;
+let timer = null;
+
+function placeholderSvg(name) {
+  const initials = (name || "?").slice(0, 2).toUpperCase();
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" rx="22" fill="#1a3348"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="48" font-weight="bold" fill="#79d8ee">' + initials + '</text></svg>'
+  );
+}
+
+async function resolveAvatar(item) {
+  if (item.image) return item.image;
+  if (!item.login) return placeholderSvg(item.name);
+  try {
+    const response = await fetch("/api/avatar?login=" + encodeURIComponent(item.login), { cache: "no-store" });
+    if (response.ok) {
+      const data = await response.json();
+      if (data.avatarUrl && /^https:\/\//i.test(data.avatarUrl)) return data.avatarUrl;
+    }
+  } catch (_) {}
+  return placeholderSvg(item.name);
+}
+
+let showSequence = 0;
+async function show(i) {
+  const next = ((i % ads.length) + ads.length) % ads.length;
+  const a = ads[next];
+  const banner = $("banner");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const sequence = ++showSequence;
+
+  if (!reduceMotion && current !== next) {
+    banner.classList.remove("is-entering");
+    banner.classList.add("is-leaving");
+    await new Promise(resolve => setTimeout(resolve, 280));
+    if (sequence !== showSequence) return;
+  }
+
+  current = next;
+  banner.href = a.url;
+  banner.setAttribute("aria-label", "Открыть Twitch-канал " + a.name);
+  $("adName").textContent = a.name;
+  $("adDescription").textContent = a.description || "Стример сообщества";
+
+  const avatar = $("avatar");
+  if (avatar) {
+    avatar.alt = "Аватар " + a.name;
+    avatar.src = placeholderSvg(a.name);
+    try {
+      const avatarUrl = await resolveAvatar(a);
+      if (sequence !== showSequence) return;
+      avatar.src = avatarUrl;
+    } catch (_) {
+      // Оставляем SVG-заглушку с инициалами ника.
+    }
+  }
+
+  if (sequence !== showSequence) return;
+  const qr = $("adQr");
+  if (qr) {
+    qr.setAttribute("aria-label", "QR-код канала " + a.name);
+    drawRoundedQR(qr, a.url);
+  }
+  $("dots").innerHTML = ads.map((_, n) =>
+    '<span class="dot' + (n === current ? " active" : "") + '"></span>'
+  ).join("");
+
+  banner.classList.remove("is-leaving");
+  if (!reduceMotion) {
+    banner.classList.remove("is-entering");
+    void banner.offsetWidth;
+    banner.classList.add("is-entering");
+  }
+}
+
+function startRotation() {
+  clearInterval(timer);
+  timer = setInterval(() => show(current + 1), 10000);
+}
+
+show(0);
+startRotation();
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) startRotation();
+});
+
+$("copy").addEventListener("click", async () => {
+  const url = location.origin + "/ad/widget";
+  try {
+    await navigator.clipboard.writeText(url);
+    $("status").textContent = "Ссылка скопирована!";
+  } catch (e) {
+    $("status").textContent = url;
+  }
+});
+
+(function () {
+  const root = document.documentElement;
+  const toggle = $("themeToggle");
+  const icon = $("themeIcon");
+  const label = $("themeLabel");
+  const KEY = "ssc-theme";
+
+  function apply(theme, withTransition) {
+    const isLight = theme === "light";
+    const set = () => {
+      if (isLight) root.setAttribute("data-theme", "light");
+      else root.removeAttribute("data-theme");
+      icon.textContent = isLight ? "🌙" : "☀️";
+      label.textContent = isLight ? "Тёмная тема" : "Светлая тема";
+      try { localStorage.setItem(KEY, isLight ? "light" : "dark"); } catch (_) {}
+    };
+    if (withTransition && document.startViewTransition) {
+      document.startViewTransition(set);
+    } else {
+      set();
+    }
+  }
+
+  let saved = "dark";
+  try { saved = localStorage.getItem(KEY) || "dark"; } catch (_) {}
+  apply(saved, false);
+
+  toggle.addEventListener("click", () => {
+    const rect = toggle.getBoundingClientRect();
+    root.style.setProperty("--theme-x", (rect.left + rect.width / 2) + "px");
+    root.style.setProperty("--theme-y", (rect.top + rect.height / 2) + "px");
+    root.style.setProperty("--theme-radius", Math.hypot(window.innerWidth, window.innerHeight) + "px");
+    const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+    apply(next, true);
+  });
+})();
+
+(function () {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const layer = document.getElementById("winter-snow-layer");
+  if (!layer) return;
+  const count = Math.min(42, Math.max(18, Math.floor(window.innerWidth / 28)));
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < count; i++) {
+    const flake = document.createElement("span");
+    flake.className = "winter-flake";
+    const size = 2 + Math.random() * 4;
+    flake.style.setProperty("--x", (Math.random() * 100) + "vw");
+    flake.style.setProperty("--s", size + "px");
+    flake.style.setProperty("--o", String(0.35 + Math.random() * 0.55));
+    flake.style.setProperty("--d", (9 + Math.random() * 14) + "s");
+    flake.style.setProperty("--delay", (-Math.random() * 16) + "s");
+    flake.style.setProperty("--drift", ((Math.random() * 2 - 1) * 48) + "px");
+    frag.appendChild(flake);
+  }
+  layer.appendChild(frag);
+})();
+</script>
+</body>
+</html>

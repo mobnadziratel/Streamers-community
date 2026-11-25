@@ -1,0 +1,26 @@
+/* Шапка: вкладки строго по центру + автоскрытие при прокрутке */
+html:root:root:root body header{transition:transform .32s cubic-bezier(.2,.7,.2,1)!important;will-change:transform}
+html:root:root:root body header.header-hidden{transform:translateY(calc(-100% - 28px))!important;pointer-events:none}
+html:root:root:root body header .wrap.nav,html:root:root:root body header .nav{display:grid!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;align-items:center!important;column-gap:14px!important}
+html:root:root:root body header .brand{justify-self:start!important;min-width:0!important}
+html:root:root:root body header .site-switch{justify-self:center!important;margin:0!important;flex:none!important;white-space:nowrap}
+html:root:root:root body header .theme-toggle{justify-self:end!important;margin:0!important;white-space:nowrap}
+html:root:root:root body header .brand-wordmark{flex:none!important}
+@media(max-width:900px){
+ html:root:root:root body header .wrap.nav,html:root:root:root body header .nav{grid-template-columns:minmax(0,1fr) auto!important;grid-template-areas:"brand toggle" "tabs tabs"!important;row-gap:8px!important}
+ html:root:root:root body header .brand{grid-area:brand}
+ html:root:root:root body header .theme-toggle{grid-area:toggle}
+ html:root:root:root body header .site-switch{grid-area:tabs;justify-self:center!important}
+}
+@media(prefers-reduced-motion:reduce){html:root:root:root body header{transition:none!important}}
+/* одинаковые размеры шапки и вкладок на всех страницах */
+html:root:root:root body header .wrap.nav,html:root:root:root body header .nav{width:min(1120px,calc(100% - 40px))!important;max-width:1120px!important;margin-inline:auto!important;box-sizing:border-box!important;padding:12px 0!important;min-height:68px!important}
+html:root:root:root body header .site-switch{display:grid!important;grid-template-columns:repeat(3,1fr)!important;width:272px!important;gap:2px!important;padding:3px!important;box-sizing:border-box!important}
+html:root:root:root body header .site-switch a{display:flex!important;align-items:center;justify-content:center;text-align:center;padding:9px 0!important;margin:0!important;font-size:13px!important;line-height:1.2!important;min-width:0!important}
+@media(max-width:420px){html:root:root:root body header .site-switch{width:min(272px,100%)!important}}
+html:root:root:root body header .wrap.nav,html:root:root:root body header .nav{height:76px!important;min-height:0!important;padding:0!important}
+html:root:root:root body header{padding-top:0!important;padding-bottom:0!important}
+@media(max-width:900px){html:root:root:root body header .wrap.nav,html:root:root:root body header .nav{height:auto!important;min-height:76px!important;padding:8px 0!important}}
+@media(max-width:640px){html:root:root:root body header .theme-toggle #themeLabel{display:none!important}html:root:root:root body header .theme-toggle{padding:0!important;width:42px!important;height:42px!important;justify-content:center!important;display:inline-flex!important;align-items:center}}
+/* шапка всегда поверх контента страницы, но ниже окон профиля/клипа/кнопки «наверх» */
+html:root:root:root body header{z-index:800!important}

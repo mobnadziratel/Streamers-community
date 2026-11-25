@@ -1,0 +1,78 @@
+/* «Подкол»: общий вид игры. Режим выбирается атрибутом body[data-mode]: quip (сцена), fib (расследование), draw (мастерская). */
+:root{--bgA:#0b1726;--bgB:#1d4560;--glow:#8ce2f2}
+body[data-mode="quip"]{--bgA:#160c26;--bgB:#5b2a7c;--glow:#ffd43b}
+body[data-mode="fib"]{--bgA:#071419;--bgB:#0e5a60;--glow:#69db7c}
+body[data-mode="draw"]{--bgA:#0f1a2d;--bgB:#2d4f90;--glow:#ffa94d}
+body{background:radial-gradient(ellipse at 50% -12%,var(--bgB),transparent 58%),var(--bgA)!important;transition:background .8s}
+
+/* ───── фоновый слой ───── */
+.pbg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.pbg::before,.pbg::after{content:"";position:absolute;inset:0}
+.pbg .pp{position:absolute;bottom:-12vh;opacity:.0;animation:pbg-rise var(--d,24s) linear infinite;animation-delay:var(--w,0s);filter:saturate(.8)}
+@keyframes pbg-rise{0%{transform:translateY(0) rotate(0);opacity:0}10%{opacity:.2}85%{opacity:.16}100%{transform:translateY(-118vh) rotate(var(--r,40deg));opacity:0}}
+/* сцена: два прожектора и «пол» */
+body[data-mode="quip"] .pbg::before{background:conic-gradient(from 198deg at 18% -12%,transparent 0 38deg,rgba(255,212,59,.2) 48deg,transparent 60deg),conic-gradient(from 162deg at 82% -12%,transparent 0 38deg,rgba(255,110,200,.18) 48deg,transparent 60deg);animation:pbg-sway 9s ease-in-out infinite alternate}
+body[data-mode="quip"] .pbg::after{background:radial-gradient(ellipse at 50% 112%,rgba(255,212,59,.3),transparent 52%)}
+@keyframes pbg-sway{from{transform:rotate(-2.5deg) scale(1.05)}to{transform:rotate(2.5deg) scale(1.05)}}
+/* расследование: сетка улик и бегущая линия сканера */
+body[data-mode="fib"] .pbg::before{background-image:linear-gradient(rgba(105,219,124,.075) 1px,transparent 1px),linear-gradient(90deg,rgba(105,219,124,.075) 1px,transparent 1px);background-size:52px 52px;-webkit-mask-image:radial-gradient(ellipse at 50% 40%,#000 25%,transparent 78%);mask-image:radial-gradient(ellipse at 50% 40%,#000 25%,transparent 78%)}
+body[data-mode="fib"] .pbg::after{background:linear-gradient(180deg,transparent,rgba(105,219,124,.12),transparent);height:22vh;inset:auto 0 auto 0;top:-24vh;animation:pbg-scan 7s linear infinite}
+@keyframes pbg-scan{to{transform:translateY(130vh)}}
+/* мастерская: тетрадная клетка-точки и цветные пятна краски */
+body[data-mode="draw"] .pbg::before{background:radial-gradient(circle,rgba(255,255,255,.1) 1.6px,transparent 2.2px) 0 0/30px 30px}
+body[data-mode="draw"] .pbg::after{background:radial-gradient(circle at 14% 78%,rgba(247,131,172,.2),transparent 24%),radial-gradient(circle at 88% 22%,rgba(255,217,61,.16),transparent 22%),radial-gradient(circle at 70% 90%,rgba(77,171,247,.2),transparent 26%);animation:pbg-blob 14s ease-in-out infinite alternate}
+@keyframes pbg-blob{to{transform:translate(2%,-3%) scale(1.06)}}
+body:not([data-mode]) .pbg::after,body[data-mode=""] .pbg::after{background:radial-gradient(circle at 20% 80%,rgba(140,226,242,.12),transparent 30%),radial-gradient(circle at 85% 15%,rgba(151,117,250,.14),transparent 30%)}
+
+/* ───── расстановка игроков (экран ведущего) ───── */
+.players{display:flex;flex-wrap:wrap;justify-content:center;gap:1.6vh 1.6vw;max-width:1200px}
+.chip{--c:#888;position:relative}
+.chip .nm{font-weight:800;line-height:1.1}.chip .st{font-size:.62em;font-weight:900;letter-spacing:.08em;color:#69db7c}
+.chip.off{opacity:.55}
+/* сцена: комики стоят на подсвеченной сцене */
+.players.m-quip{gap:2vw;padding:0 3vw 22px;position:relative}
+.players.m-quip::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,212,59,.55),transparent 70%)}
+.players.m-quip .chip{flex-direction:column;gap:8px;padding:16px 22px 12px;border-radius:28px;background:linear-gradient(180deg,rgba(60,30,90,.75),rgba(30,14,50,.8));border:1px solid rgba(255,212,59,.35);box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.players.m-quip .chip .dot{width:3.3em;height:3.3em;font-size:1.45em;box-shadow:0 0 0 4px var(--c),0 0 34px color-mix(in srgb,var(--c) 60%,transparent)}
+/* расследование: досье с фото подозреваемого */
+.players.m-fib .chip{flex-direction:column;align-items:flex-start;gap:8px;min-width:clamp(130px,13vw,190px);padding:26px 16px 14px;border-radius:8px;background:linear-gradient(160deg,#0e2e33,#08181c);border:1px solid rgba(105,219,124,.45);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.players.m-fib .chip::before{content:"ДОСЬЕ";position:absolute;top:7px;left:12px;font-size:.5em;letter-spacing:.3em;color:rgba(105,219,124,.8);font-weight:900}
+.players.m-fib .chip::after{content:"";position:absolute;top:8px;right:12px;width:.55em;height:.55em;border-radius:50%;background:#69db7c;opacity:.6;animation:pbg-blink 2s infinite}
+@keyframes pbg-blink{50%{opacity:.1}}
+.players.m-fib .chip .dot{border-radius:8px;width:3.2em;height:3.2em;font-size:1.3em;box-shadow:inset 0 0 0 2px var(--c)}
+.players.m-fib .chip.done{box-shadow:0 0 0 2px #69db7c,0 0 26px rgba(105,219,124,.3)}
+/* мастерская: рамки-полароиды на стене */
+.players.m-draw{gap:2.4vh 2.2vw}
+.players.m-draw .chip{flex-direction:column;gap:6px;padding:12px 14px 10px;border-radius:5px;background:#f7f2e6;color:#2a2733;border:0;box-shadow:0 12px 28px rgba(0,0,0,.45);transform:rotate(-2deg);animation:none}
+.players.m-draw .chip:nth-child(even){transform:rotate(2.2deg);margin-top:14px}.players.m-draw .chip:nth-child(3n){transform:rotate(-.8deg)}
+.players.m-draw .chip::before{content:"";position:absolute;top:-9px;left:50%;width:54px;height:18px;margin-left:-27px;background:rgba(255,217,61,.7);transform:rotate(-3deg);border-radius:2px}
+.players.m-draw .chip .dot{border-radius:3px;width:3.6em;height:3.6em;font-size:1.35em;box-shadow:inset 0 0 0 3px #fff}
+.players.m-draw .chip.done{box-shadow:0 0 0 3px #4cd97b,0 12px 28px rgba(0,0,0,.45)}.players.m-draw .chip .st{color:#2a9d57}
+
+/* ───── итоги ───── */
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:1.6vw;margin:1vh 0}
+.pcol{display:flex;flex-direction:column;align-items:center;gap:8px;width:min(24vw,210px);animation:rise-in .7s cubic-bezier(.2,1.3,.4,1) both}
+.pcol .nm{font-size:clamp(14px,1.8vw,26px);font-weight:900;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcol .block{width:100%;border-radius:16px 16px 0 0;display:grid;place-items:center;font-weight:900;font-size:clamp(22px,3.4vw,48px);color:#1b1730}
+.pcol.p1 .block{height:24vh;background:linear-gradient(#ffe066,#f0b400)}.pcol.p2 .block{height:16vh;background:linear-gradient(#e9eef3,#a9b4c0)}.pcol.p3 .block{height:11vh;background:linear-gradient(#f0b27a,#b9753b)}
+.pcol.p2{animation-delay:.25s}.pcol.p1{animation-delay:.55s}.pcol.p3{animation-delay:.05s}
+.pcol .crown{font-size:clamp(26px,4vw,52px);animation:pbg-bob 2s ease-in-out infinite}
+@keyframes pbg-bob{50%{transform:translateY(-6px) rotate(-5deg)}}
+@keyframes rise-in{from{transform:translateY(60px) scale(.8);opacity:0}to{transform:none;opacity:1}}
+.bars.m-fib .bar{font-family:ui-monospace,Menlo,Consolas,monospace;padding:6px 14px;border:1px solid rgba(105,219,124,.35);border-radius:8px;background:rgba(8,24,28,.7)}
+.bars.m-fib .bar:first-child::after{content:"РАСКРЫТО";margin-left:8px;padding:2px 8px;border:2px solid #69db7c;color:#69db7c;font-size:.55em;letter-spacing:.15em;transform:rotate(-6deg);border-radius:4px}
+.gallery{display:flex;flex-wrap:wrap;gap:3vh 2.4vw;justify-content:center;max-width:1200px;align-items:flex-end}
+.frame{position:relative;width:clamp(120px,15vw,190px);padding:12px 12px 10px;background:#f7f2e6;color:#2a2733;border-radius:5px;box-shadow:0 14px 30px rgba(0,0,0,.5);text-align:center;transform:rotate(var(--rot,-2deg));animation:rise-in .6s cubic-bezier(.2,1.3,.4,1) both}
+.frame:nth-child(even){--rot:2deg}.frame:nth-child(3n){--rot:-.6deg}
+.frame .pic{display:grid;place-items:center;aspect-ratio:1;border-radius:3px;font-size:clamp(40px,5.4vw,76px);box-shadow:inset 0 0 0 3px #fff}
+.frame .nm{margin-top:8px;font-weight:900;font-size:clamp(14px,1.6vw,22px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.frame .pt{font-weight:800;color:#6b6478;font-size:clamp(13px,1.4vw,19px)}
+.frame.gold{box-shadow:0 0 0 6px #ffd43b,0 0 50px rgba(255,212,59,.5),0 14px 30px rgba(0,0,0,.5)}
+.frame.gold::after{content:"🏆";position:absolute;top:-22px;right:-14px;font-size:clamp(26px,3vw,42px)}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:5}
+.confetti i{position:absolute;top:-4vh;width:10px;height:16px;border-radius:2px;opacity:.9;animation:confetti-fall var(--d,5s) linear var(--w,0s) forwards}
+@keyframes confetti-fall{to{transform:translate(var(--x,0),108vh) rotate(var(--r,720deg));opacity:.9}}
+
+/* плавная смена экрана */
+.screen-in{animation:screen-in .45s ease both}
+@keyframes screen-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.pbg *,.pbg::before,.pbg::after,.chip,.pcol,.frame,.screen-in,.confetti i{animation:none!important}.confetti{display:none}}

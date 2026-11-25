@@ -62,10 +62,13 @@
     function startTick() { stopTick(); tick = setInterval(function () { if (mode === "bg" && state() === 1) saveProgress(); }, 4000); }
     function stopTick() { if (tick) { clearInterval(tick); tick = null; } }
 
+    var lastTrackId = "";
     function reportTrack() {
       if (!o.onTrack || mode !== "bg") return;
       try {
         var d = player().getVideoData() || {};
+        if (!d.video_id || d.video_id === lastTrackId) return;   // обновляем страницу только при смене трека
+        lastTrackId = d.video_id;
         o.onTrack({ title: d.title || "", author: d.author || "", videoId: d.video_id || "", listName: cfg && cfg.active ? cfg.active.name : "" });
       } catch (_) {}
     }
@@ -107,7 +110,8 @@
     function enter() {
       if (!load(false)) return false;
       mode = "bg"; errStreak = 0;
-      lastPaused = null;
+      lastPaused = null; lastTrackId = "";
+      setTimeout(reportTrack, 1200);
       startTick();
       if (o.onMode) o.onMode(true, cfg);
       if (o.applyVolume) o.applyVolume();
@@ -166,6 +170,7 @@
         var usable = Boolean(cfg && cfg.enabled && cfg.active);
         if (!usable) { if (mode === "bg") leave(true); return false; }
         if (!ready()) return false;
+        if (mode === "bg") reportTrack();
         if (lastSkip === null) lastSkip = cfg.skipSeq;
         if (mode !== "bg") { return cfg.paused ? false : enter(); }   // на паузе фон не стартует — продолжится с того же места после снятия паузы
         applyChanges();

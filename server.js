@@ -536,7 +536,15 @@ const musicR2 = R2_ENABLED ? new S3Client({
 
 const MUSIC_ACTIVE = ["pending", "playing"];
 const MUSIC_QUEUE_LIMIT = 50;
-const musicSessions = new Map();     // sessionId -> { channel, expiresAt }
+const musicSessions = new Map();     // sessionId -> { channel, expiresAt, via?, displayName? }
+// Вход в музыкальный пульт через приложение Twitch (OAuth). Нужны TWITCH_CLIENT_ID/SECRET и адрес возврата
+// TWITCH_MUSIC_REDIRECT_URI (по умолчанию <сайт>/api/music/twitch/callback), добавленный в настройках Twitch-приложения.
+// MUSIC_TWITCH_ALLOWED — необязательный список каналов через запятую, которым разрешён вход (пусто = любой стример).
+const musicTwitchStates = new Map(); // state -> { expiresAt }
+const TWITCH_ID_BASE = String(process.env.TWITCH_ID_BASE || "https://id.twitch.tv").replace(/\/$/, "");
+const TWITCH_HELIX_BASE = String(process.env.TWITCH_HELIX_BASE || "https://api.twitch.tv/helix").replace(/\/$/, "");
+const musicTwitchAvailable = () => Boolean(CLIENT_ID && CLIENT_SECRET);
+const musicTwitchAllowed = () => String(process.env.MUSIC_TWITCH_ALLOWED || "").split(",").map(v => v.trim().replace(/^@/, "").toLowerCase()).filter(Boolean);
 const musicRequestRate = new Map();  // ip -> [timestamps]
 const musicChatRequestRate = new Map(); // channel:nickname -> [timestamps]
 const musicChatCooldown = new Map(); // channel:nickname -> last request timestamp
@@ -869,8 +877,8 @@ async function handleMusicApi(req, res, url) {
   try {
     // ── запросы без работы с очередью ──
     if (route === "/api/music/admin/session" && method === "GET") {
-      if (!isAdmin) { if (sessionId) musicSessions.delete(sessionId); return json(200, { authenticated: false }); }
-      return json(200, { authenticated: true, channel: session.channel });
+      if (!isAdmin) { if (sessionId) musicSessions.delete(sessionId); return json(200, { authenticated: false, twitch: musicTwitchAvailable() }); }
+      return json(200, { authenticated: true, channel: session.channel, via: session.via || "password", displayName: session.displayName || session.channel, twitch: musicTwitchAvailable() });
     }
     if (route === "/api/music/metadata" && method === "GET") {
       const vid = String(url.searchParams.get("videoId") || "");
@@ -901,6 +909,60 @@ async function handleMusicApi(req, res, url) {
     if (route === "/api/music/admin/logout" && method === "POST") {
       if (sessionId) musicSessions.delete(sessionId);
       return json(200, { ok: true }, { "Set-Cookie": "music_admin_session=" + cookieFlags + "; Max-Age=0" });
+    }
+
+    // ── Вход через Twitch (OAuth) ──
+    if (route === "/api/music/twitch/connect" && method === "GET") {
+      const back = code => { res.writeHead(302, { Location: "/music-dock?settings=1&twitch_error=" + code, "Cache-Control": "no-store" }); res.end(); };
+      if (!musicTwitchAvailable()) return back("not_configured");
+      if (!takeRateSlot(musicLoginRate, clientIp(req), 10, 10 * 60000)) return back("rate");
+      const state = require("node:crypto").randomBytes(24).toString("hex");
+      musicTwitchStates.set(state, { expiresAt: Date.now() + 10 * 60000 });
+      const redirectUri = String(process.env.TWITCH_MUSIC_REDIRECT_URI || ((isHttps(req) ? "https" : "http") + "://" + (req.headers.host || "localhost") + "/api/music/twitch/callback")).trim();
+      const q = new URLSearchParams({ client_id: CLIENT_ID, redirect_uri: redirectUri, response_type: "code", scope: "", state, force_verify: "true" });
+      // state дополнительно привязываем к браузеру короткой cookie — защита от подмены входа.
+      res.writeHead(302, { Location: TWITCH_ID_BASE + "/oauth2/authorize?" + q.toString(), "Cache-Control": "no-store",
+        "Set-Cookie": "music_oauth_state=" + state + "; HttpOnly; SameSite=Lax; Path=/api/music" + (isHttps(req) ? "; Secure" : "") + "; Max-Age=600" });
+      return res.end();
+    }
+    if (route === "/api/music/twitch/callback" && method === "GET") {
+      const stateCookie = String(req.headers.cookie || "").split(";").map(v => v.trim()).find(v => v.startsWith("music_oauth_state="));
+      const cookieState = stateCookie ? stateCookie.slice("music_oauth_state=".length) : "";
+      const clearState = "music_oauth_state=; HttpOnly; SameSite=Lax; Path=/api/music" + (isHttps(req) ? "; Secure" : "") + "; Max-Age=0";
+      const back = code => { res.writeHead(302, { Location: "/music-dock?settings=1&twitch_error=" + code, "Cache-Control": "no-store", "Set-Cookie": clearState }); res.end(); };
+      const state = String(url.searchParams.get("state") || ""), code = String(url.searchParams.get("code") || "");
+      const saved = musicTwitchStates.get(state); musicTwitchStates.delete(state);
+      if (url.searchParams.get("error")) return back("denied");
+      if (!musicTwitchAvailable()) return back("not_configured");
+      if (!saved || saved.expiresAt < Date.now() || !code || !cookieState || !safeEqual(cookieState, state)) return back("expired");
+      const redirectUri = String(process.env.TWITCH_MUSIC_REDIRECT_URI || ((isHttps(req) ? "https" : "http") + "://" + (req.headers.host || "localhost") + "/api/music/twitch/callback")).trim();
+      let accessToken = "", user = null;
+      try {
+        const tokenResponse = await fetch(TWITCH_ID_BASE + "/oauth2/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ client_id: CLIENT_ID, client_secret: CLIENT_SECRET, code, grant_type: "authorization_code", redirect_uri: redirectUri }), signal: AbortSignal.timeout(12000) });
+        const tokenData = await tokenResponse.json().catch(() => ({}));
+        if (!tokenResponse.ok || !tokenData.access_token) throw new Error("token " + tokenResponse.status);
+        accessToken = tokenData.access_token;
+        const me = await fetch(TWITCH_HELIX_BASE + "/users", { headers: { "Client-Id": CLIENT_ID, Authorization: "Bearer " + accessToken }, signal: AbortSignal.timeout(10000) });
+        const meData = await me.json().catch(() => ({}));
+        if (!me.ok) throw new Error("users " + me.status);
+        user = (meData.data || [])[0] || null;
+      } catch (error) {
+        console.warn("Music Twitch login failed:", error.message);
+        return back("failed");
+      } finally {
+        // Токен нужен только чтобы узнать, чей это аккаунт, — сразу отзываем и нигде не храним.
+        if (accessToken) fetch(TWITCH_ID_BASE + "/oauth2/revoke", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ client_id: CLIENT_ID, token: accessToken }), signal: AbortSignal.timeout(8000) }).catch(() => {});
+      }
+      const login = user ? String(user.login || "").toLowerCase() : "";
+      if (!/^[a-z0-9_]{1,25}$/.test(login)) return back("failed");
+      const allowed = musicTwitchAllowed();
+      if (allowed.length && !allowed.includes(login)) return back("not_allowed");
+      const id = require("node:crypto").randomBytes(32).toString("hex");
+      musicSessions.set(id, { channel: login, expiresAt: Date.now() + 43200000, via: "twitch", displayName: String(user.display_name || login).slice(0, 40) });
+      res.writeHead(302, { Location: "/music-dock?channel=" + encodeURIComponent(login), "Cache-Control": "no-store",
+        "Set-Cookie": ["music_admin_session=" + id + cookieFlags + "; Max-Age=43200", clearState] });
+      return res.end();
     }
 
     // Управление фоновым плейлистом: сам читает тело и ходит в YouTube до блокировки очереди.

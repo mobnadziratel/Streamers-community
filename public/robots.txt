@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://small-streamers.onrender.com/sitemap.xml
